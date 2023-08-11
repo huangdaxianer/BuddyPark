@@ -1,0 +1,609 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005092A86200600BAF934 /* BuddyParkApp.swift */; };
+		F590050C2A86200600BAF934 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F590050B2A86200600BAF934 /* ContentView.swift */; };
+		F590050E2A86200800BAF934 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F590050D2A86200800BAF934 /* Assets.xcassets */; };
+		F59005112A86200800BAF934 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F59005102A86200800BAF934 /* Preview Assets.xcassets */; };
+		F59005132A86200800BAF934 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005122A86200800BAF934 /* Persistence.swift */; };
+		F59005162A86200800BAF934 /* BuddyPark.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F59005142A86200800BAF934 /* BuddyPark.xcdatamodeld */; };
+		F59005202A86200800BAF934 /* BuddyParkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F590051F2A86200800BAF934 /* BuddyParkTests.swift */; };
+		F590052A2A86200800BAF934 /* BuddyParkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005292A86200800BAF934 /* BuddyParkUITests.swift */; };
+		F590052C2A86200800BAF934 /* BuddyParkUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F590052B2A86200800BAF934 /* BuddyParkUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F590051C2A86200800BAF934 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F59004FE2A86200600BAF934 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F59005052A86200600BAF934;
+			remoteInfo = BuddyPark;
+		};
+		F59005262A86200800BAF934 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F59004FE2A86200600BAF934 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F59005052A86200600BAF934;
+			remoteInfo = BuddyPark;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		F59005062A86200600BAF934 /* BuddyPark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BuddyPark.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F59005092A86200600BAF934 /* BuddyParkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuddyParkApp.swift; sourceTree = "<group>"; };
+		F590050B2A86200600BAF934 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F590050D2A86200800BAF934 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F59005102A86200800BAF934 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		F59005122A86200800BAF934 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
+		F59005152A86200800BAF934 /* BuddyPark.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BuddyPark.xcdatamodel; sourceTree = "<group>"; };
+		F590051B2A86200800BAF934 /* BuddyParkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BuddyParkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F590051F2A86200800BAF934 /* BuddyParkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuddyParkTests.swift; sourceTree = "<group>"; };
+		F59005252A86200800BAF934 /* BuddyParkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BuddyParkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F59005292A86200800BAF934 /* BuddyParkUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuddyParkUITests.swift; sourceTree = "<group>"; };
+		F590052B2A86200800BAF934 /* BuddyParkUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuddyParkUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F59005032A86200600BAF934 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F59005182A86200800BAF934 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F59005222A86200800BAF934 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F59004FD2A86200600BAF934 = {
+			isa = PBXGroup;
+			children = (
+				F59005082A86200600BAF934 /* BuddyPark */,
+				F590051E2A86200800BAF934 /* BuddyParkTests */,
+				F59005282A86200800BAF934 /* BuddyParkUITests */,
+				F59005072A86200600BAF934 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F59005072A86200600BAF934 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F59005062A86200600BAF934 /* BuddyPark.app */,
+				F590051B2A86200800BAF934 /* BuddyParkTests.xctest */,
+				F59005252A86200800BAF934 /* BuddyParkUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F59005082A86200600BAF934 /* BuddyPark */ = {
+			isa = PBXGroup;
+			children = (
+				F59005092A86200600BAF934 /* BuddyParkApp.swift */,
+				F590050B2A86200600BAF934 /* ContentView.swift */,
+				F590050D2A86200800BAF934 /* Assets.xcassets */,
+				F59005122A86200800BAF934 /* Persistence.swift */,
+				F59005142A86200800BAF934 /* BuddyPark.xcdatamodeld */,
+				F590050F2A86200800BAF934 /* Preview Content */,
+			);
+			path = BuddyPark;
+			sourceTree = "<group>";
+		};
+		F590050F2A86200800BAF934 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				F59005102A86200800BAF934 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		F590051E2A86200800BAF934 /* BuddyParkTests */ = {
+			isa = PBXGroup;
+			children = (
+				F590051F2A86200800BAF934 /* BuddyParkTests.swift */,
+			);
+			path = BuddyParkTests;
+			sourceTree = "<group>";
+		};
+		F59005282A86200800BAF934 /* BuddyParkUITests */ = {
+			isa = PBXGroup;
+			children = (
+				F59005292A86200800BAF934 /* BuddyParkUITests.swift */,
+				F590052B2A86200800BAF934 /* BuddyParkUITestsLaunchTests.swift */,
+			);
+			path = BuddyParkUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F59005052A86200600BAF934 /* BuddyPark */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F590052F2A86200800BAF934 /* Build configuration list for PBXNativeTarget "BuddyPark" */;
+			buildPhases = (
+				F59005022A86200600BAF934 /* Sources */,
+				F59005032A86200600BAF934 /* Frameworks */,
+				F59005042A86200600BAF934 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BuddyPark;
+			productName = BuddyPark;
+			productReference = F59005062A86200600BAF934 /* BuddyPark.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F590051A2A86200800BAF934 /* BuddyParkTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F59005322A86200800BAF934 /* Build configuration list for PBXNativeTarget "BuddyParkTests" */;
+			buildPhases = (
+				F59005172A86200800BAF934 /* Sources */,
+				F59005182A86200800BAF934 /* Frameworks */,
+				F59005192A86200800BAF934 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F590051D2A86200800BAF934 /* PBXTargetDependency */,
+			);
+			name = BuddyParkTests;
+			productName = BuddyParkTests;
+			productReference = F590051B2A86200800BAF934 /* BuddyParkTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F59005242A86200800BAF934 /* BuddyParkUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F59005352A86200800BAF934 /* Build configuration list for PBXNativeTarget "BuddyParkUITests" */;
+			buildPhases = (
+				F59005212A86200800BAF934 /* Sources */,
+				F59005222A86200800BAF934 /* Frameworks */,
+				F59005232A86200800BAF934 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F59005272A86200800BAF934 /* PBXTargetDependency */,
+			);
+			name = BuddyParkUITests;
+			productName = BuddyParkUITests;
+			productReference = F59005252A86200800BAF934 /* BuddyParkUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F59004FE2A86200600BAF934 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1430;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					F59005052A86200600BAF934 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+					F590051A2A86200800BAF934 = {
+						CreatedOnToolsVersion = 14.3.1;
+						TestTargetID = F59005052A86200600BAF934;
+					};
+					F59005242A86200800BAF934 = {
+						CreatedOnToolsVersion = 14.3.1;
+						TestTargetID = F59005052A86200600BAF934;
+					};
+				};
+			};
+			buildConfigurationList = F59005012A86200600BAF934 /* Build configuration list for PBXProject "BuddyPark" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F59004FD2A86200600BAF934;
+			productRefGroup = F59005072A86200600BAF934 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F59005052A86200600BAF934 /* BuddyPark */,
+				F590051A2A86200800BAF934 /* BuddyParkTests */,
+				F59005242A86200800BAF934 /* BuddyParkUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F59005042A86200600BAF934 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F59005112A86200800BAF934 /* Preview Assets.xcassets in Resources */,
+				F590050E2A86200800BAF934 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F59005192A86200800BAF934 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F59005232A86200800BAF934 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F59005022A86200600BAF934 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F59005162A86200800BAF934 /* BuddyPark.xcdatamodeld in Sources */,
+				F59005132A86200800BAF934 /* Persistence.swift in Sources */,
+				F590050C2A86200600BAF934 /* ContentView.swift in Sources */,
+				F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F59005172A86200800BAF934 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F59005202A86200800BAF934 /* BuddyParkTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F59005212A86200800BAF934 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F590052A2A86200800BAF934 /* BuddyParkUITests.swift in Sources */,
+				F590052C2A86200800BAF934 /* BuddyParkUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F590051D2A86200800BAF934 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F59005052A86200600BAF934 /* BuddyPark */;
+			targetProxy = F590051C2A86200800BAF934 /* PBXContainerItemProxy */;
+		};
+		F59005272A86200800BAF934 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F59005052A86200600BAF934 /* BuddyPark */;
+			targetProxy = F59005262A86200800BAF934 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F590052D2A86200800BAF934 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F590052E2A86200800BAF934 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F59005302A86200800BAF934 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"BuddyPark/Preview Content\"";
+				DEVELOPMENT_TEAM = 4R46BG4QL5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.penghaohuang.BuddyPark;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F59005312A86200800BAF934 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"BuddyPark/Preview Content\"";
+				DEVELOPMENT_TEAM = 4R46BG4QL5;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.penghaohuang.BuddyPark;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		F59005332A86200800BAF934 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4R46BG4QL5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.penghaohuang.BuddyParkTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BuddyPark.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BuddyPark";
+			};
+			name = Debug;
+		};
+		F59005342A86200800BAF934 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4R46BG4QL5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.penghaohuang.BuddyParkTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BuddyPark.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BuddyPark";
+			};
+			name = Release;
+		};
+		F59005362A86200800BAF934 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4R46BG4QL5;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.penghaohuang.BuddyParkUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BuddyPark;
+			};
+			name = Debug;
+		};
+		F59005372A86200800BAF934 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4R46BG4QL5;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.penghaohuang.BuddyParkUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BuddyPark;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F59005012A86200600BAF934 /* Build configuration list for PBXProject "BuddyPark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F590052D2A86200800BAF934 /* Debug */,
+				F590052E2A86200800BAF934 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F590052F2A86200800BAF934 /* Build configuration list for PBXNativeTarget "BuddyPark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F59005302A86200800BAF934 /* Debug */,
+				F59005312A86200800BAF934 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F59005322A86200800BAF934 /* Build configuration list for PBXNativeTarget "BuddyParkTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F59005332A86200800BAF934 /* Debug */,
+				F59005342A86200800BAF934 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F59005352A86200800BAF934 /* Build configuration list for PBXNativeTarget "BuddyParkUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F59005362A86200800BAF934 /* Debug */,
+				F59005372A86200800BAF934 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		F59005142A86200800BAF934 /* BuddyPark.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				F59005152A86200800BAF934 /* BuddyPark.xcdatamodel */,
+			);
+			currentVersion = F59005152A86200800BAF934 /* BuddyPark.xcdatamodel */;
+			path = BuddyPark.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = F59004FE2A86200600BAF934 /* Project object */;
+}
