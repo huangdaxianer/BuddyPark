@@ -38,7 +38,7 @@ struct SwipeView: View {
             Spacer()
             HStack{
                 Spacer()
-         //       GradientOutlineButton(action:{swipeAction = .swipeLeft}, iconName: "multiply", colors: AppColor.dislikeColors)
+          //      GradientOutlineButton(action:{swipeAction = .swipeLeft}, iconName: "multiply", colors: AppColor.dislikeColors)
                 Spacer()
          //       GradientOutlineButton(action: {swipeAction = .swipeRight}, iconName: "heart", colors: AppColor.likeColors)
                 Spacer()
@@ -242,21 +242,21 @@ struct SwipeCardView: View {
     }
 }
 
-
 struct SwipeView_Previews: PreviewProvider {
     @State static private var profiles: [ProfileCardModel] = [
-        ProfileCardModel(userId: "defdwsfewfes", name: "11111", age: 50, pictures: [UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!]),
-        ProfileCardModel(userId: "defdwsfewfes", name: "22222", age: 50, pictures: [UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!]),
-        ProfileCardModel(userId: "defdwsfewfes", name: "33333", age: 50, pictures: [UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!,UIImage(named: "elon_musk")!]),
-        ProfileCardModel(userId: "defdwsfewfes", name: "44444", age: 50, pictures: [UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!,UIImage(named: "jeff_bezos")!])
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "11111", age: 50, pictures: [UIImage(named: "elon_musk")!]),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "22222", age: 50, pictures: [UIImage(named: "jeff_bezos")!]),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "33333", age: 50, pictures: [UIImage(named: "elon_musk")!]),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "44444", age: 50, pictures: [UIImage(named: "jeff_bezos")!])
     ]
     static var previews: some View {
         SwipeView(profiles: $profiles, onSwiped: {_,_ in})
     }
 }
 
+
 struct ProfileCardModel {
-    let userId: String
+    let characterId: Int32
     let name: String
     let age: Int
     let pictures: [UIImage]

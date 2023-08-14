@@ -1,21 +1,13 @@
-//
-//  HomeView.swift
-//  BuddyPark
-//
-//  Created by 黄鹏昊 on 2023/8/11.
-//
-
 import SwiftUI
 
 struct HomeView: View {
     @StateObject private var profileData = ProfileData()
+    @StateObject private var viewModel = HomeViewModel()
 
     var body: some View {
         TabView {
             // 第一个 Tab，展示 SwipeView
-            SwipeView(profiles: $profileData.profiles, onSwiped: { _, _ in
-                // 这里是 swipeUser 的方法，你可以留空或添加自己的逻辑
-            })
+            SwipeView(profiles: $profileData.profiles, onSwiped: viewModel.onSwiped)
             .tabItem {
                 Label("Swipe", systemImage: "rectangle.stack")
             }
@@ -23,6 +15,7 @@ struct HomeView: View {
             
             // 第二个 Tab，进入已经写好的 ContentView
             MessageListView()
+                .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext) // 设置环境对象
                 .tabItem {
                     Label("Tab 2", systemImage: "square.and.pencil")
                 }
@@ -35,6 +28,7 @@ struct HomeView: View {
         }
     }
 }
+
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
