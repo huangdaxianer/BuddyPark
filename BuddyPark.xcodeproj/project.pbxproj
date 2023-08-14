@@ -19,6 +19,8 @@
 		F59005392A86215800BAF934 /* SwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005382A86215800BAF934 /* SwipeView.swift */; };
 		F590053B2A86225F00BAF934 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F590053A2A86225F00BAF934 /* Extensions.swift */; };
 		F590053D2A86246000BAF934 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F590053C2A86246000BAF934 /* HomeView.swift */; };
+		F59005482A89F3E300BAF934 /* MessageListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005472A89F3E300BAF934 /* MessageListView.swift */; };
+		F590054A2A89F40500BAF934 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005492A89F40500BAF934 /* MessageView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +56,8 @@
 		F59005382A86215800BAF934 /* SwipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeView.swift; sourceTree = "<group>"; };
 		F590053A2A86225F00BAF934 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		F590053C2A86246000BAF934 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		F59005472A89F3E300BAF934 /* MessageListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageListView.swift; sourceTree = "<group>"; };
+		F59005492A89F40500BAF934 /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +109,8 @@
 			isa = PBXGroup;
 			children = (
 				F59005092A86200600BAF934 /* BuddyParkApp.swift */,
+				F59005472A89F3E300BAF934 /* MessageListView.swift */,
+				F59005492A89F40500BAF934 /* MessageView.swift */,
 				F59005382A86215800BAF934 /* SwipeView.swift */,
 				F590053C2A86246000BAF934 /* HomeView.swift */,
 				F590053A2A86225F00BAF934 /* Extensions.swift */,
@@ -275,7 +281,9 @@
 				F59005162A86200800BAF934 /* BuddyPark.xcdatamodeld in Sources */,
 				F590053D2A86246000BAF934 /* HomeView.swift in Sources */,
 				F590053B2A86225F00BAF934 /* Extensions.swift in Sources */,
+				F590054A2A89F40500BAF934 /* MessageView.swift in Sources */,
 				F59005132A86200800BAF934 /* Persistence.swift in Sources */,
+				F59005482A89F3E300BAF934 /* MessageListView.swift in Sources */,
 				F590050C2A86200600BAF934 /* ContentView.swift in Sources */,
 				F59005392A86215800BAF934 /* SwipeView.swift in Sources */,
 				F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */,
