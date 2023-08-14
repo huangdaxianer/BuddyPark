@@ -6,11 +6,7 @@ struct MessageListView: View {
     @FetchRequest(
         entity: BuddyContact.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \BuddyContact.name, ascending: true)]
-    ) private var contacts: FetchedResults<BuddyContact> {
-        didSet {
-            print("Fetched \(contacts.count) contacts.") // 当contacts发生改变时打印信息
-        }
-    }
+    ) private var contacts: FetchedResults<BuddyContact>
     
     var body: some View {
         NavigationView {
@@ -18,22 +14,34 @@ struct MessageListView: View {
                 NavigationLink(
                     destination: Text("Detail for \(contact.name ?? "")")
                 ) {
-                    Text(contact.name ?? "")
-                }
-                .onAppear {
-                    print("NavigationLink for \(contact.name ?? "") appeared.") // 当单个联系人的NavigationLink出现时打印信息
+                    HStack {
+                        // 头像
+                        Image(contact.name ?? "")
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                        // 名字和最后一条消息
+                        VStack(alignment: .leading) {
+                            Text(contact.name ?? "")
+                                .font(.headline)
+                            Text(contact.lastMessage ?? "")
+                                .font(.subheadline)
+                        }
+                        Spacer()
+                        // 最后一条消息的发送时间
+                        Text(contact.updateTime != nil ? DateFormatter.localizedString(from: contact.updateTime!, dateStyle: .short, timeStyle: .short) : "")
+                            .font(.footnote)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.vertical, 10) // 增加垂直填充来增加行距
                 }
             }
             .navigationTitle("Messages")
-            .onAppear {
-                print("MessageListView appeared.") // 当MessageListView出现时打印信息
-            }
-        }
-        .onAppear {
-            print("NavigationView appeared with \(contacts.count) contacts.") // 当NavigationView出现时打印信息
         }
     }
 }
+
+
 
 struct MessageListView_Previews: PreviewProvider {
     static var previews: some View {
@@ -43,13 +51,15 @@ struct MessageListView_Previews: PreviewProvider {
     static var preview: PersistenceController = {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
-
+        
         // 随机填充一些名字
-        let names = ["Alice", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Helen"]
+        let names = ["junxi", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Helen"]
         for name in names {
             let buddyContact = BuddyContact(context: viewContext)
             buddyContact.name = name
             buddyContact.characterid = Int32.random(in: 1000...9999)
+            buddyContact.lastMessage = "最近怎么样？" // 填充最后一条消息
+            buddyContact.updateTime = Date() // 填充当前时间
         }
 
         do {
@@ -63,6 +73,7 @@ struct MessageListView_Previews: PreviewProvider {
         return result
     }()
 }
+
 
 
 
