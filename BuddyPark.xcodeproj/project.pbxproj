@@ -16,6 +16,9 @@
 		F59005202A86200800BAF934 /* BuddyParkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F590051F2A86200800BAF934 /* BuddyParkTests.swift */; };
 		F590052A2A86200800BAF934 /* BuddyParkUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005292A86200800BAF934 /* BuddyParkUITests.swift */; };
 		F590052C2A86200800BAF934 /* BuddyParkUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F590052B2A86200800BAF934 /* BuddyParkUITestsLaunchTests.swift */; };
+		F59005392A86215800BAF934 /* SwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005382A86215800BAF934 /* SwipeView.swift */; };
+		F590053B2A86225F00BAF934 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F590053A2A86225F00BAF934 /* Extensions.swift */; };
+		F590053D2A86246000BAF934 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F590053C2A86246000BAF934 /* HomeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +51,9 @@
 		F59005252A86200800BAF934 /* BuddyParkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BuddyParkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F59005292A86200800BAF934 /* BuddyParkUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuddyParkUITests.swift; sourceTree = "<group>"; };
 		F590052B2A86200800BAF934 /* BuddyParkUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuddyParkUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		F59005382A86215800BAF934 /* SwipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeView.swift; sourceTree = "<group>"; };
+		F590053A2A86225F00BAF934 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		F590053C2A86246000BAF934 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +105,9 @@
 			isa = PBXGroup;
 			children = (
 				F59005092A86200600BAF934 /* BuddyParkApp.swift */,
+				F59005382A86215800BAF934 /* SwipeView.swift */,
+				F590053C2A86246000BAF934 /* HomeView.swift */,
+				F590053A2A86225F00BAF934 /* Extensions.swift */,
 				F590050B2A86200600BAF934 /* ContentView.swift */,
 				F590050D2A86200800BAF934 /* Assets.xcassets */,
 				F59005122A86200800BAF934 /* Persistence.swift */,
@@ -264,8 +273,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				F59005162A86200800BAF934 /* BuddyPark.xcdatamodeld in Sources */,
+				F590053D2A86246000BAF934 /* HomeView.swift in Sources */,
+				F590053B2A86225F00BAF934 /* Extensions.swift in Sources */,
 				F59005132A86200800BAF934 /* Persistence.swift in Sources */,
 				F590050C2A86200600BAF934 /* ContentView.swift in Sources */,
+				F59005392A86215800BAF934 /* SwipeView.swift in Sources */,
 				F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
