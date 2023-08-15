@@ -15,15 +15,15 @@ class HomeViewModel: ObservableObject {
     func onSwiped(userProfile: ProfileCardModel, hasLiked: Bool) {
         if hasLiked {
             let context = PersistenceController.shared.container.viewContext
-            let buddyContact = BuddyContact(context: context)
-            buddyContact.characterid = Int32(userProfile.characterId) ?? 0
-            buddyContact.name = userProfile.name
-            buddyContact.lastMessage = "你好啊"
-            buddyContact.updateTime = Date() // 写入现在的时间
+            let contact = Contact(context: context)
+            contact.characterid = Int32(userProfile.characterId)
+            contact.name = userProfile.name
+            contact.lastMessage = "你好啊"
+            contact.updateTime = Date() // 写入现在的时间
 
             do {
                 try context.save()
-                printAllBuddyContacts()
+                printAllContacts()
                 print("保存成功!")
             } catch {
                 print("保存失败: \(error.localizedDescription)")
@@ -31,9 +31,9 @@ class HomeViewModel: ObservableObject {
         }
     }
     
-    func printAllBuddyContacts() {
+    func printAllContacts() {
         let context = PersistenceController.shared.container.viewContext
-        let fetchRequest = NSFetchRequest<BuddyContact>(entityName: "BuddyContact")
+        let fetchRequest = NSFetchRequest<Contact>(entityName: "Contact")
         
         do {
             let contacts = try context.fetch(fetchRequest)

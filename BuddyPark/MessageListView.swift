@@ -4,9 +4,9 @@ import CoreData
 struct MessageListView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
-        entity: BuddyContact.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \BuddyContact.name, ascending: true)]
-    ) private var contacts: FetchedResults<BuddyContact>
+        entity: Contact.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Contact.name, ascending: true)]
+    ) private var contacts: FetchedResults<Contact>
     
     var body: some View {
         NavigationView {
@@ -55,11 +55,11 @@ struct MessageListView_Previews: PreviewProvider {
         // 随机填充一些名字
         let names = ["junxi", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Helen"]
         for name in names {
-            let buddyContact = BuddyContact(context: viewContext)
-            buddyContact.name = name
-            buddyContact.characterid = Int32.random(in: 1000...9999)
-            buddyContact.lastMessage = "最近怎么样？" // 填充最后一条消息
-            buddyContact.updateTime = Date() // 填充当前时间
+            let contact = Contact(context: viewContext)
+            contact.name = name
+            contact.characterid = Int32.random(in: 1000...9999)
+            contact.lastMessage = "最近怎么样？" // 填充最后一条消息
+            contact.updateTime = Date() // 填充当前时间
         }
 
         do {

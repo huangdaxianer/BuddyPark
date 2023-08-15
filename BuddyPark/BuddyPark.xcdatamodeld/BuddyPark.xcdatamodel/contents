@@ -1,21 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22F82" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="BuddyCard" representedClassName="BuddyCard" syncable="YES" codeGenerationType="class">
+    <entity name="Character" representedClassName="Character" syncable="YES" codeGenerationType="class">
         <attribute name="age" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="characterid" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="prompt" optional="YES" attributeType="String"/>
+        <relationship name="associatedContact" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Contact" inverseName="associatedCharacter" inverseEntity="Contact"/>
     </entity>
-    <entity name="BuddyContact" representedClassName="BuddyContact" syncable="YES" codeGenerationType="class">
+    <entity name="Contact" representedClassName="Contact" syncable="YES" codeGenerationType="class">
         <attribute name="characterid" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="lastMessage" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="updateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="associatedCharacter" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Character" inverseName="associatedContact" inverseEntity="Character"/>
+        <relationship name="containedMessage" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Message" inverseName="associatedContact" inverseEntity="Message"/>
     </entity>
     <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
     </entity>
-    <entity name="LaunchCount" representedClassName="LaunchCount" syncable="YES" codeGenerationType="class">
-        <attribute name="count" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+    <entity name="Message" representedClassName="Message" syncable="YES" codeGenerationType="class">
+        <attribute name="characterid" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="content" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="role" optional="YES" attributeType="String"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="associatedContact" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Contact" inverseName="containedMessage" inverseEntity="Contact"/>
     </entity>
 </model>

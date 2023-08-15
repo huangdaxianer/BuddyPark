@@ -76,3 +76,98 @@ class AppColor{
     
 }
 
+struct UIKitTextFieldRepresentable: UIViewRepresentable {
+    @Binding var text: String
+    @Binding var isFirstResponder: Bool
+    var onCommit: () -> Void
+    
+    func makeUIView(context: Context) -> UITextField {
+        let textField = UITextField()
+        textField.delegate = context.coordinator
+        textField.returnKeyType = .send
+        textField.enablesReturnKeyAutomatically = true
+        
+        textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        
+        let scrollView = UIScrollView()
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.addSubview(textField)
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            textField.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            textField.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            textField.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            textField.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            textField.heightAnchor.constraint(equalTo: scrollView.heightAnchor)
+        ])
+        
+        return textField
+    }
+    
+    func updateUIView(_ uiView: UITextField, context: Context) {
+        if isFirstResponder && !uiView.isFirstResponder {
+            uiView.becomeFirstResponder()
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UITextFieldDelegate {
+        var parent: UIKitTextFieldRepresentable
+        
+        init(_ textField: UIKitTextFieldRepresentable) {
+            self.parent = textField
+        }
+        
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            parent.text = textField.text ?? ""
+            parent.onCommit()
+            textField.text = "" // 清空输入框
+            textField.becomeFirstResponder() // 保持键盘不收起
+            if let scrollView = textField.superview as? UIScrollView {
+                scrollView.setContentOffset(CGPoint(x: max(0, textField.frame.width - scrollView.frame.width), y: 0), animated: true)
+            }
+            return false // 这将阻止键盘的默认行为，即按下 "Return" 键后收起键盘
+        }
+        
+        func textFieldDidEndEditing(_ textField: UITextField) {
+            parent.text = textField.text ?? ""
+            parent.isFirstResponder = false
+        }
+    }
+}
+
+
+extension Date {
+    func formatTimestamp() -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.day], from: self, to: now)
+        
+        guard let day = components.day else {
+            return ""
+        }
+        
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_CN")
+        
+        if calendar.isDateInToday(self) {
+            // 如果消息是今天发送的，只显示时间
+            formatter.dateFormat = "ahh:mm"
+        } else if calendar.isDateInYesterday(self) {
+            // 如果消息是昨天发送的，显示昨天和时间
+            formatter.dateFormat = "'昨天' ahh:mm"
+        } else if day <= 7 {
+            // 如果消息在7天内发送，显示星期几和时间
+            formatter.dateFormat = "EEEE ahh:mm"
+        } else {
+            // 其他情况，显示日期和时间
+            formatter.dateFormat = "MM月dd日 ahh:mm"
+        }
+        
+        return formatter.string(from: self)
+    }
+}
