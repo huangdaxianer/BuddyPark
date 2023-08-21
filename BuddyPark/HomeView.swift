@@ -1,8 +1,11 @@
 import SwiftUI
 
 struct HomeView: View {
+    @Environment(\.managedObjectContext) private var viewContext
     @StateObject private var profileData = ProfileData()
     @StateObject private var viewModel = HomeViewModel()
+    @ObservedObject var sessionManager: SessionManager
+
 
     var body: some View {
         TabView {
@@ -15,7 +18,8 @@ struct HomeView: View {
             
             // 第二个 Tab，进入已经写好的 ContentView
             MessageListView()
-                .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext) // 设置环境对象
+                .environment(\.managedObjectContext, viewContext) // 设置环境对象
+                .environmentObject(sessionManager) // 添加 sessionManager 作为环境对象
                 .tabItem {
                     Label("Tab 2", systemImage: "square.and.pencil")
                 }
@@ -30,8 +34,8 @@ struct HomeView: View {
 }
 
 
-struct HomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeView()
-    }
-}
+//struct HomeView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        HomeView()
+//    }
+//}

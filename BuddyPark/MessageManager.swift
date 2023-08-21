@@ -4,7 +4,7 @@ import AudioToolbox
 import Combine
 import UIKit
 
-class SessionManager {
+class SessionManager: ObservableObject {
     private var sessions: [Int32: MessageManager] = [:]
     private let context: NSManagedObjectContext // 添加 context 属性
 
@@ -24,20 +24,16 @@ class SessionManager {
     }
 }
 
-
-
-
-class MessageManager: ObservableObject {
-    
-    @Published private(set) var messages: [LocalMessage] = []
+class MessageManager: ObservableObject {    
+    @Published var messages: [LocalMessage] = []
     @Published var lastUpdated = Date()
     @Published var isTyping = false
     private var contact: Contact // 添加 Contact 实体
 
     init(characterid: Int32, context: NSManagedObjectContext) {
         let fetchRequest: NSFetchRequest<Contact> = Contact.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "characterid == %@", characterid)
-        
+        fetchRequest.predicate = NSPredicate(format: "characterid == %d", characterid)
+
         do {
             let contacts = try context.fetch(fetchRequest)
             guard let contact = contacts.first else {
@@ -52,6 +48,10 @@ class MessageManager: ObservableObject {
         messages = loadMessages()
   //      self.sendRequest(type: .appRestart)
   //      setupNotificationObserver()
+    }
+    
+    var contactName: String {
+        return contact.name ?? "未知联系人"
     }
     
     private func loadMessages() -> [LocalMessage] {
@@ -74,7 +74,7 @@ class MessageManager: ObservableObject {
         print("Loaded messages: \(messagesArray)")
         return messagesArray
     }
-
+}
     
     //新方法就是输入所有完整的消息，只比长短，然后更新消息
 //    func appendFullMessage(_ newMessage: LocalMessage,
@@ -370,8 +370,7 @@ class MessageManager: ObservableObject {
 //            }
 //        }.resume()
 //    }
-    
-}
+
 
 //本地存储的时候会有 MessageID
 extension LocalMessage {

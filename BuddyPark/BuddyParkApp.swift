@@ -3,10 +3,19 @@ import SwiftUI
 @main
 struct BuddyParkApp: App {
     let persistenceController = PersistenceController.shared
+    @StateObject var sessionManager: SessionManager
+
+    init() {
+        let context = persistenceController.container.viewContext
+        _sessionManager = StateObject(wrappedValue: SessionManager(context: context))
+    }
+
 
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            HomeView(sessionManager: sessionManager)
+                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                 .environmentObject(sessionManager) // 传递 SessionManager 作为环境对象
         }
     }
 }
