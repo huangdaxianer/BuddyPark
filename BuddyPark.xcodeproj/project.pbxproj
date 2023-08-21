@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005092A86200600BAF934 /* BuddyParkApp.swift */; };
-		F590050C2A86200600BAF934 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F590050B2A86200600BAF934 /* ContentView.swift */; };
 		F590050E2A86200800BAF934 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F590050D2A86200800BAF934 /* Assets.xcassets */; };
 		F59005112A86200800BAF934 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F59005102A86200800BAF934 /* Preview Assets.xcassets */; };
 		F59005132A86200800BAF934 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005122A86200800BAF934 /* Persistence.swift */; };
@@ -45,7 +44,6 @@
 /* Begin PBXFileReference section */
 		F59005062A86200600BAF934 /* BuddyPark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BuddyPark.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F59005092A86200600BAF934 /* BuddyParkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuddyParkApp.swift; sourceTree = "<group>"; };
-		F590050B2A86200600BAF934 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F590050D2A86200800BAF934 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F59005102A86200800BAF934 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		F59005122A86200800BAF934 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
@@ -120,7 +118,6 @@
 				F590053C2A86246000BAF934 /* HomeView.swift */,
 				F590054F2A8A068F00BAF934 /* HomeViewModel.swift */,
 				F590053A2A86225F00BAF934 /* Extensions.swift */,
-				F590050B2A86200600BAF934 /* ContentView.swift */,
 				F590050D2A86200800BAF934 /* Assets.xcassets */,
 				F59005122A86200800BAF934 /* Persistence.swift */,
 				F59005142A86200800BAF934 /* BuddyPark.xcdatamodeld */,
@@ -291,7 +288,6 @@
 				F590054A2A89F40500BAF934 /* MessageView.swift in Sources */,
 				F59005132A86200800BAF934 /* Persistence.swift in Sources */,
 				F59005482A89F3E300BAF934 /* MessageListView.swift in Sources */,
-				F590050C2A86200600BAF934 /* ContentView.swift in Sources */,
 				F59005392A86215800BAF934 /* SwipeView.swift in Sources */,
 				F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */,
 				F59005522A8A204000BAF934 /* MessageManager.swift in Sources */,

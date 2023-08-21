@@ -116,7 +116,7 @@ struct MessageView: View {
                 
             }
             .navigationBarTitle(Text(messageManager.isTyping ? "对方正在输入..." : messageManager.contactName), displayMode: .inline)
-            .navigationViewStyle(.stack)
+            //.navigationViewStyle(.stack)
             //              .environmentObject(avatarUpdater)
         }
     }

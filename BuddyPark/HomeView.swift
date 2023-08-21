@@ -6,7 +6,6 @@ struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @ObservedObject var sessionManager: SessionManager
 
-
     var body: some View {
         TabView {
             // 第一个 Tab，展示 SwipeView
@@ -23,19 +22,18 @@ struct HomeView: View {
                 .tabItem {
                     Label("Tab 2", systemImage: "square.and.pencil")
                 }
-
-            // 第三个 Tab，进入已经写好的 ContentView
-            ContentView()
-                .tabItem {
-                    Label("Tab 3", systemImage: "plus")
-                }
         }
     }
 }
 
 
-//struct HomeView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        HomeView()
-//    }
-//}
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        let context = PersistenceController.preview.container.viewContext
+        let sessionManager = SessionManager(context: context)
+
+        return HomeView(sessionManager: sessionManager)
+            .environment(\.managedObjectContext, context)
+    }
+}
+
