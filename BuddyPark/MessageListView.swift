@@ -46,6 +46,8 @@ struct MessageListView: View {
                 }
             }
             .navigationTitle("Messages")
+            .navigationBarTitleDisplayMode(.inline) // 添加这一行来禁用大标题样式
+
         }
     }
 }
