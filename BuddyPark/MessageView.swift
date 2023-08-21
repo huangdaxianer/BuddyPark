@@ -59,7 +59,6 @@ struct MessageView: View {
     }
     
     var body: some View {
-        NavigationView {
             VStack {
                 ScrollViewReader { scrollViewProxy in
                     ScrollView {
@@ -118,7 +117,6 @@ struct MessageView: View {
             .navigationBarTitle(Text(messageManager.isTyping ? "对方正在输入..." : messageManager.contactName), displayMode: .inline)
             //.navigationViewStyle(.stack)
             //              .environmentObject(avatarUpdater)
-        }
     }
 }
     
