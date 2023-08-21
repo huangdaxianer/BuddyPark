@@ -46,7 +46,7 @@
 //}
 //
 //struct MessageView: View {
-//    @ObservedObject var messageManager = MessageManager.shared
+////    @ObservedObject var messageManager = MessageManager.shared
 //    @StateObject var userInput = UserInput()
 //    @State var isFirstResponder: Bool = true
 //    @State private var showingAlert = false

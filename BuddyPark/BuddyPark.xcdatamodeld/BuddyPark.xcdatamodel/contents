@@ -13,7 +13,7 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="updateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="associatedCharacter" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Character" inverseName="associatedContact" inverseEntity="Character"/>
-        <relationship name="containedMessage" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Message" inverseName="associatedContact" inverseEntity="Message"/>
+        <relationship name="messages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Message" inverseName="associatedContact" inverseEntity="Message"/>
     </entity>
     <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -24,6 +24,6 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="role" optional="YES" attributeType="String"/>
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="associatedContact" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Contact" inverseName="containedMessage" inverseEntity="Contact"/>
+        <relationship name="associatedContact" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Contact" inverseName="messages" inverseEntity="Contact"/>
     </entity>
 </model>

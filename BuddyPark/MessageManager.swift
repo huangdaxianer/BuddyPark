@@ -1,38 +1,82 @@
-//import Foundation
-//import AudioToolbox
-//import Combine
-//import UIKit
-//
-//class SessionManager {
-//    private var sessions: [Int32: MessageManager] = [:]
-//    func session(for characterid: Int32) -> MessageManager {
-//        if let session = sessions[characterid] {
-//            return session
-//        } else {
-//            let newSession = MessageManager(characterid: characterid) // 创建新的MessageManager实例时传递characterid
-//            sessions[characterid] = newSession
-//            return newSession
-//        }
-//    }
-//}
-//
-//
-//
-//class MessageManager: ObservableObject {
-//    
-//    @Published private(set) var messages: [LocalMessage] = []
-//    @Published var lastUpdated = Date()
-//    @Published var isTyping = false
-//    let characterid: Int32
-//
-//    init(characterid: Int32) {
-//        self.characterid = characterid
-//        messages = loadMessages()
-//        self.sendRequest(type: .appRestart)
-//        setupNotificationObserver()
-//    }
-//    
-//    //新方法就是输入所有完整的消息，只比长短，然后更新消息
+import Foundation
+import CoreData
+import AudioToolbox
+import Combine
+import UIKit
+
+class SessionManager {
+    private var sessions: [Int32: MessageManager] = [:]
+    private let context: NSManagedObjectContext // 添加 context 属性
+
+    // 添加构造函数以接收 context
+    init(context: NSManagedObjectContext) {
+        self.context = context
+    }
+
+    func session(for characterid: Int32) -> MessageManager {
+        if let session = sessions[characterid] {
+            return session
+        } else {
+            let newSession = MessageManager(characterid: characterid, context: context) // 传递 context 参数
+            sessions[characterid] = newSession
+            return newSession
+        }
+    }
+}
+
+
+
+
+class MessageManager: ObservableObject {
+    
+    @Published private(set) var messages: [LocalMessage] = []
+    @Published var lastUpdated = Date()
+    @Published var isTyping = false
+    private var contact: Contact // 添加 Contact 实体
+
+    init(characterid: Int32, context: NSManagedObjectContext) {
+        let fetchRequest: NSFetchRequest<Contact> = Contact.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "characterid == %@", characterid)
+        
+        do {
+            let contacts = try context.fetch(fetchRequest)
+            guard let contact = contacts.first else {
+                fatalError("未找到与 characterid 匹配的 Contact")
+            }
+            self.contact = contact
+        } catch {
+            fatalError("获取 Contact 失败: \(error)")
+        }
+        
+        messages = []
+        messages = loadMessages()
+  //      self.sendRequest(type: .appRestart)
+  //      setupNotificationObserver()
+    }
+    
+    private func loadMessages() -> [LocalMessage] {
+        // 获取联系人关联的消息
+        guard let messagesSet = contact.messages as? Set<Message> else {
+            print("Failed to cast messages to correct type.")
+            return []
+        }
+
+        // 转换为 LocalMessage 数组并按 timestamp 排序
+        let messagesArray = messagesSet.map { message -> LocalMessage in
+            return LocalMessage(
+                id: message.id,
+                role: ServerMessage.Role(rawValue: message.role ?? "") ?? .user, // 使用 .user 作为默认值
+                content: message.content ?? "",
+                timestamp: message.timestamp ?? Date()
+            )
+        }.sorted(by: { $0.timestamp < $1.timestamp })
+
+        print("Loaded messages: \(messagesArray)")
+        return messagesArray
+    }
+
+    
+    //新方法就是输入所有完整的消息，只比长短，然后更新消息
 //    func appendFullMessage(_ newMessage: LocalMessage,
 //                           lastUserReplyFromServer: String?,
 //                           isFromBackground: Bool? = nil,
@@ -44,7 +88,7 @@
 //            if isFromBackground == true {
 //                self.messages = self.loadMessages()
 //            }
-//            
+//
 //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
 //                self.isTyping = false
 //            }
@@ -83,16 +127,16 @@
 //                //这里实际上不能直接 return，还是要稍微研究一下逻辑
 //                return
 //            }
-//             
+//
 //             self.isTyping = false
-//             
+//
 //             if newMessage.content.last == "#" {
 //                 // 如果是的话，就在 1.5 秒后再把  self.isTyping 设置成 true
 //                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
 //                     self.isTyping = true
 //                 }
 //             }
-//             
+//
 //            // 先判断是不是收到的首条 assistant 的消息，如果不是且如果新消息比最后一条消息长，使用新消息替换最后一条消息
 //             if let lastMessage = messages.last {
 //                      if lastMessage.role == .user {
@@ -137,7 +181,7 @@
 //        }
 //        print("Saved messages: \(messages)")
 //    }
-//    
+//
 //    func saveMessages() {
 //            let encoder = JSONEncoder()
 //            do {
@@ -168,10 +212,10 @@
 //        urlRequest.setValue(deviceToken, forHTTPHeaderField: "X-Device-Token")
 //        urlRequest.setValue(encodedPrompt, forHTTPHeaderField: "X-Prompt")
 //        print("正在通过 sendrequest 发送消息，type 是", RequestType.self)
-//        
+//
 //        // Set timeout interval
 //        urlRequest.timeoutInterval = 60.0
-//        
+//
 //        if type == .newMessage {
 //            // 获取现有的 freeMessageLeft 值
 //            let userDefaults = UserDefaults(suiteName: appGroupName)
@@ -202,18 +246,18 @@
 //            urlRequest.httpMethod = "GET"
 //        }
 //
-//        
+//
 //        URLSession.shared.dataTask(with: urlRequest) { data, response, error in
 //            if let error = error {
 //                print("Error fetching message: \(error.localizedDescription)")
-//                
+//
 //                // If the error can be cast as an NSError, print more detailed information
 //                if let nsError = error as NSError? {
 //                    print("Error domain: \(nsError.domain)")
 //                    print("Error code: \(nsError.code)")
 //                    print("Error user info: \(nsError.userInfo)")
 //                }
-//                
+//
 //                // 超时重试
 //                if (error as NSError).code == NSURLErrorTimedOut && retryOnTimeout {
 //                    self.sendRequest(type: .appRestart, retryOnTimeout: false)
@@ -221,7 +265,7 @@
 //                }
 //                return
 //            }
-//            
+//
 //            if let data = data {
 //                do {
 //                    let decoder = JSONDecoder()
@@ -235,12 +279,12 @@
 //            }
 //        }.resume()
 //    }
-//    
+//
 //    func testNetwork() {
 //        let testNetworkURL = URL(string: "https://service-ly7fdync-1251732024.jp.apigw.tencentcs.com/release/")
 //        var request = URLRequest(url: testNetworkURL!)
 //        request.httpMethod = "GET"
-//            
+//
 //        let task = URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
 //            if let _ = error {
 //                // 处理错误，例如你可以打印错误信息，或者显示一个错误提示给用户
@@ -258,27 +302,16 @@
 //        case newMessage = "new-message"
 //        case appRestart = "app-restart"
 //    }
-//    
+//
 //    //这个方法是用来处理后台发送消息刷新的操作，因为新加载一个 loadMessage 可以引起 message 的变化，这样就能让前台的消息更新
 //    func reloadMessages() {
 //        messages = loadMessages()
 //    }
-//    
-//    private func loadMessages() -> [LocalMessage] {
-//        let decoder = JSONDecoder()
-//        if let userDefaults = UserDefaults(suiteName: appGroupName), let data = userDefaults.data(forKey: storageKey) {
-//            do {
-//                let messages = try decoder.decode([LocalMessage].self, from: data)
-//                print("Loaded messages: \(messages)")
-//                return messages
-//            } catch {
-//                print("Error loading messages: \(error.localizedDescription)")
-//            }
-//        }
-//        
-//        return []
-//    }
-//    
+    
+
+
+
+    
 //    func resetDialogue() {
 //        let currentDialogueID =  self.getOrCreateDialogueID().uuidString
 //        self.clearServerMessage(dialogueID: currentDialogueID,retryOnTimeout: true)
@@ -293,12 +326,12 @@
 //        }
 //        UserDefaults.standard.set(false, forKey: "CharacterConfigCompleted")
 //    }
-//
-//    
+
+    
 //    func getOrCreateDialogueID() -> UUID {
 //        let userDefaults = UserDefaults.standard
 //        let uuidKey = "DialogueID"
-//        
+//
 //        if let uuidString = userDefaults.string(forKey: uuidKey), let uuid = UUID(uuidString: uuidString) {
 //            return uuid
 //        } else {
@@ -307,19 +340,19 @@
 //            return uuid
 //        }
 //    }
-//    
+    
 //    private func setupNotificationObserver() {
 //        NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
 //            .sink { [weak self] _ in
-//                
+//
 //                //这下面有一个可能导致问题的代码
 //                self?.sendRequest(type: .appRestart)
 //                print("sending requests")
 //            }
 //            .store(in: &cancellables)
 //    }
-//    
-//    
+    
+    
 //    func clearServerMessage(dialogueID: String, retryOnTimeout: Bool = true) {
 //        guard let url = URL(string: deleteCharacterURL) else { return }
 //        var urlRequest = URLRequest(url: url)
@@ -337,52 +370,52 @@
 //            }
 //        }.resume()
 //    }
-//    
-//}
-//
-////本地存储的时候会有 MessageID
-//extension LocalMessage {
-//    func toServerMessage() -> ServerMessage {
-//        ServerMessage(role: role, content: content, timestamp: timestamp) // 将 timestamp 也转换过去
-//    }
-//}
-//
-//struct ServerMessage: Codable {
-//    enum Role: String, Codable {
-//        case user
-//        case assistant
-//        case system
-//    }
-//    
-//    let role: Role
-//    let content: String
-//    let timestamp: Date // 添加新字段
-//}
-//
-//struct LocalMessage: Identifiable, Codable, Equatable {
-//    let id: UUID?
-//    let role: ServerMessage.Role
-//    let content: String
-//    let timestamp: Date // 添加的新字段
-//
-//    static func == (lhs: LocalMessage, rhs: LocalMessage) -> Bool {
-//        return lhs.id == rhs.id && lhs.role == rhs.role && lhs.content == rhs.content && lhs.timestamp == rhs.timestamp
-//    }
-//}
-//
-//
-//struct LocalMessageWithLastReply: Identifiable, Codable, Equatable {
-//    let id: UUID?
-//    let role: ServerMessage.Role
-//    let content: String
-//    let lastUserMessage: String
-//    
-//    static func == (lhs: LocalMessageWithLastReply, rhs: LocalMessageWithLastReply) -> Bool {
-//        return lhs.id == rhs.id && lhs.role == rhs.role && lhs.content == rhs.content && lhs.lastUserMessage == rhs.lastUserMessage
-//    }
-//}
-//
-//
-//struct ServerRequest: Codable {
-//    let messages: [ServerMessage]
-//}
+    
+}
+
+//本地存储的时候会有 MessageID
+extension LocalMessage {
+    func toServerMessage() -> ServerMessage {
+        ServerMessage(role: role, content: content, timestamp: timestamp) // 将 timestamp 也转换过去
+    }
+}
+
+struct ServerMessage: Codable {
+    enum Role: String, Codable {
+        case user
+        case assistant
+        case system
+    }
+    
+    let role: Role
+    let content: String
+    let timestamp: Date // 添加新字段
+}
+
+struct LocalMessage: Identifiable, Codable, Equatable {
+    let id: UUID?
+    let role: ServerMessage.Role
+    let content: String
+    let timestamp: Date // 添加的新字段
+
+    static func == (lhs: LocalMessage, rhs: LocalMessage) -> Bool {
+        return lhs.id == rhs.id && lhs.role == rhs.role && lhs.content == rhs.content && lhs.timestamp == rhs.timestamp
+    }
+}
+
+
+struct LocalMessageWithLastReply: Identifiable, Codable, Equatable {
+    let id: UUID?
+    let role: ServerMessage.Role
+    let content: String
+    let lastUserMessage: String
+    
+    static func == (lhs: LocalMessageWithLastReply, rhs: LocalMessageWithLastReply) -> Bool {
+        return lhs.id == rhs.id && lhs.role == rhs.role && lhs.content == rhs.content && lhs.lastUserMessage == rhs.lastUserMessage
+    }
+}
+
+
+struct ServerRequest: Codable {
+    let messages: [ServerMessage]
+}
