@@ -50,7 +50,7 @@ struct MessageView: View {
     
     @Environment(\.managedObjectContext) var context
      @ObservedObject var messageManager: MessageManager
-    @State var isFirstResponder: Bool = true
+    @State var isFirstResponder: Bool = false
     @StateObject var userInput = UserInput()
     
     // 接受 characterid 和 context 作为参数
