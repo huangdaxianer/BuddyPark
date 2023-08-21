@@ -3,33 +3,26 @@ import CoreData
 
 struct MessageListView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @EnvironmentObject var sessionManager: SessionManager // 从环境中获取 SessionManager
+    @EnvironmentObject var sessionManager: SessionManager
+    @Binding var selectedCharacterId: Int32?
     
     @FetchRequest(
         entity: Contact.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Contact.name, ascending: true)]
     ) private var contacts: FetchedResults<Contact>
-    
-    var body: some View {
-        NavigationView {
-            List(contacts, id: \.self) { contact in
-                NavigationLink(
-                    destination: MessageView(
-                        characterid: contact.characterid,
-                        context: viewContext,
-                        messageManager: sessionManager.session(for: contact.characterid) // 从 SessionManager 获取 MessageManager
-                    )
-                    .edgesIgnoringSafeArea(.bottom) // 在 MessageView 中忽略底部安全区域
 
-                )
-                {
+    var body: some View {
+        List(contacts, id: \.self) { contact in
+            NavigationLink(
+                destination: MessageView(characterid: contact.characterid,
+                                         context: viewContext,
+                                         messageManager: sessionManager.session(for: contact.characterid)),
+                label: {
                     HStack {
-                        // 头像
                         Image(contact.name ?? "")
                             .resizable()
                             .frame(width: 40, height: 40)
                             .clipShape(Circle())
-                        // 名字和最后一条消息
                         VStack(alignment: .leading) {
                             Text(contact.name ?? "")
                                 .font(.headline)
@@ -37,56 +30,54 @@ struct MessageListView: View {
                                 .font(.subheadline)
                         }
                         Spacer()
-                        // 最后一条消息的发送时间
                         Text(contact.updateTime != nil ? DateFormatter.localizedString(from: contact.updateTime!, dateStyle: .short, timeStyle: .short) : "")
                             .font(.footnote)
                             .foregroundColor(.gray)
                     }
-                    .padding(.vertical, 10) // 增加垂直填充来增加行距
-                }
-            }
-            .navigationTitle("Messages")
-            .navigationBarTitleDisplayMode(.inline) // 添加这一行来禁用大标题样式
-
+                    .padding(.vertical, 10)
+                })
         }
+        .navigationTitle("Messages")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 
 
-struct MessageListView_Previews: PreviewProvider {
-    static var previews: some View {
-        MessageListView()
-            .environment(\.managedObjectContext, preview.container.viewContext)
-            .environmentObject(SessionManager(context: preview.container.viewContext)) // 添加 SessionManager 作为环境对象
-    }
-    
-    static var preview: PersistenceController = {
-        let result = PersistenceController(inMemory: true)
-        let viewContext = result.container.viewContext
 
-        // 随机填充一些名字
-        let names = ["junxi", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Helen"]
-        for name in names {
-            let contact = Contact(context: viewContext)
-            contact.name = name
-            contact.characterid = Int32.random(in: 1000...9999)
-            contact.lastMessage = "最近怎么样？" // 填充最后一条消息
-            contact.updateTime = Date() // 填充当前时间
-        }
-
-        do {
-            try viewContext.save()
-        } catch {
-            // 处理错误
-            let nsError = error as NSError
-            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-        }
-
-        return result
-    }()
-}
-
+//struct MessageListView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        MessageListView()
+//            .environment(\.managedObjectContext, preview.container.viewContext)
+//            .environmentObject(SessionManager(context: preview.container.viewContext)) // 添加 SessionManager 作为环境对象
+//    }
+//    
+//    static var preview: PersistenceController = {
+//        let result = PersistenceController(inMemory: true)
+//        let viewContext = result.container.viewContext
+//
+//        // 随机填充一些名字
+//        let names = ["junxi", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Helen"]
+//        for name in names {
+//            let contact = Contact(context: viewContext)
+//            contact.name = name
+//            contact.characterid = Int32.random(in: 1000...9999)
+//            contact.lastMessage = "最近怎么样？" // 填充最后一条消息
+//            contact.updateTime = Date() // 填充当前时间
+//        }
+//
+//        do {
+//            try viewContext.save()
+//        } catch {
+//            // 处理错误
+//            let nsError = error as NSError
+//            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+//        }
+//
+//        return result
+//    }()
+//}
+//
 
 
 
