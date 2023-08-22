@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F55E423C2A93C4FB000BBB44 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423B2A93C4FB000BBB44 /* ProfileView.swift */; };
+		F55E423E2A947E40000BBB44 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423D2A947E40000BBB44 /* ColorExtension.swift */; };
 		F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005092A86200600BAF934 /* BuddyParkApp.swift */; };
 		F590050E2A86200800BAF934 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F590050D2A86200800BAF934 /* Assets.xcassets */; };
 		F59005112A86200800BAF934 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F59005102A86200800BAF934 /* Preview Assets.xcassets */; };
@@ -44,6 +45,7 @@
 
 /* Begin PBXFileReference section */
 		F55E423B2A93C4FB000BBB44 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		F55E423D2A947E40000BBB44 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
 		F59005062A86200600BAF934 /* BuddyPark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BuddyPark.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F59005092A86200600BAF934 /* BuddyParkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuddyParkApp.swift; sourceTree = "<group>"; };
 		F590050D2A86200800BAF934 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 				F59005122A86200800BAF934 /* Persistence.swift */,
 				F59005142A86200800BAF934 /* BuddyPark.xcdatamodeld */,
 				F590050F2A86200800BAF934 /* Preview Content */,
+				F55E423D2A947E40000BBB44 /* ColorExtension.swift */,
 			);
 			path = BuddyPark;
 			sourceTree = "<group>";
@@ -287,6 +290,7 @@
 				F59005162A86200800BAF934 /* BuddyPark.xcdatamodeld in Sources */,
 				F590053D2A86246000BAF934 /* HomeView.swift in Sources */,
 				F590053B2A86225F00BAF934 /* Extensions.swift in Sources */,
+				F55E423E2A947E40000BBB44 /* ColorExtension.swift in Sources */,
 				F59005502A8A068F00BAF934 /* HomeViewModel.swift in Sources */,
 				F590054A2A89F40500BAF934 /* MessageView.swift in Sources */,
 				F59005132A86200800BAF934 /* Persistence.swift in Sources */,

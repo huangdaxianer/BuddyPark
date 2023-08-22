@@ -187,28 +187,10 @@ struct SwipeCardView: View {
     var body: some View {
         ZStack(alignment: .bottom){
             GeometryReader{ geometry in
-                Image(uiImage: model.pictures[currentImageIndex])
+                Image(uiImage: model.pictures.first ?? UIImage())
                     .centerCropped()
-                    .gesture(DragGesture(minimumDistance: 0).onEnded({ value in
-                        if value.translation.equalTo(.zero){
-                            if(value.location.x <= geometry.size.width/2){
-                                showPrevPicture()
-                            } else { showNextPicture()}
-                        }
-                    }))
             }
-            
             VStack{
-                if(model.pictures.count > 1){
-                    HStack{
-                        ForEach(0..<model.pictures.count, id: \.self){ index in
-                            Rectangle().frame(height: 3).foregroundColor(index == currentImageIndex ? .white : .gray).opacity(index == currentImageIndex ? 1 : 0.5)
-                        }
-                    }
-                    .padding(.top, 6)
-                    .padding(.leading)
-                    .padding(.trailing)
-                }
                 Spacer()
                 VStack{
                     HStack(alignment: .firstTextBaseline){
@@ -227,24 +209,9 @@ struct SwipeCardView: View {
         .background(.white)
         .cornerRadius(20)
         .overlay(
-               RoundedRectangle(cornerRadius: 20) // 和卡片的圆角相同
-                   .stroke(Color.black, lineWidth: 2) // 设置为纯黑色边框，2px宽
-           )
-      //  .shadow(radius: 10)
-
-    }
-    
-    
-    private func showNextPicture(){
-        if currentImageIndex < model.pictures.count - 1 {
-            currentImageIndex += 1
-        }
-    }
-    
-    private func showPrevPicture(){
-        if currentImageIndex > 0 {
-            currentImageIndex -= 1
-        }
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.black, lineWidth: 2)
+        )
     }
 }
 
