@@ -38,9 +38,9 @@ struct SwipeView: View {
             Spacer()
             HStack{
                 Spacer()
-          //      GradientOutlineButton(action:{swipeAction = .swipeLeft}, iconName: "multiply", colors: AppColor.dislikeColors)
+                //      GradientOutlineButton(action:{swipeAction = .swipeLeft}, iconName: "multiply", colors: AppColor.dislikeColors)
                 Spacer()
-         //       GradientOutlineButton(action: {swipeAction = .swipeRight}, iconName: "heart", colors: AppColor.likeColors)
+                //       GradientOutlineButton(action: {swipeAction = .swipeRight}, iconName: "heart", colors: AppColor.likeColors)
                 Spacer()
             }.padding(.bottom)
         }
@@ -59,7 +59,7 @@ struct SwipeView: View {
 
 //Swipe functionality
 struct SwipeableCardView: View {
-
+    
     private let nope = "NOPE"
     private let like = "LIKE"
     private let screenWidthLimit = UIScreen.main.bounds.width * 0.5
@@ -87,11 +87,11 @@ struct SwipeableCardView: View {
                                                    startPoint: .topLeading,
                                                    endPoint: .bottomTrailing), lineWidth: 4)
                     ).rotationEffect(.degrees(30)).opacity(getDislikeOpacity())
-
+                    
                 }.padding(.top, 45).padding(.leading, 20).padding(.trailing, 20)
                 ,alignment: .top)
             .offset(x: self.dragOffset.width,y: self.dragOffset.height)
-            .rotationEffect(.degrees(self.dragOffset.width * -0.06), anchor: .center)
+            .rotationEffect(.degrees(self.dragOffset.width * 0.06), anchor: .center) // 改为正方向旋转
             .simultaneousGesture(DragGesture(minimumDistance: 0.0).onChanged{ value in
                 self.dragOffset = value.translation
             }.onEnded{ value in
@@ -101,7 +101,6 @@ struct SwipeableCardView: View {
                 if newValue != .doNothing {
                     performSwipe(newValue)
                 }
-                
             })
     }
     
@@ -125,6 +124,7 @@ struct SwipeableCardView: View {
             withAnimation(.linear(duration: 0.3)){
                 self.dragOffset = translation
                 self.dragOffset.width += screenWidthLimit
+                self.dragOffset.height += screenWidthLimit // 增加竖直方向的偏移
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 onSwiped(model, true)
@@ -133,6 +133,7 @@ struct SwipeableCardView: View {
             withAnimation(.linear(duration: 0.3)){
                 self.dragOffset = translation
                 self.dragOffset.width -= screenWidthLimit
+                self.dragOffset.height += screenWidthLimit // 增加竖直方向的偏移
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 onSwiped(model, false)
@@ -224,8 +225,13 @@ struct SwipeCardView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .aspectRatio(0.7, contentMode: .fit)
         .background(.white)
-        .cornerRadius(10)
-        .shadow(radius: 10)
+        .cornerRadius(20)
+        .overlay(
+               RoundedRectangle(cornerRadius: 20) // 和卡片的圆角相同
+                   .stroke(Color.black, lineWidth: 2) // 设置为纯黑色边框，2px宽
+           )
+      //  .shadow(radius: 10)
+
     }
     
     
