@@ -29,9 +29,11 @@ struct SwipeView: View {
                         
                         if(index == profiles.count - 1){
                             SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: performSwipe)
-                        } else if(index == profiles.count - 2){
-                            SwipeCardView(model: model)
                         }
+                        else if(index == profiles.count - 2){
+                            SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: performSwipe)
+                        }
+
                     }
                 }
             }.padding()
@@ -71,38 +73,63 @@ struct SwipeableCardView: View {
     var onSwiped: (ProfileCardModel, Bool) -> ()
     
     var body: some View {
-        SwipeCardView(model: model)
-            .overlay(
-                HStack{
-                    Text(like).font(.largeTitle).bold().foregroundGradient(colors: AppColor.likeColors).padding().overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(LinearGradient(gradient: .init(colors: AppColor.likeColors),
-                                                   startPoint: .topLeading,
-                                                   endPoint: .bottomTrailing), lineWidth: 4)
-                    ).rotationEffect(.degrees(-30)).opacity(getLikeOpacity())
-                    Spacer()
-                    Text(nope).font(.largeTitle).bold().foregroundGradient(colors: AppColor.dislikeColors).padding().overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(LinearGradient(gradient: .init(colors: AppColor.dislikeColors),
-                                                   startPoint: .topLeading,
-                                                   endPoint: .bottomTrailing), lineWidth: 4)
-                    ).rotationEffect(.degrees(30)).opacity(getDislikeOpacity())
-                    
-                }.padding(.top, 45).padding(.leading, 20).padding(.trailing, 20)
-                ,alignment: .top)
-            .offset(x: self.dragOffset.width,y: self.dragOffset.height)
-            .rotationEffect(.degrees(self.dragOffset.width * 0.06), anchor: .center) // 改为正方向旋转
-            .simultaneousGesture(DragGesture(minimumDistance: 0.0).onChanged{ value in
-                self.dragOffset = value.translation
-            }.onEnded{ value in
-                performDragEnd(value.translation)
-                print("onEnd: \(value.location)")
-            }).onChange(of: swipeAction, perform: { newValue in
-                if newValue != .doNothing {
-                    performSwipe(newValue)
+        ZStack(alignment: .bottom){
+            GeometryReader { geometry in
+                Image(uiImage: model.pictures.first ?? UIImage())
+                    .centerCropped()
+            }
+            VStack{
+                Spacer()
+                VStack{
+                    HStack(alignment: .firstTextBaseline){
+                        Text(model.name).font(.largeTitle).fontWeight(.semibold)
+                        Text("\(model.age)").font(.title).fontWeight(.medium)
+                        Spacer()
+                    }
                 }
-            })
+                .padding()
+                .foregroundColor(.white)
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .aspectRatio(0.7, contentMode: .fit)
+        .background(.white)
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.black, lineWidth: 2)
+        )
+        .overlay(
+            HStack{
+                Text(like).font(.largeTitle).bold().foregroundGradient(colors: AppColor.likeColors).padding().overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(LinearGradient(gradient: .init(colors: AppColor.likeColors),
+                                               startPoint: .topLeading,
+                                               endPoint: .bottomTrailing), lineWidth: 4)
+                ).rotationEffect(.degrees(-30)).opacity(getLikeOpacity())
+                Spacer()
+                Text(nope).font(.largeTitle).bold().foregroundGradient(colors: AppColor.dislikeColors).padding().overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(LinearGradient(gradient: .init(colors: AppColor.dislikeColors),
+                                               startPoint: .topLeading,
+                                               endPoint: .bottomTrailing), lineWidth: 4)
+                ).rotationEffect(.degrees(30)).opacity(getDislikeOpacity())
+            }.padding(.top, 45).padding(.leading, 20).padding(.trailing, 20)
+            ,alignment: .top)
+        .offset(x: self.dragOffset.width,y: self.dragOffset.height)
+        .rotationEffect(.degrees(self.dragOffset.width * 0.06), anchor: .center)
+        .simultaneousGesture(DragGesture(minimumDistance: 0.0).onChanged{ value in
+            self.dragOffset = value.translation
+        }.onEnded{ value in
+            performDragEnd(value.translation)
+        }).onChange(of: swipeAction, perform: { newValue in
+            if newValue != .doNothing {
+                performSwipe(newValue)
+            }
+        })
     }
+    
     
     private func performSwipe(_ swipeAction: SwipeAction){
         withAnimation(.linear(duration: 0.3)){
@@ -175,43 +202,6 @@ struct SwipeableCardView: View {
         } else {
             return ratio
         }
-    }
-}
-
-//Card design
-struct SwipeCardView: View {
-    let model: ProfileCardModel
-    
-    @State private var currentImageIndex: Int = 0
-    
-    var body: some View {
-        ZStack(alignment: .bottom){
-            GeometryReader{ geometry in
-                Image(uiImage: model.pictures.first ?? UIImage())
-                    .centerCropped()
-            }
-            VStack{
-                Spacer()
-                VStack{
-                    HStack(alignment: .firstTextBaseline){
-                        Text(model.name).font(.largeTitle).fontWeight(.semibold)
-                        Text("\(model.age)").font(.title).fontWeight(.medium)
-                        Spacer()
-                    }
-                }
-                .padding()
-                .foregroundColor(.white)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .aspectRatio(0.7, contentMode: .fit)
-        .background(.white)
-        .cornerRadius(20)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.black, lineWidth: 2)
-        )
     }
 }
 
