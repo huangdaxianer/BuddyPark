@@ -19,35 +19,38 @@ struct SwipeView: View {
     var onSwiped: (ProfileCardModel, Bool) -> ()
     
     var body: some View {
-        VStack{
+        VStack {
             Spacer()
-            VStack{
-                ZStack{
+            Image("Logo") // Add this line to display the image
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150) // Set the width of the image
+                .padding()
+            VStack {
+                ZStack {
                     Text("no-more-profiles").font(.title3).fontWeight(.medium).foregroundColor(Color(UIColor.systemGray)).multilineTextAlignment(.center)
-                    ForEach(profiles.indices, id: \.self){ index  in
+                    ForEach(profiles.indices, id: \.self) { index in
                         let model: ProfileCardModel = profiles[index]
-                        
-                        if(index == profiles.count - 1){
-                            SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: performSwipe)
-                        }
-                        else if(index == profiles.count - 2){
-                            SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: performSwipe)
-                        }
 
+                        if(index == profiles.count - 1) {
+                            SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: performSwipe)
+                        } else if(index == profiles.count - 2) {
+                            SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: performSwipe)
+                        }
                     }
                 }
             }.padding()
             Spacer()
-            HStack{
+            HStack {
                 Spacer()
-                //      GradientOutlineButton(action:{swipeAction = .swipeLeft}, iconName: "multiply", colors: AppColor.dislikeColors)
+                // GradientOutlineButton(action:{swipeAction = .swipeLeft}, iconName: "multiply", colors: AppColor.dislikeColors)
                 Spacer()
-                //       GradientOutlineButton(action: {swipeAction = .swipeRight}, iconName: "heart", colors: AppColor.likeColors)
+                // GradientOutlineButton(action: {swipeAction = .swipeRight}, iconName: "heart", colors: AppColor.likeColors)
                 Spacer()
             }.padding(.bottom)
         }
     }
-    
+
     private func performSwipe(userProfile: ProfileCardModel, hasLiked: Bool){
         removeTopItem()
         onSwiped(userProfile, hasLiked)
@@ -59,7 +62,6 @@ struct SwipeView: View {
     }
 }
 
-//Swipe functionality
 struct SwipeableCardView: View {
     
     private let nope = "NOPE"
@@ -77,7 +79,8 @@ struct SwipeableCardView: View {
             GeometryReader { geometry in
                 Image(uiImage: model.pictures.first ?? UIImage())
                     .centerCropped()
-            }
+            }.frame(width: 200,height: 300)
+                .cornerRadius(20)
             VStack{
                 Spacer()
                 VStack{
@@ -93,7 +96,7 @@ struct SwipeableCardView: View {
             .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .aspectRatio(0.7, contentMode: .fit)
+        .aspectRatio(1.1, contentMode: .fit)
         .background(.white)
         .cornerRadius(20)
         .overlay(
