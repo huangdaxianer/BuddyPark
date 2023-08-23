@@ -1,10 +1,3 @@
-//
-//  SwipeView.swift
-//  tinder-clone
-//
-//  Created by Alejandro Piguave on 1/1/22.
-//
-
 import SwiftUI
 import UIKit
 
@@ -52,14 +45,11 @@ struct SwipeView: View {
     }
     
     private func performSwipe(userProfile: ProfileCardModel, hasLiked: Bool){
-        removeTopItem()
+        profiles.removeLast()
+        print("the last one was removed")
         onSwiped(userProfile, hasLiked)
     }
     
-    private func removeTopItem(){
-        profiles.removeLast()
-        print("the last one was removed")
-    }
 }
 
 struct SwipeableCardView: View {
@@ -110,36 +100,60 @@ struct SwipeableCardView: View {
                      .stroke(Color.black, lineWidth: 2)
              )
          }
-//        .overlay(
-//            HStack{
-//                Text(like).font(.largeTitle).bold().foregroundGradient(colors: AppColor.likeColors).padding().overlay(
-//                    RoundedRectangle(cornerRadius: 8)
-//                        .stroke(LinearGradient(gradient: .init(colors: AppColor.likeColors),
-//                                               startPoint: .topLeading,
-//                                               endPoint: .bottomTrailing), lineWidth: 4)
-//                ).rotationEffect(.degrees(-30)).opacity(getLikeOpacity())
-//                Spacer()
-//                Text(nope).font(.largeTitle).bold().foregroundGradient(colors: AppColor.dislikeColors).padding().overlay(
-//                    RoundedRectangle(cornerRadius: 8)
-//                        .stroke(LinearGradient(gradient: .init(colors: AppColor.dislikeColors),
-//                                               startPoint: .topLeading,
-//                                               endPoint: .bottomTrailing), lineWidth: 4)
-//                ).rotationEffect(.degrees(30)).opacity(getDislikeOpacity())
-//            }.padding(.top, 45).padding(.leading, 20).padding(.trailing, 20)
-//            ,alignment: .top)
-//        .offset(x: self.dragOffset.width,y: self.dragOffset.height)
-//        .rotationEffect(.degrees(self.dragOffset.width * 0.06), anchor: .center)
-//        .simultaneousGesture(DragGesture(minimumDistance: 0.0).onChanged{ value in
-//            self.dragOffset = value.translation
-//        }.onEnded{ value in
-//            performDragEnd(value.translation)
-//        }).onChange(of: swipeAction, perform: { newValue in
-//            if newValue != .doNothing {
-//                performSwipe(newValue)
-//            }
-//        })
+        .overlay(
+            HStack{
+                Text(like).font(.largeTitle).bold().foregroundGradient(colors: AppColor.likeColors).padding().overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(LinearGradient(gradient: .init(colors: AppColor.likeColors),
+                                               startPoint: .topLeading,
+                                               endPoint: .bottomTrailing), lineWidth: 4)
+                ).rotationEffect(.degrees(-30)).opacity(getLikeOpacity())
+                Spacer()
+                Text(nope).font(.largeTitle).bold().foregroundGradient(colors: AppColor.dislikeColors).padding().overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(LinearGradient(gradient: .init(colors: AppColor.dislikeColors),
+                                               startPoint: .topLeading,
+                                               endPoint: .bottomTrailing), lineWidth: 4)
+                ).rotationEffect(.degrees(30)).opacity(getDislikeOpacity())
+            }.padding(.top, 45).padding(.leading, 20).padding(.trailing, 20)
+            ,alignment: .top)
+        .offset(x: self.dragOffset.width,y: self.dragOffset.height)
+        .rotationEffect(.degrees(self.dragOffset.width * 0.06), anchor: .center)
+        .simultaneousGesture(DragGesture(minimumDistance: 0.0).onChanged{ value in
+            self.dragOffset = value.translation
+        }.onEnded{ value in
+            performDragEnd(value.translation)
+        }).onChange(of: swipeAction, perform: { newValue in
+            if newValue != .doNothing {
+                performSwipe(newValue)
+            }
+        })
     }
-    
+}
+
+struct SwipeView_Previews: PreviewProvider {
+    @State static private var profiles: [ProfileCardModel] = [
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "22222", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "33333", age: 50, pictures: [UIImage(named: "elon_musk")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "44444", age: 50, pictures: [UIImage(named: "jeff_bezos")!],  intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 25, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。")
+    ]
+    static var previews: some View {
+        SwipeView(profiles: $profiles, onSwiped: {_,_ in})
+    }
+}
+
+
+struct ProfileCardModel {
+    let characterId: Int32
+    let name: String
+    let age: Int
+    let pictures: [UIImage]
+    let intro: String
+}
+
+extension SwipeableCardView {
     
     private func performSwipe(_ swipeAction: SwipeAction){
         withAnimation(.linear(duration: 0.3)){
@@ -214,26 +228,3 @@ struct SwipeableCardView: View {
         }
     }
 }
-
-struct SwipeView_Previews: PreviewProvider {
-    @State static private var profiles: [ProfileCardModel] = [
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "22222", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "33333", age: 50, pictures: [UIImage(named: "elon_musk")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "44444", age: 50, pictures: [UIImage(named: "jeff_bezos")!],  intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 25, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。")
-    ]
-    static var previews: some View {
-        SwipeView(profiles: $profiles, onSwiped: {_,_ in})
-    }
-}
-
-
-struct ProfileCardModel {
-    let characterId: Int32
-    let name: String
-    let age: Int
-    let pictures: [UIImage]
-    let intro: String
-}
-
