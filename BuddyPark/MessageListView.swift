@@ -5,40 +5,99 @@ struct MessageListView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var sessionManager: SessionManager
     @Binding var selectedCharacterId: Int32?
-    
+
     @FetchRequest(
         entity: Contact.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Contact.name, ascending: true)]
     ) private var contacts: FetchedResults<Contact>
 
     var body: some View {
-        List(contacts, id: \.self) { contact in
-            NavigationLink(
-                destination: MessageView(characterid: contact.characterid,
-                                         context: viewContext,
-                                         messageManager: sessionManager.session(for: contact.characterid)),
-                label: {
-                    HStack {
-                        Image(contact.name ?? "")
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                        VStack(alignment: .leading) {
-                            Text(contact.name ?? "")
-                                .font(.headline)
-                            Text(contact.lastMessage ?? "")
-                                .font(.subheadline)
-                        }
-                        Spacer()
-                        Text(contact.updateTime != nil ? DateFormatter.localizedString(from: contact.updateTime!, dateStyle: .short, timeStyle: .short) : "")
-                            .font(.footnote)
-                            .foregroundColor(.gray)
+        ZStack {
+            // 设置背景颜色
+            Color.backgroundBlue.edgesIgnoringSafeArea(.all)
+
+            ScrollView {
+                VStack {
+                    ForEach(contacts, id: \.self) { contact in
+                        MessageRowView(contact: contact,
+                                       context: viewContext,
+                                       messageManager: sessionManager.session(for: contact.characterid))
                     }
-                    .padding(.vertical, 10)
-                })
+                }
+            }
+            .navigationTitle("Messages")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .navigationTitle("Messages")
-        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+
+struct MessageRowView: View {
+    let contact: Contact
+    let context: NSManagedObjectContext
+    let messageManager: MessageManager
+    
+    var body: some View {
+        VStack {
+            ZStack {
+                // White rounded rectangle as the background
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white)
+                    .frame(height: 125)
+                    .shadow(color: Color.black, radius: 0, x: 2, y: 2)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.black, lineWidth: 2)
+                    )
+                
+                HStack {
+                    // Avatar
+                    Image(contact.name ?? "")
+                        .resizable()
+                        .frame(width: 77, height: 77)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.black, lineWidth: 2))
+                        .padding(.leading, 19)
+                    
+                    // Message and time area
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Text(contact.name ?? "")
+                                .font(.system(size: 16))
+                                .frame(alignment: .leading)
+                            
+                            Spacer()
+                            
+                            Text(contact.updateTime != nil ? DateFormatter.localizedString(from: contact.updateTime!, dateStyle: .none, timeStyle: .short) : "")
+                                .font(.custom("SF Pro Rounded", size: 16))
+                                .frame(alignment: .trailing)
+                        }
+                        
+                        // Message bubble
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 45)
+                                .fill(Color(red: 0, green: 102 / 255, blue: 255 / 255))
+                                .frame(height: 44)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 45)
+                                        .stroke(Color.black, lineWidth: 2)
+                                )
+
+                            Text(contact.lastMessage ?? "")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color(white: 100))
+                                .padding(.leading, 29) // 19 from the original padding + 10 for the extra space
+                        }
+
+                    }
+                    .padding(.horizontal, 10)
+                }
+            }
+            .frame(height: 125)
+            .padding(.horizontal, 20)
+        }
+        .frame(height: 140)
+        .background(NavigationLink("", destination: MessageView(characterid: contact.characterid, context: context, messageManager: messageManager)).opacity(0))
     }
 }
 

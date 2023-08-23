@@ -1,10 +1,3 @@
-//
-//  HomeViewModel.swift
-//  BuddyPark
-//
-//  Created by 黄鹏昊 on 2023/8/14.
-//
-
 import Foundation
 import SwiftUI
 import CoreData

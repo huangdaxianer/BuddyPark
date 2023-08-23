@@ -25,7 +25,7 @@ class ProfileData: ObservableObject {
     @Published var profiles: [ProfileCardModel] = []
 
     init() {
-        for i in 1...10 { // 使用 1...10 而不是 0..<10
+        for i in 1...20 { // 使用 1...10 而不是 0..<10
             let characterId: Int32 = Int32(arc4random_uniform(1000)) // 生成0到999之间的随机整数
             let name = "俊熙\(i)号"  // 在这里，我们将索引值 i 加到名字后面
             let age = 21

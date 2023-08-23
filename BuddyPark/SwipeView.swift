@@ -23,18 +23,12 @@ struct SwipeView: View {
                     Text("no-more-profiles").font(.title3).fontWeight(.medium).foregroundColor(Color(UIColor.systemGray)).multilineTextAlignment(.center)
                     ForEach(profiles.indices.reversed(), id: \.self) { index in // Reverse the loop to put the last item on top
                         let model: ProfileCardModel = profiles[index]
-                        SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: performSwipe)
+                        SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: onSwiped)
                             .offset(x: index == profiles.count - 1 ? 0 : 10, y: index == profiles.count - 1 ? 0 : 10) // Offset the bottom card
                     }
                 }
             }.padding()
         }
-    }
-    
-    private func performSwipe(userProfile: ProfileCardModel, hasLiked: Bool){
-        profiles.removeLast()
-        print("the last one was removed")
-        onSwiped(userProfile, hasLiked)
     }
 }
 
