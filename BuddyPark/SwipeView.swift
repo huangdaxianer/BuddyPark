@@ -8,7 +8,6 @@ enum SwipeAction{
 struct SwipeView: View {
     @Binding var profiles: [ProfileCardModel]
     @State var swipeAction: SwipeAction = .doNothing
-    //Bool: true if it was a like (swipe to the right
     var onSwiped: (ProfileCardModel, Bool) -> ()
     
     var body: some View {
@@ -22,25 +21,13 @@ struct SwipeView: View {
             VStack {
                 ZStack {
                     Text("no-more-profiles").font(.title3).fontWeight(.medium).foregroundColor(Color(UIColor.systemGray)).multilineTextAlignment(.center)
-                    ForEach(profiles.indices, id: \.self) { index in
+                    ForEach(profiles.indices.reversed(), id: \.self) { index in // Reverse the loop to put the last item on top
                         let model: ProfileCardModel = profiles[index]
-                        
-                        if(index == profiles.count - 1) {
-                            SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: performSwipe)
-                        } else if(index == profiles.count - 2) {
-                            SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: performSwipe)
-                        }
+                        SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: performSwipe)
+                            .offset(x: index == profiles.count - 1 ? 0 : 10, y: index == profiles.count - 1 ? 0 : 10) // Offset the bottom card
                     }
                 }
             }.padding()
-            Spacer()
-            HStack {
-                Spacer()
-                // GradientOutlineButton(action:{swipeAction = .swipeLeft}, iconName: "multiply", colors: AppColor.dislikeColors)
-                Spacer()
-                // GradientOutlineButton(action: {swipeAction = .swipeRight}, iconName: "heart", colors: AppColor.likeColors)
-                Spacer()
-            }.padding(.bottom)
         }
     }
     
@@ -49,7 +36,6 @@ struct SwipeView: View {
         print("the last one was removed")
         onSwiped(userProfile, hasLiked)
     }
-    
 }
 
 struct SwipeableCardView: View {
@@ -57,100 +43,80 @@ struct SwipeableCardView: View {
     private let nope = "NOPE"
     private let like = "LIKE"
     private let screenWidthLimit = UIScreen.main.bounds.width * 0.5
-    
     let model: ProfileCardModel
+    @State private var shouldBeHidden: Bool = false
     @State private var dragOffset = CGSize.zero
     @Binding var swipeAction: SwipeAction
     
     var onSwiped: (ProfileCardModel, Bool) -> ()
     
     var body: some View {
-         VStack {
-             GeometryReader { geometry in
-                 VStack {
-                     Image(uiImage: model.pictures.first ?? UIImage())
-                         .resizable()
-                         .aspectRatio(contentMode: .fill)
-                         .frame(maxWidth: geometry.size.width - 26, maxHeight: geometry.size.height - 100)
-                         .cornerRadius(18)
-                         .clipped()
-                         .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.black, lineWidth: 2)) // 添加这一行
-
-                         .padding([.top, .leading, .trailing], 13)
-                     Spacer()
-                     VStack {
-                         HStack(alignment: .firstTextBaseline) {
-                             Text(model.name).font(.largeTitle).fontWeight(.semibold)
-                             Text("\(model.age)").font(.title).fontWeight(.medium)
-                             Spacer()
-                         }
-                         Spacer()
-                         Text(model.intro).font(.body).fontWeight(.semibold)
-                     }
-                     .padding()
-                     .foregroundColor(.black) // 修改为黑色
-                     .padding(.bottom, 13)
-                 }
-             }
-             .frame(maxWidth: min(UIScreen.main.bounds.width - 80, 313), maxHeight: min(UIScreen.main.bounds.height - 209, 643))
-             .background(Color.white)
-             .cornerRadius(20)
-             .overlay(
-                 RoundedRectangle(cornerRadius: 20)
-                     .stroke(Color.black, lineWidth: 2)
-             )
-         }
-        .overlay(
-            HStack{
-                Text(like).font(.largeTitle).bold().foregroundGradient(colors: AppColor.likeColors).padding().overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(LinearGradient(gradient: .init(colors: AppColor.likeColors),
-                                               startPoint: .topLeading,
-                                               endPoint: .bottomTrailing), lineWidth: 4)
-                ).rotationEffect(.degrees(-30)).opacity(getLikeOpacity())
-                Spacer()
-                Text(nope).font(.largeTitle).bold().foregroundGradient(colors: AppColor.dislikeColors).padding().overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(LinearGradient(gradient: .init(colors: AppColor.dislikeColors),
-                                               startPoint: .topLeading,
-                                               endPoint: .bottomTrailing), lineWidth: 4)
-                ).rotationEffect(.degrees(30)).opacity(getDislikeOpacity())
-            }.padding(.top, 45).padding(.leading, 20).padding(.trailing, 20)
-            ,alignment: .top)
-        .offset(x: self.dragOffset.width,y: self.dragOffset.height)
-        .rotationEffect(.degrees(self.dragOffset.width * 0.06), anchor: .center)
-        .simultaneousGesture(DragGesture(minimumDistance: 0.0).onChanged{ value in
-            self.dragOffset = value.translation
-        }.onEnded{ value in
-            performDragEnd(value.translation)
-        }).onChange(of: swipeAction, perform: { newValue in
-            if newValue != .doNothing {
-                performSwipe(newValue)
+        if !shouldBeHidden {
+            VStack {
+                GeometryReader { geometry in
+                    VStack {
+                        Image(uiImage: model.pictures.first ?? UIImage())
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: geometry.size.width - 26, maxHeight: geometry.size.height - 100)
+                            .cornerRadius(18)
+                            .clipped()
+                            .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.black, lineWidth: 2)) // 添加这一行
+                        
+                            .padding([.top, .leading, .trailing], 13)
+                        Spacer()
+                        VStack {
+                            HStack(alignment: .firstTextBaseline) {
+                                Text(model.name).font(.largeTitle).fontWeight(.semibold)
+                                Text("\(model.age)").font(.title).fontWeight(.medium)
+                                Spacer()
+                            }
+                            Spacer()
+                            Text(model.intro).font(.body).fontWeight(.semibold)
+                        }
+                        .padding()
+                        .foregroundColor(.black) // 修改为黑色
+                        .padding(.bottom, 13)
+                    }
+                }
+                .frame(maxWidth: min(UIScreen.main.bounds.width - 80, 313), maxHeight: min(UIScreen.main.bounds.height - 209, 643))
+                .background(Color.white)
+                .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.black, lineWidth: 2)
+                )
             }
-        })
+            .overlay(
+                HStack{
+                    Text(like).font(.largeTitle).bold().foregroundGradient(colors: AppColor.likeColors).padding().overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(LinearGradient(gradient: .init(colors: AppColor.likeColors),
+                                                   startPoint: .topLeading,
+                                                   endPoint: .bottomTrailing), lineWidth: 4)
+                    ).rotationEffect(.degrees(-30)).opacity(getLikeOpacity())
+                    Spacer()
+                    Text(nope).font(.largeTitle).bold().foregroundGradient(colors: AppColor.dislikeColors).padding().overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(LinearGradient(gradient: .init(colors: AppColor.dislikeColors),
+                                                   startPoint: .topLeading,
+                                                   endPoint: .bottomTrailing), lineWidth: 4)
+                    ).rotationEffect(.degrees(30)).opacity(getDislikeOpacity())
+                }.padding(.top, 45).padding(.leading, 20).padding(.trailing, 20)
+                ,alignment: .top)
+            .offset(x: self.dragOffset.width,y: self.dragOffset.height)
+            .rotationEffect(.degrees(self.dragOffset.width * 0.06), anchor: .center)
+            .simultaneousGesture(DragGesture(minimumDistance: 0.0).onChanged{ value in
+                self.dragOffset = value.translation
+            }.onEnded{ value in
+                performDragEnd(value.translation)
+            }).onChange(of: swipeAction, perform: { newValue in
+                if newValue != .doNothing {
+                    performSwipe(newValue)
+                }
+            })
+        }
     }
-}
-
-struct SwipeView_Previews: PreviewProvider {
-    @State static private var profiles: [ProfileCardModel] = [
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "22222", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "33333", age: 50, pictures: [UIImage(named: "elon_musk")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "44444", age: 50, pictures: [UIImage(named: "jeff_bezos")!],  intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 25, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。")
-    ]
-    static var previews: some View {
-        SwipeView(profiles: $profiles, onSwiped: {_,_ in})
-    }
-}
-
-
-struct ProfileCardModel {
-    let characterId: Int32
-    let name: String
-    let age: Int
-    let pictures: [UIImage]
-    let intro: String
 }
 
 extension SwipeableCardView {
@@ -178,6 +144,7 @@ extension SwipeableCardView {
                 self.dragOffset.height += screenWidthLimit // 增加竖直方向的偏移
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.shouldBeHidden = true
                 onSwiped(model, true)
             }
         } else if(hasDisliked(translationX)){
@@ -187,6 +154,7 @@ extension SwipeableCardView {
                 self.dragOffset.height += screenWidthLimit // 增加竖直方向的偏移
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.shouldBeHidden = true
                 onSwiped(model, false)
             }
         } else{
@@ -228,3 +196,27 @@ extension SwipeableCardView {
         }
     }
 }
+
+
+struct SwipeView_Previews: PreviewProvider {
+    @State static private var profiles: [ProfileCardModel] = [
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "22222", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "33333", age: 50, pictures: [UIImage(named: "elon_musk")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "44444", age: 50, pictures: [UIImage(named: "jeff_bezos")!],  intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 25, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。")
+    ]
+    static var previews: some View {
+        SwipeView(profiles: $profiles, onSwiped: {_,_ in})
+    }
+}
+
+
+struct ProfileCardModel {
+    let characterId: Int32
+    let name: String
+    let age: Int
+    let pictures: [UIImage]
+    let intro: String
+}
+
