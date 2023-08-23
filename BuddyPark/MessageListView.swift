@@ -36,7 +36,9 @@ struct MessageRowView: View {
     let contact: Contact
     let context: NSManagedObjectContext
     let messageManager: MessageManager
-    
+
+    @State private var isSelected: Bool = false // 添加这个状态来控制导航
+
     var body: some View {
         VStack {
             ZStack {
@@ -49,7 +51,6 @@ struct MessageRowView: View {
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.black, lineWidth: 2)
                     )
-                
                 HStack {
                     // Avatar
                     Image(contact.name ?? "")
@@ -97,6 +98,12 @@ struct MessageRowView: View {
                     }
                     .padding(.horizontal, 10)
                 }
+                NavigationLink(
+                                destination: MessageView(characterid: contact.characterid, context: context, messageManager: messageManager),
+                                isActive: $isSelected,
+                                label: { EmptyView() }
+                            )
+                            .opacity(0) // 或者使用 .hidden()
             }
             .frame(height: 125)
             .padding(.leading, 18)
@@ -104,7 +111,9 @@ struct MessageRowView: View {
 
         }
         .frame(height: 135)
-        .background(NavigationLink("", destination: MessageView(characterid: contact.characterid, context: context, messageManager: messageManager)).opacity(0))
+        .onTapGesture {
+                  isSelected.toggle() // 当点击时，修改 isSelected 的值来触发导航
+              }
     }
 }
 
