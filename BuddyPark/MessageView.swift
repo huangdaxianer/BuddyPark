@@ -25,6 +25,11 @@ struct ResignKeyboardAndLoseFocusGesture: ViewModifier {
     }
 }
 
+struct User {
+    let uuid: String
+    let isNewUser: Bool
+}
+
 struct CustomTextFieldView: View {
     @ObservedObject var userInput: UserInput
     @Binding var isFirstResponder: Bool
@@ -350,37 +355,56 @@ class AvatarUpdater: ObservableObject {
     }
 }
 
-class PreviewMessageManager: MessageManager {
-    override init(characterid: Int32, context: NSManagedObjectContext) {
-        super.init(characterid: characterid, context: context)
-        // 添加预览消息
-        messages = [
-            LocalMessage(id: UUID(), role: .user, content: "你好！", timestamp: Date()),
-            LocalMessage(id: UUID(), role: .assistant, content: "你好，有什么可以帮助你的吗？", timestamp: Date())
-        ]
-    }
-}
-
+#if DEBUG
 struct MessageView_Previews: PreviewProvider {
     static var previews: some View {
-        // 创建一个模拟的 NSManagedObjectContext
-        let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        let context = mockManagedObjectContext()
+        let messageManager = mockMessageManager(context: context)
 
-        // 创建一个模拟的 Contact 实体
+        return MessageView(characterid: 1, context: context, messageManager: messageManager)
+            .environment(\.managedObjectContext, context)
+    }
+    
+    static func mockManagedObjectContext() -> NSManagedObjectContext {
+        // 创建一个内存中的 NSPersistentStoreCoordinator
+        let modelURL = Bundle.main.url(forResource: "BuddyPark", withExtension: "momd")!
+        let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)!
+
+        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
+        do {
+            try coordinator.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil as URL?, options: nil)
+        } catch {
+            fatalError("Unable to load persistent store")
+        }
+        let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        context.persistentStoreCoordinator = coordinator
+        return context
+    }
+    
+    static func mockMessageManager(context: NSManagedObjectContext) -> MessageManager {
+        // 创建一个测试 Contact
         let contact = Contact(context: context)
-        contact.name = "测试联系人"
-        contact.characterid = 1234
+        contact.characterid = 1
+        contact.name = "测试 AI"
         
-        // 使用预览专用的 MessageManager
-        let previewMessageManager = PreviewMessageManager(characterid: contact.characterid, context: context)
+        // 创建一些测试消息
+        for i in 1...10 {
+            let message = Message(context: context)
+            message.id = UUID()
+            message.role = i % 2 == 0 ? "user" : "assistant"
+            message.content = "测试消息 \(i)"
+            message.timestamp = Date().addingTimeInterval(TimeInterval(i * 60))
+            
+            contact.addToMessages(message)
+        }
         
-        return MessageView(characterid: contact.characterid, context: context, messageManager: previewMessageManager)
-            .environment(\.managedObjectContext, context) // 设置预览的上下文
+        do {
+            try context.save()
+        } catch {
+            fatalError("Failed to save test messages: \(error)")
+        }
+        
+        return MessageManager(characterid: 1, context: context)
     }
 }
-
-
-struct User {
-    let uuid: String
-    let isNewUser: Bool
-}
+#endif
