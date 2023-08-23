@@ -64,16 +64,17 @@ struct MessageRowView: View {
                         HStack {
                             Text(contact.name ?? "")
                                 .font(.system(size: 16))
+                                .fontWeight(.bold)
                                 .frame(alignment: .leading)
-                            
+                                .padding(.leading, 5)
                             Spacer()
-                            
                             Text(contact.updateTime != nil ? DateFormatter.localizedString(from: contact.updateTime!, dateStyle: .none, timeStyle: .short) : "")
                                 .font(.custom("SF Pro Rounded", size: 16))
                                 .frame(alignment: .trailing)
+                                .padding(.trailing, 10)
+
                         }
                         
-                        // Message bubble
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 45)
                                 .fill(Color(red: 0, green: 102 / 255, blue: 255 / 255))
@@ -85,18 +86,24 @@ struct MessageRowView: View {
 
                             Text(contact.lastMessage ?? "")
                                 .font(.system(size: 14))
+                                .fontWeight(.bold)
                                 .foregroundColor(Color(white: 100))
-                                .padding(.leading, 29) // 19 from the original padding + 10 for the extra space
+                                .padding(.leading, 19)
+                                .truncationMode(.tail)
+                                .lineLimit(1)
                         }
+
 
                     }
                     .padding(.horizontal, 10)
                 }
             }
             .frame(height: 125)
-            .padding(.horizontal, 20)
+            .padding(.leading, 18)
+            .padding(.trailing, 20)
+
         }
-        .frame(height: 140)
+        .frame(height: 135)
         .background(NavigationLink("", destination: MessageView(characterid: contact.characterid, context: context, messageManager: messageManager)).opacity(0))
     }
 }
@@ -118,12 +125,12 @@ struct MessageListView_Previews: PreviewProvider {
         let viewContext = result.container.viewContext
 
         // 随机填充一些名字
-        let names = ["junxi", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Helen"]
+        let names = ["junxi", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "elon_musk"]
         for name in names {
             let contact = Contact(context: viewContext)
             contact.name = name
             contact.characterid = Int32.random(in: 1000...9999)
-            contact.lastMessage = "最近怎么样？" // 填充最后一条消息
+            contact.lastMessage = "最近怎么样？我想知道你最近的消息到底怎么回事" // 填充最后一条消息
             contact.updateTime = Date() // 填充当前时间
         }
 
