@@ -69,8 +69,9 @@ struct MessageView: View {
     
     var body: some View {
         ZStack {
-            Color(hex: "e4f3fe")  // 设置背景颜色
-                .edgesIgnoringSafeArea(.all)  // 使颜色填充整个屏幕
+            Color("chat_bg_color")
+                .edgesIgnoringSafeArea(.all)
+        
 
             ScrollViewReader { scrollViewProxy in
                 ScrollView {
@@ -237,10 +238,11 @@ struct MessageRow: View {
                                     let assistantMessage = content.split(separator: "$", maxSplits: 1).map { String($0) }
                                     let displayedContent = assistantMessage.count > 1 ? assistantMessage[0] : String(content)
                                     Text(displayedContent)
+                                        .fontWeight(.bold)
                                         .foregroundColor(Color.white)
                                         .padding()
                                         .background(Color.blue)
-                                        .cornerRadius(29) // 修改弧度到29
+                                        .cornerRadius(29)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 29)
                                                 .stroke(Color.black, lineWidth: 2)
@@ -260,10 +262,11 @@ struct MessageRow: View {
                                     let displayedContent = userMessage.count > 1 ? userMessage[0] : String(content)
 
                                     Text(displayedContent)
+                                        .fontWeight(.bold)
                                         .foregroundColor(Color.black)
                                         .padding()
                                         .background(Color.white)
-                                        .cornerRadius(29) // 修改弧度到29
+                                        .cornerRadius(29)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 29)
                                                 .stroke(Color.black, lineWidth: 2)
