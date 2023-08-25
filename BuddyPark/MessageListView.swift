@@ -37,7 +37,7 @@ struct MessageListView: View {
                     }
                 }
         }
-        .navigationTitle("Messages")
+        .navigationTitle("消息")
         .navigationBarHidden(true)  // 隐藏 Navigation Bar
     }
 }

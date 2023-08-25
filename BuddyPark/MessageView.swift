@@ -125,7 +125,19 @@ struct MessageView: View {
             }
         }
 
-            .navigationBarTitle(Text(messageManager.isTyping ? "对方正在输入..." : messageManager.contactName), displayMode: .inline)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    VStack {
+                        Spacer() // 这会增加额外的空间在导航栏上面
+                            .frame(height: 20)  // 调整这个高度值以获得你想要的效果
+                        Text(messageManager.isTyping ? "对方正在输入..." : messageManager.contactName)
+                        Spacer() // 这会增加额外的空间在导航栏上面
+                            .frame(height: 20)  // 调整这个高度值以获得你想要的效果
+                    }
+                }
+            }
+
             .onAppear {
                 setNavBarAppearance()
             }
@@ -137,15 +149,21 @@ struct MessageView: View {
     
     func setNavBarAppearance() {
         let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground() // 配置为不透明的背景
+        appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = UIColor(named: "naviBlue")
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+
+        // 修改标题的字体大小
+        let font = UIFont.boldSystemFont(ofSize: 24)  // 这里使用 boldSystemFont 来得到粗体字体
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.black, .font: font]
+
+        // 修改返回按钮的字体颜色
+        appearance.buttonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.black]
 
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().compactAppearance = appearance
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
     }
+
 
     func resetNavBarAppearance() {
         let appearance = UINavigationBarAppearance()
