@@ -72,7 +72,44 @@ struct MessageView: View {
             Color(hex: "e4f3fe")  // 设置背景颜色
                 .edgesIgnoringSafeArea(.all)  // 使颜色填充整个屏幕
 
-            VStack(spacing: 0) {
+            ScrollViewReader { scrollViewProxy in
+                ScrollView {
+                    LazyVStack {
+                        ForEach(Array(messageManager.messages.enumerated()), id: \.element.id) { index, message in
+                            let previousMessageTimestamp: Date = index > 0 ? messageManager.messages[index - 1].timestamp : Date.distantPast
+                            MessageRow(message: message, previousMessageTimestamp: previousMessageTimestamp)
+                        }
+                        Rectangle()
+                            .fill(Color.clear)
+                            .frame(height: 100)
+                        // 当消息更新的时候自动滚动
+                        .onChange(of: messageManager.lastUpdated) { _ in
+                            withAnimation {
+                                scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
+                            }
+                        }
+                    }
+                    .modifier(ResignKeyboardAndLoseFocusGesture(isFirstResponder: $isFirstResponder))
+                }
+                .padding(.top, 50)
+                .padding(.bottom, 10)
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                }
+                .gesture(DragGesture().onChanged { _ in
+                    UIApplication.shared.endEditing()
+                })
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+                    print("Keyboard will show")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation {
+                            scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
+                        }
+                    }
+                }
+                .edgesIgnoringSafeArea(.bottom)  // 忽略底部的安全区
+            }
+
+            VStack() {
                 ZStack {
                     Color("naviBlue")
                         .frame(height: 110)
@@ -118,43 +155,7 @@ struct MessageView: View {
                     }
                 }
                 .edgesIgnoringSafeArea(.top)
-
-                ScrollViewReader { scrollViewProxy in
-                    ScrollView {
-                        LazyVStack {
-                            ForEach(Array(messageManager.messages.enumerated()), id: \.element.id) { index, message in
-                                let previousMessageTimestamp: Date = index > 0 ? messageManager.messages[index - 1].timestamp : Date.distantPast
-                                MessageRow(message: message, previousMessageTimestamp: previousMessageTimestamp)
-                            }
-                            Rectangle()
-                                .fill(Color.clear)
-                                .frame(height: 100)
-                            // 当消息更新的时候自动滚动
-                            .onChange(of: messageManager.lastUpdated) { _ in
-                                withAnimation {
-                                    scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
-                                }
-                            }
-                        }
-                        .modifier(ResignKeyboardAndLoseFocusGesture(isFirstResponder: $isFirstResponder))
-                    }
-                    .padding(.top, 0)
-                    .padding(.bottom, 10)
-                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-                    }
-                    .gesture(DragGesture().onChanged { _ in
-                        UIApplication.shared.endEditing()
-                    })
-                    .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-                        print("Keyboard will show")
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            withAnimation {
-                                scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
-                            }
-                        }
-                    }
-                    .edgesIgnoringSafeArea(.bottom)  // 忽略底部的安全区
-                }
+                Spacer()
             }
 
             
