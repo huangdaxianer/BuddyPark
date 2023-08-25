@@ -8,13 +8,12 @@ struct HomeView: View {
     @State private var selectedTab: Int = 0
     @State private var selectedCharacterId: Int32? //用于跟踪所选的角色ID
     @State private var isNavigatingToMessageView: Bool = false
-
     
     var body: some View {
         NavigationView {
             ZStack {
                 Color.backgroundBlue.edgesIgnoringSafeArea(.all)
-                VStack(spacing: 0) {
+                ZStack {
                     switch selectedTab {
                     case 0:
                         SwipeView(profiles: $profileData.profiles, onSwiped: viewModel.onSwiped)
@@ -23,44 +22,16 @@ struct HomeView: View {
                         MessageListView(selectedCharacterId: $selectedCharacterId)
                             .environment(\.managedObjectContext, viewContext)
                             .environmentObject(sessionManager)
+                            .edgesIgnoringSafeArea(.bottom)  // 忽略底部安全区
                     case 2:
                         ProfileView()
                     default:
                         EmptyView()
                     }
-                    // 自定义的底部按钮栏
-                    HStack(spacing: 20) { // 增加按钮之间的间距
-                        Button(action: { selectedTab = 0 }) {
-                            Image(selectedTab == 0 ? "SwipeView" : "SwipeView_empty")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 45, height: 45)
-                        }
-                        .padding()
-                        .cornerRadius(10)
-                        
-                        Button(action: { selectedTab = 1 }) {
-                            Image(selectedTab == 1 ? "MessageListView" : "MessageListView_empty")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 45, height: 45)
-                        }
-                        .padding()
-                        .cornerRadius(10)
-                        
-                        Button(action: { selectedTab = 2 }) {
-                            Image(selectedTab == 2 ? "ProfileView" : "ProfileView_empty")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 45, height: 45)
-                        }
-                        .padding()
-                        .cornerRadius(10)
-                        
-                    }
-                    .padding()
-                }
-                .navigationTitle(selectedTab == 1 ? "Messages" : "")
+                    VStack {
+                        Spacer() // 用于推动 CustomTabBar 到底部
+                        CustomTabBar(selectedTab: $selectedTab)
+                    }                }
                 .navigationBarTitleDisplayMode(.inline) // 禁用大标题样式
                 .edgesIgnoringSafeArea(.bottom)
 
@@ -77,8 +48,52 @@ struct HomeView: View {
             }
         }
     }
+}
+
+struct CustomTabBar: View {
+    @Binding var selectedTab: Int
+    
+    var body: some View {
+        ZStack {
+            // 背景
+            RoundedRectangle(cornerRadius: 129)
+                .fill(Color(hex: "FFB800"))
+                .frame(width: 293, height: 75)
+                .shadow(color: Color.black, radius: 0, x: 2, y: 2) // 阴影
+                .overlay(
+                    RoundedRectangle(cornerRadius: 129)
+                        .stroke(Color.black, lineWidth: 2) // 边框
+                )
+            
+            // 按钮组
+            HStack(spacing: 20) {
+                TabBarButton(imageName: "SwipeView", selectedTab: $selectedTab, index: 0)
+                TabBarButton(imageName: "MessageListView", selectedTab: $selectedTab, index: 1)
+                TabBarButton(imageName: "ProfileView", selectedTab: $selectedTab, index: 2)
+            }
+        }
+        .padding()
+        .background(Color.clear)  // 确保ZStack背景是透明的
+        .offset(y: -10)  // 向上偏移10个单位，可以根据你的需要调整
+    }
+}
 
 
+struct TabBarButton: View {
+    let imageName: String
+    @Binding var selectedTab: Int
+    let index: Int
+    
+    var body: some View {
+        Button(action: { selectedTab = index }) {
+            Image(selectedTab == index ? imageName : "\(imageName)_empty")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 45, height: 45)
+        }
+        .padding()
+        .cornerRadius(10)
+    }
 }
 
 

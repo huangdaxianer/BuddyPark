@@ -4,41 +4,43 @@ struct ProfileView: View {
     // 一些假设的用户数据
     let profile = Profile(name: "张三", bio: "iOS 开发者。喜欢编程、读书和旅行。", profileImageName: "profileImage")
 
+    @State private var showingActionSheet: Bool = false
+    @State private var isImagePickerShown: Bool = false
+    @State private var selectedUserAvatar: UIImage?  // 选择的新头像
+
     var body: some View {
         VStack(spacing: 20) {
             // 头像
-            Image(profile.profileImageName)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 120, height: 120)
-                .clipShape(Circle())
-                .shadow(radius: 5)
-                .overlay(Circle().stroke(Color.white, lineWidth: 4))
-                .padding()
-
-            // 用户名
-            Text(profile.name)
-                .font(.title)
-                .fontWeight(.bold)
-            
-            // 简介
-            Text(profile.bio)
-                .font(.body)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
-            // 其他详细信息，例如位置、关注者等
-            VStack(alignment: .leading, spacing: 10) {
-                DetailRow(iconName: "mappin.and.ellipse", text: "北京, 中国")
-                DetailRow(iconName: "person.2", text: "150 关注")
-                DetailRow(iconName: "heart", text: "1.2k 喜欢")
+            Button(action: {
+                showingActionSheet = true  // 点击头像时展示 ActionSheet
+            }) {
+                Image(uiImage: loadImageFromSharedContainer(named: "profile.jpeg") ?? UIImage(named: profile.profileImageName) ?? UIImage())
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 120, height: 120)
+                    .clipShape(Circle())
+                    .shadow(radius: 5)
+                    .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                    .padding()
             }
-            .padding()
-
-            Spacer()
+            .actionSheet(isPresented: $showingActionSheet) {
+                ActionSheet(title: Text("我的设置"), buttons: [
+                    .default(Text("更改头像")) {
+                        isImagePickerShown = true
+                    },
+                    .cancel()
+                ])
+            }
+            .sheet(isPresented: $isImagePickerShown) {
+                ImagePicker(selectedImage: $selectedUserAvatar)
+            }
         }
-        .padding()
     }
+
+    func loadImageFromSharedContainer(named imageName: String) -> UIImage? {
+        UIImage.loadImageFromSharedContainer(named: imageName)
+    }
+
 }
 
 struct DetailRow: View {

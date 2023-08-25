@@ -12,25 +12,28 @@ struct SwipeView: View {
     
     var body: some View {
         VStack {
-            Spacer()
-            Image("Logo") // Add this line to display the image
+            Image("Logo")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 150) // Set the width of the image
-                .padding()
+                .frame(width: 130)
             VStack {
                 ZStack {
                     Text("no-more-profiles").font(.title3).fontWeight(.medium).foregroundColor(Color(UIColor.systemGray)).multilineTextAlignment(.center)
-                    ForEach(profiles.indices.reversed(), id: \.self) { index in // Reverse the loop to put the last item on top
+                    ForEach(profiles.indices.reversed(), id: \.self) { index in
                         let model: ProfileCardModel = profiles[index]
                         SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: onSwiped)
-                            .offset(x: index == profiles.count - 1 ? 0 : 10, y: index == profiles.count - 1 ? 0 : 10) // Offset the bottom card
+                            .offset(x: index == profiles.count - 1 ? 0 : 10, y: index == profiles.count - 1 ? 0 : 10)
                     }
                 }
-            }.padding()
+            }
+            Spacer()
+            Rectangle()  // 添加的占位符矩形
+                .fill(Color.clear) // 设置为透明颜色
+                .frame(height: 130) // 设置高度为 90
         }
     }
 }
+
 
 struct SwipeableCardView: View {
     

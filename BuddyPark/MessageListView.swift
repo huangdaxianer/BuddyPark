@@ -13,21 +13,32 @@ struct MessageListView: View {
 
     var body: some View {
         ZStack {
-            // 设置背景颜色
             Color.backgroundBlue.edgesIgnoringSafeArea(.all)
-
-            ScrollView {
-                VStack {
-                    ForEach(contacts, id: \.self) { contact in
-                        MessageRowView(contact: contact,
-                                       context: viewContext,
-                                       messageManager: sessionManager.session(for: contact.characterid))
+            VStack {
+                Image("Messages")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120)
+                Spacer() // 将下方内容推到底部
+            }
+                ScrollView {
+                    VStack {
+                        Rectangle()
+                            .fill(Color.clear)
+                            .frame(height: 45)
+                        ForEach(contacts, id: \.self) { contact in
+                            MessageRowView(contact: contact,
+                                           context: viewContext,
+                                           messageManager: sessionManager.session(for: contact.characterid))
+                        }
+                        Rectangle()
+                            .fill(Color.clear)
+                            .frame(height: 120)
                     }
                 }
-            }
-            .navigationTitle("Messages")
-            .navigationBarTitleDisplayMode(.inline)
         }
+        .navigationTitle("Messages")
+        .navigationBarHidden(true)  // 隐藏 Navigation Bar
     }
 }
 

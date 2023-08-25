@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import UIKit
 
 extension Color {
     init(hex: String) {
@@ -49,17 +50,76 @@ extension View {
     }
 }
 
-extension Image {
-    func centerCropped() -> some View {
-        GeometryReader { geo in
-            self
-            .resizable()
-            .scaledToFill()
-            .frame(width: geo.size.width, height: geo.size.height)
-            .clipped()
+extension UIImage {
+    func saveToSharedContainer(named imageName: String) -> Bool {
+        guard let data = self.pngData() else { return false }  // 将图片转换为 PNG 数据
+        
+        // 获取 shared container 的 URL
+        if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.penghao.BuddyPark") {
+            let imageFileURL = containerURL.appendingPathComponent(imageName)
+            
+            do {
+                try data.write(to: imageFileURL)
+                return true
+            } catch {
+                print("Error saving image to shared container: \(error)")
+                return false
+            }
         }
+        return false
+    }
+    static func loadImageFromSharedContainer(named imageName: String) -> UIImage? {
+        if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.penghao.BuddyPark") {
+            let imageFileURL = containerURL.appendingPathComponent(imageName)
+            
+            do {
+                let imageData = try Data(contentsOf: imageFileURL)
+                return UIImage(data: imageData)
+            } catch {
+                print("Error loading image from shared container: \(error)")
+                return nil
+            }
+        }
+        return nil
     }
 }
+
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var selectedImage: UIImage?
+    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        picker.allowsEditing = true
+        return picker
+    }
+    
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: UIViewControllerRepresentableContext<ImagePicker>) {}
+    
+    class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        let parent: ImagePicker
+        
+        init(_ parent: ImagePicker) {
+            self.parent = parent
+        }
+        
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            if let image = info[.editedImage] as? UIImage {
+                image.saveToSharedContainer(named: "profile.jpeg")
+                parent.selectedImage = UIImage.loadImageFromSharedContainer(named: "profile.jpeg")
+            }
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+
+    }
+}
+
 
 class AppColor{
     static let dislikeColors = [Color(hex: "ff6560"), Color(hex: "f83770")]
@@ -180,5 +240,6 @@ extension String {
         return ceil(boundingBox.height)
     }
 }
+
 
 

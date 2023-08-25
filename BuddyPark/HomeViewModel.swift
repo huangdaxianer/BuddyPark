@@ -13,6 +13,18 @@ class HomeViewModel: ObservableObject {
             contact.name = userProfile.name
             contact.lastMessage = "你好啊"
             contact.updateTime = Date() // 写入现在的时间
+            
+            // 创建实例消息
+            let sampleMessages = ["你好，很高兴认识你！", "希望我们可以成为好朋友！", "随时可以和我聊天哦！"]
+            for messageContent in sampleMessages {
+                let message = Message(context: context)
+                message.content = messageContent
+                message.timestamp = Date()
+                message.role = "AI" // 假设这些实例消息都是 AI 发出的
+                message.characterid = Int32(userProfile.characterId)
+                message.contact = contact // 关联 Message 和 Contact
+                contact.addToMessages(message) // 将消息添加到 Contact 的 messages relationship
+            }
 
             do {
                 try context.save()
@@ -23,6 +35,7 @@ class HomeViewModel: ObservableObject {
             }
         }
     }
+
     
     func printAllContacts() {
         let context = PersistenceController.shared.container.viewContext
