@@ -62,40 +62,46 @@ struct MessageView: View {
     }
     
     var body: some View {
-            VStack {
-                ScrollViewReader { scrollViewProxy in
-                    ScrollView {
-                        LazyVStack {
-                            ForEach(Array(messageManager.messages.enumerated()), id: \.element.id) { index, message in
-                                let previousMessageTimestamp: Date = index > 0 ? messageManager.messages[index - 1].timestamp : Date.distantPast
-                                MessageRow(message: message, previousMessageTimestamp: previousMessageTimestamp)
-                            }
-                            // 当消息更新的时候自动滚动
-                            .onChange(of: messageManager.lastUpdated) { _ in
-                                withAnimation {
-                                    scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
-                                }
-                            }
+        ZStack {
+            ScrollViewReader { scrollViewProxy in
+                ScrollView {
+                    LazyVStack {
+                        ForEach(Array(messageManager.messages.enumerated()), id: \.element.id) { index, message in
+                            let previousMessageTimestamp: Date = index > 0 ? messageManager.messages[index - 1].timestamp : Date.distantPast
+                            MessageRow(message: message, previousMessageTimestamp: previousMessageTimestamp)
                         }
-                        .modifier(ResignKeyboardAndLoseFocusGesture(isFirstResponder: $isFirstResponder))
-                    }
-                    .padding(.top, 0)
-                    .padding(.bottom, 10)
-                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-                    }
-                    .gesture(DragGesture().onChanged { _ in
-                        UIApplication.shared.endEditing()
-                    })
-                    .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-                        print("Keyboard will show")
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        Rectangle()
+                            .fill(Color.clear)
+                            .frame(height: 100)
+                        // 当消息更新的时候自动滚动
+                        .onChange(of: messageManager.lastUpdated) { _ in
                             withAnimation {
                                 scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
                             }
                         }
                     }
+                    .modifier(ResignKeyboardAndLoseFocusGesture(isFirstResponder: $isFirstResponder))
                 }
-                
+                .padding(.top, 0)
+                .padding(.bottom, 10)
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                }
+                .gesture(DragGesture().onChanged { _ in
+                    UIApplication.shared.endEditing()
+                })
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+                    print("Keyboard will show")
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation {
+                            scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
+                        }
+                    }
+                }
+                .edgesIgnoringSafeArea(.bottom)  // 忽略底部的安全区
+            }
+            
+            VStack {
+                Spacer()  // 推动下面的视图到底部
                 CustomTextFieldView(userInput: userInput, isFirstResponder: $isFirstResponder, onCommit: {
                     DispatchQueue.main.async {
                         // 这里会把最新一条消息加上发送时间
@@ -108,10 +114,10 @@ struct MessageView: View {
                         userInput.text = ""
                     }
                 })
-                
             }
+        }
+
             .navigationBarTitle(Text(messageManager.isTyping ? "对方正在输入..." : messageManager.contactName), displayMode: .inline)
-            //.navigationViewStyle(.stack)
     }
 }
     

@@ -111,7 +111,6 @@ struct ImagePicker: UIViewControllerRepresentable {
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             if let image = info[.editedImage] as? UIImage {
-                image.saveToSharedContainer(named: "profile.jpeg")
                 parent.selectedImage = UIImage.loadImageFromSharedContainer(named: "profile.jpeg")
             }
             parent.presentationMode.wrappedValue.dismiss()
