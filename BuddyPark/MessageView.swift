@@ -126,7 +126,35 @@ struct MessageView: View {
         }
 
             .navigationBarTitle(Text(messageManager.isTyping ? "对方正在输入..." : messageManager.contactName), displayMode: .inline)
+            .onAppear {
+                setNavBarAppearance()
+            }
+            .onDisappear {
+                resetNavBarAppearance()
+            }
+        
     }
+    
+    func setNavBarAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground() // 配置为不透明的背景
+        appearance.backgroundColor = UIColor(named: "naviBlue")
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
+
+    func resetNavBarAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithDefaultBackground()
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
+    
 }
 
 
