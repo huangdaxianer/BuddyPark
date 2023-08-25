@@ -37,24 +37,29 @@ struct CustomTextFieldView: View {
 
     var body: some View {
         UIKitTextFieldRepresentable(text: $userInput.text, isFirstResponder: $isFirstResponder, onCommit: onCommit)
-            .padding()
-            .frame(maxWidth: UIScreen.main.bounds.width - 30, maxHeight: 40)
-            .clipped()  // 添加这行代码来截取超出的部分
+            .padding(.horizontal) // 为文本输入框提供水平的内边距
+            .frame(maxWidth: UIScreen.main.bounds.width - 30, maxHeight: 56)
+            .clipped()  // 该行代码用于裁剪超出部分
             .background(
                 RoundedRectangle(cornerRadius: 25)
-                    .fill(Color.gray.opacity(0.15))
+                    .fill(Color.white)  // 纯白色背景
+                    .shadow(color: Color.black, radius: 0, x: 2, y: 2)  // 黑色阴影，向右下角偏移
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 40)
+                            .stroke(Color.black, lineWidth: 2)  // 黑色宽度为2的实线边框
+                    )
             )
-            .offset(y: -10) // 添加这行代码使文本输入框向上移动
             .onTapGesture {
                 isFirstResponder = true
             }
     }
 }
 
+
 struct MessageView: View {
     
     @Environment(\.managedObjectContext) var context
-     @ObservedObject var messageManager: MessageManager
+    @ObservedObject var messageManager: MessageManager
     @State var isFirstResponder: Bool = false
     @StateObject var userInput = UserInput()
     init(characterid: Int32, context: NSManagedObjectContext, messageManager: MessageManager) {
@@ -63,6 +68,9 @@ struct MessageView: View {
     
     var body: some View {
         ZStack {
+            Color(hex: "e4f3fe")  // 设置背景颜色
+                .edgesIgnoringSafeArea(.all)  // 使颜色填充整个屏幕
+            
             ScrollViewReader { scrollViewProxy in
                 ScrollView {
                     LazyVStack {
@@ -120,7 +128,7 @@ struct MessageView: View {
             .navigationBarTitle(Text(messageManager.isTyping ? "对方正在输入..." : messageManager.contactName), displayMode: .inline)
     }
 }
-    
+
 
 struct MessageRow: View {
     @Environment(\.colorScheme) var colorScheme
@@ -165,12 +173,16 @@ struct MessageRow: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 ForEach(contents, id: \.self) { content in
                                     let assistantMessage = content.split(separator: "$", maxSplits: 1).map { String($0) }
-                                          let displayedContent = assistantMessage.count > 1 ? assistantMessage[0] : String(content)
+                                    let displayedContent = assistantMessage.count > 1 ? assistantMessage[0] : String(content)
                                     Text(displayedContent)
-                                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                                        .foregroundColor(Color.white)
                                         .padding()
-                                        .background(Color.secondary.opacity(0.2))
-                                        .cornerRadius(10)
+                                        .background(Color.blue)
+                                        .cornerRadius(29) // 修改弧度到29
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 29)
+                                                .stroke(Color.black, lineWidth: 2)
+                                        )
                                 }
                             }
                             .padding(.leading, 15)
@@ -180,22 +192,24 @@ struct MessageRow: View {
                     } else {
                         Spacer()
                         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .top)) {
-                            VStack(alignment: .trailing, spacing: 8) { // 修改alignment为.trailing
+                            VStack(alignment: .trailing, spacing: 8) {
                                 ForEach(contents, id: \.self) { content in
-                                    // If message.role is user, remove the timestamp after $
                                     let userMessage = content.split(separator: "$", maxSplits: 1).map { String($0) }
                                     let displayedContent = userMessage.count > 1 ? userMessage[0] : String(content)
 
                                     Text(displayedContent)
-                                        .foregroundColor(Color.white)
+                                        .foregroundColor(Color.black)
                                         .padding()
-                                        .background(Color.blue)
-                                        .cornerRadius(10)
-
+                                        .background(Color.white)
+                                        .cornerRadius(29) // 修改弧度到29
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 29)
+                                                .stroke(Color.black, lineWidth: 2)
+                                        )
                                 }
                             }
-                            .padding(.trailing, 15) // Add trailing padding
-                            .padding(.top, 15)  // Add top padding
+                            .padding(.trailing, 15)
+                            .padding(.top, 15)
                         }
                     }
                 }
