@@ -59,6 +59,7 @@ struct CustomTextFieldView: View {
 struct MessageView: View {
     
     @Environment(\.managedObjectContext) var context
+    @Environment(\.presentationMode) var presentationMode // 用于回到上一个页面
     @ObservedObject var messageManager: MessageManager
     @State var isFirstResponder: Bool = false
     @StateObject var userInput = UserInput()
@@ -70,43 +71,92 @@ struct MessageView: View {
         ZStack {
             Color(hex: "e4f3fe")  // 设置背景颜色
                 .edgesIgnoringSafeArea(.all)  // 使颜色填充整个屏幕
-            
-            ScrollViewReader { scrollViewProxy in
-                ScrollView {
-                    LazyVStack {
-                        ForEach(Array(messageManager.messages.enumerated()), id: \.element.id) { index, message in
-                            let previousMessageTimestamp: Date = index > 0 ? messageManager.messages[index - 1].timestamp : Date.distantPast
-                            MessageRow(message: message, previousMessageTimestamp: previousMessageTimestamp)
-                        }
+
+            VStack(spacing: 0) {
+                ZStack {
+                    Color("naviBlue")
+                        .frame(height: 110)
+                        .overlay(
+                            Rectangle()
+                                .stroke(Color.black, lineWidth: 2)
+                        )
+
+                    VStack {
                         Rectangle()
-                            .fill(Color.clear)
-                            .frame(height: 100)
-                        // 当消息更新的时候自动滚动
-                        .onChange(of: messageManager.lastUpdated) { _ in
+                            .fill(Color.clear)  // 设置填充色为透明
+                            .frame(height: 44)
+
+                        HStack {
+                            Button(action: {
+                                presentationMode.wrappedValue.dismiss()
+                            }) {
+                                Image(systemName: "arrow.left")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.black)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal)
+                            }
+
+                            Spacer()  // 这个 Spacer 将会把 Button 推到左边
+
+                            Text(messageManager.contactName)
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundColor(.black)
+
+                            Spacer()  // 这个 Spacer
+                            Button(action: {
+                                presentationMode.wrappedValue.dismiss()
+                            }) {
+                                Image(systemName: "arrow.left")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.clear)
+                                    .padding(.horizontal)
+                            }
+                        }
+
+                    }
+                }
+                .edgesIgnoringSafeArea(.top)
+
+                ScrollViewReader { scrollViewProxy in
+                    ScrollView {
+                        LazyVStack {
+                            ForEach(Array(messageManager.messages.enumerated()), id: \.element.id) { index, message in
+                                let previousMessageTimestamp: Date = index > 0 ? messageManager.messages[index - 1].timestamp : Date.distantPast
+                                MessageRow(message: message, previousMessageTimestamp: previousMessageTimestamp)
+                            }
+                            Rectangle()
+                                .fill(Color.clear)
+                                .frame(height: 100)
+                            // 当消息更新的时候自动滚动
+                            .onChange(of: messageManager.lastUpdated) { _ in
+                                withAnimation {
+                                    scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
+                                }
+                            }
+                        }
+                        .modifier(ResignKeyboardAndLoseFocusGesture(isFirstResponder: $isFirstResponder))
+                    }
+                    .padding(.top, 0)
+                    .padding(.bottom, 10)
+                    .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                    }
+                    .gesture(DragGesture().onChanged { _ in
+                        UIApplication.shared.endEditing()
+                    })
+                    .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+                        print("Keyboard will show")
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             withAnimation {
                                 scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
                             }
                         }
                     }
-                    .modifier(ResignKeyboardAndLoseFocusGesture(isFirstResponder: $isFirstResponder))
+                    .edgesIgnoringSafeArea(.bottom)  // 忽略底部的安全区
                 }
-                .padding(.top, 0)
-                .padding(.bottom, 10)
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-                }
-                .gesture(DragGesture().onChanged { _ in
-                    UIApplication.shared.endEditing()
-                })
-                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-                    print("Keyboard will show")
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        withAnimation {
-                            scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
-                        }
-                    }
-                }
-                .edgesIgnoringSafeArea(.bottom)  // 忽略底部的安全区
             }
+
             
             VStack {
                 Spacer()  // 推动下面的视图到底部
@@ -124,55 +174,20 @@ struct MessageView: View {
                 })
             }
         }
-
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    VStack {
-                        Spacer() // 这会增加额外的空间在导航栏上面
-                            .frame(height: 20)  // 调整这个高度值以获得你想要的效果
-                        Text(messageManager.isTyping ? "对方正在输入..." : messageManager.contactName)
-                        Spacer() // 这会增加额外的空间在导航栏上面
-                            .frame(height: 20)  // 调整这个高度值以获得你想要的效果
-                    }
-                }
-            }
-
-            .onAppear {
-                setNavBarAppearance()
-            }
-            .onDisappear {
-                resetNavBarAppearance()
-            }
-        
+        .navigationBarHidden(true)  // 隐藏 Navigation Bar
     }
-    
-    func setNavBarAppearance() {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(named: "naviBlue")
+}
 
-        // 修改标题的字体大小
-        let font = UIFont.boldSystemFont(ofSize: 24)  // 这里使用 boldSystemFont 来得到粗体字体
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.black, .font: font]
+struct Border: ViewModifier {
+    let color: Color
+    let width: CGFloat
 
-        // 修改返回按钮的字体颜色
-        appearance.buttonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.black]
-
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().compactAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    func body(content: Content) -> some View {
+        content.background(
+            RoundedRectangle(cornerRadius: 0)
+                .strokeBorder(color, lineWidth: width)
+        )
     }
-
-
-    func resetNavBarAppearance() {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithDefaultBackground()
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().compactAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-    }
-    
 }
 
 
