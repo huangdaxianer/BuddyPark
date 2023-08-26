@@ -83,11 +83,8 @@ class MessageManager: ObservableObject {
         
         let shouldAppend = handleMessageAppending(newMessage)
         if shouldAppend {
-            DispatchQueue.main.async {
-                self.messages.append(newMessage)
-                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-                completion()
-            }
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            completion()
         }
         DispatchQueue.main.async { self.lastUpdated = Date() }
     }
@@ -125,6 +122,8 @@ class MessageManager: ObservableObject {
 
         do {
             try self.context.save()
+            self.messages.append(localMessage)  // 这里同步更新 messages 数组
+            self.lastUpdated = Date()  // 这里更新 lastUpdated 以通知 SwiftUI 进行刷新
         } catch {
             print("Error saving message: \(error.localizedDescription)")
         }
