@@ -12,14 +12,14 @@ class KeyboardManager: ObservableObject {
 
 struct ResignKeyboardAndLoseFocusGesture: ViewModifier {
     @Binding var isFirstResponder: Bool
-
+    
     var gesture: some Gesture {
         DragGesture().onChanged { _ in
             UIApplication.shared.endEditing()
             isFirstResponder = false
         }
     }
-
+    
     func body(content: Content) -> some View {
         content.gesture(gesture)
     }
@@ -34,7 +34,7 @@ struct CustomTextFieldView: View {
     @ObservedObject var userInput: UserInput
     @Binding var isFirstResponder: Bool
     var onCommit: () -> Void
-
+    
     var body: some View {
         UIKitTextFieldRepresentable(text: $userInput.text, isFirstResponder: $isFirstResponder, onCommit: onCommit)
             .padding(.horizontal) // 为文本输入框提供水平的内边距
@@ -81,18 +81,27 @@ struct MessageView: View {
                         Rectangle()
                             .fill(Color.clear)
                             .frame(height: 100)
+                            .id("bottomRectangle")
                         // 当消息更新的时候自动滚动
-                        .onChange(of: messageManager.lastUpdated) { _ in
-                            withAnimation {
-                                scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
+                            .onChange(of: messageManager.lastUpdated) { _ in
+                                withAnimation {
+                                    scrollViewProxy.scrollTo("bottomRectangle", anchor: .bottom)
+                                }
                             }
-                        }
                     }
                     .modifier(ResignKeyboardAndLoseFocusGesture(isFirstResponder: $isFirstResponder))
                 }
+                
                 .padding(.top, 50)
                 .padding(.bottom, 10)
+                .onAppear {
+                    scrollToBottom(with: scrollViewProxy)
+                }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+                    scrollToBottom(with: scrollViewProxy)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+                    scrollToBottom(with: scrollViewProxy, delay: 0.2)
                 }
                 .gesture(DragGesture().onChanged { _ in
                     UIApplication.shared.endEditing()
@@ -107,7 +116,7 @@ struct MessageView: View {
                 }
                 .edgesIgnoringSafeArea(.bottom)  // 忽略底部的安全区
             }
-
+            
             VStack() {
                 ZStack {
                     Color("naviBlue")
@@ -116,12 +125,12 @@ struct MessageView: View {
                             Rectangle()
                                 .stroke(Color.black, lineWidth: 2)
                         )
-
+                    
                     VStack {
                         Rectangle()
                             .fill(Color.clear)  // 设置填充色为透明
                             .frame(height: 44)
-
+                        
                         HStack {
                             Button(action: {
                                 presentationMode.wrappedValue.dismiss()
@@ -132,14 +141,14 @@ struct MessageView: View {
                                     .fontWeight(.bold)
                                     .padding(.horizontal)
                             }
-
+                            
                             Spacer()  // 这个 Spacer 将会把 Button 推到左边
-
+                            
                             Text(messageManager.contactName)
                                 .font(.title3)
                                 .fontWeight(.bold)
                                 .foregroundColor(.black)
-
+                            
                             Spacer()  // 这个 Spacer
                             Button(action: {
                                 presentationMode.wrappedValue.dismiss()
@@ -150,13 +159,13 @@ struct MessageView: View {
                                     .padding(.horizontal)
                             }
                         }
-
+                        
                     }
                 }
                 .edgesIgnoringSafeArea(.top)
                 Spacer()
             }
-
+            
             
             VStack {
                 Spacer()  // 推动下面的视图到底部
@@ -184,6 +193,14 @@ struct MessageView: View {
         }
         .navigationBarHidden(true)  // 隐藏 Navigation Bar
     }
+    
+    private func scrollToBottom(with scrollViewProxy: ScrollViewProxy, delay: Double = 0.1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            withAnimation {
+                scrollViewProxy.scrollTo("bottomRectangle", anchor: .bottom)
+            }
+        }
+    }
 }
 
 struct MessageRow: View {
@@ -196,8 +213,8 @@ struct MessageRow: View {
     @State private var showingSubscriptionView = false
     let appGroupName = "group.com.penghao.BuddyPark"
     var message: LocalMessage
-    var previousMessageTimestamp: Date?  
-
+    var previousMessageTimestamp: Date?
+    
     var body: some View {
         VStack(alignment: .center, spacing: 10) {  // 添加 VStack 包裹所有的内容，并在每个元素之间添加 10 点的间隔
             // 如果上一条消息的发送时间和当前消息的发送时间之间的间隔大于两分钟，那么显示时间提示
@@ -211,16 +228,16 @@ struct MessageRow: View {
                     Spacer() // 添加此行将使时间标签居中
                 }
             }
-
+            
             // 分割 message.content 到 emotion 和 content
             let contentComponents = message.content.split(separator: "@", maxSplits: 1).map { String($0) }
             let content = contentComponents.count > 1 ? contentComponents[1] : message.content
             let contents = content.split(separator: "#")
-
+            
             // If message.role is user, remove the timestamp after $
             let userMessage = content.split(separator: "$", maxSplits: 1).map { String($0) }
             let displayedContent = userMessage.count > 1 ? userMessage[0] : String(content)
-
+            
             // Check if displayedContent starts with $
             if !displayedContent.hasPrefix("$") {
                 HStack {
@@ -253,7 +270,7 @@ struct MessageRow: View {
                                 ForEach(contents, id: \.self) { content in
                                     let userMessage = content.split(separator: "$", maxSplits: 1).map { String($0) }
                                     let displayedContent = userMessage.count > 1 ? userMessage[0] : String(content)
-
+                                    
                                     Text(displayedContent)
                                         .fontWeight(.bold)
                                         .foregroundColor(Color.black)
@@ -274,10 +291,10 @@ struct MessageRow: View {
                 .padding(.horizontal)
                 .id(message.id) // 给 MessageRow 添加 id 以便 ScrollViewReader 使用
             }
-
+            
         }
     }
-
+    
     func loadImageFromSharedContainer(named filename: String) -> UIImage? {
         if let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupName) {
             let fileURL = url.appendingPathComponent(filename)
@@ -290,19 +307,19 @@ struct MessageRow: View {
         }
         return nil
     }
-
+    
     func getFormattedTimestamp(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         formatter.timeStyle = .short
         return formatter.string(from: date)
     }
-
+    
     func shouldShowTime() -> Bool {
         let interval = message.timestamp.timeIntervalSince(previousMessageTimestamp ?? Date.distantPast)
         return interval > 60 * 3 //三分钟
     }
-
+    
 }
 
 extension UIApplication {
@@ -313,7 +330,7 @@ extension UIApplication {
 
 class AvatarUpdater: ObservableObject {
     @Published var lastUpdate = Date()
-
+    
     func imageUpdated() {
         lastUpdate = Date()
     }
@@ -324,7 +341,7 @@ struct MessageView_Previews: PreviewProvider {
     static var previews: some View {
         let context = mockManagedObjectContext()
         let messageManager = mockMessageManager(context: context)
-
+        
         return MessageView(characterid: 1, context: context, messageManager: messageManager)
             .environment(\.managedObjectContext, context)
     }
@@ -333,7 +350,7 @@ struct MessageView_Previews: PreviewProvider {
         // 创建一个内存中的 NSPersistentStoreCoordinator
         let modelURL = Bundle.main.url(forResource: "BuddyPark", withExtension: "momd")!
         let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)!
-
+        
         let coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
         do {
             try coordinator.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil as URL?, options: nil)

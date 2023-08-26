@@ -89,26 +89,51 @@ class MessageManager: ObservableObject {
         DispatchQueue.main.async { self.lastUpdated = Date() }
     }
 
-    private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
-        guard let lastMessage = messages.last else {
-            saveMessage(newMessage)
-            return true
+
+        private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
+            guard let lastMessage = messages.last else {
+                saveMessage(newMessage)
+                return true
+            }
+            
+            switch (lastMessage.role, newMessage.role) {
+            case (UserRole.user.rawValue, UserRole.user.rawValue):
+                let combinedContent = lastMessage.content + "#" + newMessage.content
+                let combinedMessage = LocalMessage(id: newMessage.id, role: UserRole.user.rawValue, content: combinedContent, timestamp: Date())
+                removeMessage(lastMessage)  // 删除原始消息
+                saveMessage(combinedMessage)
+                return true  // 为了确保新消息被添加，我们返回 true
+            case (UserRole.assistant.rawValue, UserRole.assistant.rawValue) where newMessage.content.count > lastMessage.content.count:
+                saveMessage(newMessage)
+                return true
+            default:
+                saveMessage(newMessage)
+                return true
+            }
         }
-        
-        switch (lastMessage.role, newMessage.role) {
-        case (UserRole.user.rawValue, UserRole.user.rawValue):
-            let combinedContent = lastMessage.content + "#" + newMessage.content
-            let combinedMessage = LocalMessage(id: newMessage.id, role: UserRole.user.rawValue, content: combinedContent, timestamp: Date())
-            saveMessage(combinedMessage)
-            return false
-        case (UserRole.assistant.rawValue, UserRole.assistant.rawValue) where newMessage.content.count > lastMessage.content.count:
-            saveMessage(newMessage)
-            return true
-        default:
-            saveMessage(newMessage)
-            return true
+
+        private func removeMessage(_ localMessage: LocalMessage) {
+            // 首先从本地数组中删除
+            if let index = messages.firstIndex(where: { $0.id == localMessage.id }) {
+                messages.remove(at: index)
+            }
+            
+            // 然后从 CoreData 中删除
+            let fetchRequest: NSFetchRequest<Message> = Message.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", localMessage.id as CVarArg)
+            
+            do {
+                let fetchedMessages = try context.fetch(fetchRequest)
+                if let messageToDelete = fetchedMessages.first {
+                    context.delete(messageToDelete)
+                    try context.save()
+                }
+            } catch {
+                print("Error removing message from CoreData: \(error.localizedDescription)")
+            }
         }
-    }
+
+
 
     func saveMessage(_ localMessage: LocalMessage) {
         let newMessage = Message(context: self.context)
