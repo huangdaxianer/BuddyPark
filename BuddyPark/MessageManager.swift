@@ -24,14 +24,21 @@ class SessionManager: ObservableObject {
     }
 }
 
-class MessageManager: ObservableObject {    
+class MessageManager: ObservableObject {
     @Published var messages: [LocalMessage] = []
     @Published var lastUpdated = Date()
     @Published var isTyping = false
-    private var contact: Contact // 添加 Contact 实体
+    private var contact: Contact
     private let context: NSManagedObjectContext
+    
+    enum UserRole: String {
+        case user
+        case assistant
+    }
 
     init(characterid: Int32, context: NSManagedObjectContext) {
+        self.context = context
+        
         let fetchRequest: NSFetchRequest<Contact> = Contact.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "characterid == %d", characterid)
         
@@ -41,15 +48,10 @@ class MessageManager: ObservableObject {
                 fatalError("未找到与 characterid 匹配的 Contact")
             }
             self.contact = contact
+            self.messages = loadMessages()
         } catch {
             fatalError("获取 Contact 失败: \(error)")
         }
-        self.context = context
-        
-        messages = []
-        messages = loadMessages()
-        //      self.sendRequest(type: .appRestart)
-        //      setupNotificationObserver()
     }
     
     var contactName: String {
@@ -57,75 +59,57 @@ class MessageManager: ObservableObject {
     }
     
     private func loadMessages() -> [LocalMessage] {
-        // 获取联系人关联的消息
         guard let messagesSet = contact.messages as? Set<Message> else {
             print("Failed to cast messages to correct type.")
             return []
         }
         
-        // 转换为 LocalMessage 数组并按 timestamp 排序
-        let messagesArray = messagesSet.map { message -> LocalMessage in
-            return LocalMessage(
-                id: message.id ?? UUID(),
-                role: message.role ?? "user",
-                content: message.content ?? "",
-                timestamp: message.timestamp ?? Date()
-                
-            )
+        return messagesSet.map {
+            LocalMessage(id: $0.id ?? UUID(),
+                         role: $0.role ?? "user",
+                         content: $0.content ?? "",
+                         timestamp: $0.timestamp ?? Date())
         }.sorted(by: { $0.timestamp < $1.timestamp })
-        
-        print("Loaded messages: \(messagesArray)")
-        return messagesArray
     }
     
     func appendFullMessage(_ newMessage: LocalMessage,
                            lastUserReplyFromServer: String?,
                            isFromBackground: Bool? = nil,
                            completion: @escaping () -> Void) {
-        // 如果是从后台收到的消息，重新加载
-        if isFromBackground == true {
-            self.messages = self.loadMessages()
+        if isFromBackground == true { self.messages = self.loadMessages() }
+        if newMessage.role == UserRole.user.rawValue || newMessage.content.last == "#" {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.isTyping = false }
         }
         
-        // 用户正在输入的逻辑
-        if newMessage.role == "user" || newMessage.content.last == "#" {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                self.isTyping = false
-            }
-        }
-        
-        let shouldAppendNewMessage: Bool
-        if let lastMessage = messages.last {
-            switch (lastMessage.role, newMessage.role) {
-            case ("user", "user"):
-                let combinedContent = lastMessage.content + "#" + newMessage.content
-                let combinedMessage = LocalMessage(id: newMessage.id, role: "user", content: combinedContent, timestamp: Date())
-                saveMessage(combinedMessage)
-                shouldAppendNewMessage = false
-            case ("assistant", "assistant") where newMessage.content.count > lastMessage.content.count:
-                saveMessage(newMessage)
-                shouldAppendNewMessage = true
-            default:
-                saveMessage(newMessage)
-                shouldAppendNewMessage = true
-            }
-        } else {
-            saveMessage(newMessage)
-            shouldAppendNewMessage = true
-        }
-
-        // 根据条件来判断是否应该添加新消息到messages数组中
-        if shouldAppendNewMessage {
+        let shouldAppend = handleMessageAppending(newMessage)
+        if shouldAppend {
             DispatchQueue.main.async {
                 self.messages.append(newMessage)
                 AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
                 completion()
             }
         }
+        DispatchQueue.main.async { self.lastUpdated = Date() }
+    }
 
-        //更新 lastUpdated 属性，用来刷新视图
-        DispatchQueue.main.async {
-            self.lastUpdated = Date()
+    private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
+        guard let lastMessage = messages.last else {
+            saveMessage(newMessage)
+            return true
+        }
+        
+        switch (lastMessage.role, newMessage.role) {
+        case (UserRole.user.rawValue, UserRole.user.rawValue):
+            let combinedContent = lastMessage.content + "#" + newMessage.content
+            let combinedMessage = LocalMessage(id: newMessage.id, role: UserRole.user.rawValue, content: combinedContent, timestamp: Date())
+            saveMessage(combinedMessage)
+            return false
+        case (UserRole.assistant.rawValue, UserRole.assistant.rawValue) where newMessage.content.count > lastMessage.content.count:
+            saveMessage(newMessage)
+            return true
+        default:
+            saveMessage(newMessage)
+            return true
         }
     }
 
@@ -136,14 +120,11 @@ class MessageManager: ObservableObject {
         newMessage.content = localMessage.content
         newMessage.timestamp = localMessage.timestamp
         newMessage.characterid = self.contact.characterid
-        
-        // 关联新消息与 Contact 实体
         newMessage.contact = self.contact
         self.contact.addToMessages(newMessage)
 
         do {
             try self.context.save()
-            print("Saved message: \(localMessage)")
         } catch {
             print("Error saving message: \(error.localizedDescription)")
         }
