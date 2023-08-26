@@ -71,8 +71,6 @@ struct MessageView: View {
         ZStack {
             Color("chat_bg_color")
                 .edgesIgnoringSafeArea(.all)
-        
-
             ScrollViewReader { scrollViewProxy in
                 ScrollView {
                     LazyVStack {
