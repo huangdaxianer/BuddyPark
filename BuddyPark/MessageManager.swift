@@ -7,12 +7,12 @@ import UIKit
 class SessionManager: ObservableObject {
     private var sessions: [Int32: MessageManager] = [:]
     private let context: NSManagedObjectContext // 添加 context 属性
-
+    
     // 添加构造函数以接收 context
     init(context: NSManagedObjectContext) {
         self.context = context
     }
-
+    
     func session(for characterid: Int32) -> MessageManager {
         if let session = sessions[characterid] {
             return session
@@ -29,11 +29,12 @@ class MessageManager: ObservableObject {
     @Published var lastUpdated = Date()
     @Published var isTyping = false
     private var contact: Contact // 添加 Contact 实体
+    private let context: NSManagedObjectContext
 
     init(characterid: Int32, context: NSManagedObjectContext) {
         let fetchRequest: NSFetchRequest<Contact> = Contact.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "characterid == %d", characterid)
-
+        
         do {
             let contacts = try context.fetch(fetchRequest)
             guard let contact = contacts.first else {
@@ -43,11 +44,12 @@ class MessageManager: ObservableObject {
         } catch {
             fatalError("获取 Contact 失败: \(error)")
         }
+        self.context = context
         
         messages = []
         messages = loadMessages()
-  //      self.sendRequest(type: .appRestart)
-  //      setupNotificationObserver()
+        //      self.sendRequest(type: .appRestart)
+        //      setupNotificationObserver()
     }
     
     var contactName: String {
@@ -60,139 +62,98 @@ class MessageManager: ObservableObject {
             print("Failed to cast messages to correct type.")
             return []
         }
-
+        
         // 转换为 LocalMessage 数组并按 timestamp 排序
         let messagesArray = messagesSet.map { message -> LocalMessage in
             return LocalMessage(
-                id: message.id,
-                role: ServerMessage.Role(rawValue: message.role ?? "") ?? .user, // 使用 .user 作为默认值
+                id: message.id ?? UUID(),
+                role: message.role ?? "user",
                 content: message.content ?? "",
                 timestamp: message.timestamp ?? Date()
+                
             )
         }.sorted(by: { $0.timestamp < $1.timestamp })
-
+        
         print("Loaded messages: \(messagesArray)")
         return messagesArray
     }
-}
     
-    //新方法就是输入所有完整的消息，只比长短，然后更新消息
-//    func appendFullMessage(_ newMessage: LocalMessage,
-//                           lastUserReplyFromServer: String?,
-//                           isFromBackground: Bool? = nil,
-//                           completion: @escaping () -> Void) {
+    func appendFullMessage(_ newMessage: LocalMessage,
+                           lastUserReplyFromServer: String?,
+                           isFromBackground: Bool? = nil,
+                           completion: @escaping () -> Void) {
+        // 如果是从后台收到的消息，重新加载
+        if isFromBackground == true {
+            self.messages = self.loadMessages()
+        }
+        
+        // 用户正在输入的逻辑
+        if newMessage.role == "user" || newMessage.content.last == "#" {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                self.isTyping = false
+            }
+        }
+        
+        let shouldAppendNewMessage: Bool
+        if let lastMessage = messages.last {
+            switch (lastMessage.role, newMessage.role) {
+            case ("user", "user"):
+                let combinedContent = lastMessage.content + "#" + newMessage.content
+                let combinedMessage = LocalMessage(id: newMessage.id, role: "user", content: combinedContent, timestamp: Date())
+                saveMessage(combinedMessage)
+                shouldAppendNewMessage = false
+            case ("assistant", "assistant") where newMessage.content.count > lastMessage.content.count:
+                saveMessage(newMessage)
+                shouldAppendNewMessage = true
+            default:
+                saveMessage(newMessage)
+                shouldAppendNewMessage = true
+            }
+        } else {
+            saveMessage(newMessage)
+            shouldAppendNewMessage = true
+        }
+
+        // 根据条件来判断是否应该添加新消息到messages数组中
+        if shouldAppendNewMessage {
+            DispatchQueue.main.async {
+                self.messages.append(newMessage)
+                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+                completion()
+            }
+        }
+
+        //更新 lastUpdated 属性，用来刷新视图
+        DispatchQueue.main.async {
+            self.lastUpdated = Date()
+        }
+    }
+
+    func saveMessage(_ localMessage: LocalMessage) {
+        let newMessage = Message(context: self.context)
+        newMessage.id = localMessage.id
+        newMessage.role = localMessage.role
+        newMessage.content = localMessage.content
+        newMessage.timestamp = localMessage.timestamp
+        newMessage.characterid = self.contact.characterid
+        
+        // 关联新消息与 Contact 实体
+        newMessage.contact = self.contact
+        self.contact.addToMessages(newMessage)
+
+        do {
+            try self.context.save()
+            print("Saved message: \(localMessage)")
+        } catch {
+            print("Error saving message: \(error.localizedDescription)")
+        }
+    }
+}
+
+//新方法就是输入所有完整的消息，只比长短，然后更新消息
+
 //
-//
-//        //添加用户消息要看上一条消息是不是用户发的，如果是用户发的就通过井号添加，如果不存在或者不是用户发的就直接添加
-//        if newMessage.role == .user {
-//            if isFromBackground == true {
-//                self.messages = self.loadMessages()
-//            }
-//
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-//                self.isTyping = false
-//            }
-//
-//             if let lastMessage = messages.last {
-//                 if lastMessage.role == .user {
-//                     let combinedContent = lastMessage.content + "#" + newMessage.content
-//                     let combinedMessage = LocalMessage(id: newMessage.id, role: .user, content: combinedContent, timestamp: Date())
-//                     DispatchQueue.main.async {
-//                         self.messages.removeLast()
-//                         self.messages.append(combinedMessage)
-//                         self.saveMessages()
-//                         completion()
-//                     }
-//
-//                 } else {
-//                     DispatchQueue.main.async {
-//                         self.messages.append(newMessage)
-//                         self.saveMessages()
-//                         completion()
-//                     }
-//                 }
-//             } else {
-//                 DispatchQueue.main.async {
-//                     self.messages.append(newMessage)
-//                     self.saveMessages()
-//                     completion()
-//                 }
-//             }
-//         } else if newMessage.role == .assistant {
-//            // 比较收到的消息是不是针对用户上一条的回复，如果不是的话就不添加消息
-//            if let lastUserReplyFromServer = lastUserReplyFromServer,
-//               let lastUserMessageIndex = messages.lastIndex(where: { $0.role == .user }),
-//               messages[lastUserMessageIndex].content != lastUserReplyFromServer {
-//                print("要添加的消息不是针对上一条的回复，所以不添加", messages[lastUserMessageIndex].content, lastUserReplyFromServer)
-//                //这里实际上不能直接 return，还是要稍微研究一下逻辑
-//                return
-//            }
-//
-//             self.isTyping = false
-//
-//             if newMessage.content.last == "#" {
-//                 // 如果是的话，就在 1.5 秒后再把  self.isTyping 设置成 true
-//                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-//                     self.isTyping = true
-//                 }
-//             }
-//
-//            // 先判断是不是收到的首条 assistant 的消息，如果不是且如果新消息比最后一条消息长，使用新消息替换最后一条消息
-//             if let lastMessage = messages.last {
-//                      if lastMessage.role == .user {
-//                          DispatchQueue.main.async {
-//                              self.messages.append(newMessage)
-//                              self.saveMessages()
-//                              AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-//                              completion()
-//                          }
-//                      } else if lastMessage.role == .assistant {
-//                          if newMessage.content.count > lastMessage.content.count {
-//                              DispatchQueue.main.async {
-//                                  self.messages.removeAll { $0.role == .assistant && $0.content == lastMessage.content }
-//                                  self.messages.append(newMessage)
-//                                  self.saveMessages()
-//                                  AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-//                                  completion()
-//                              }
-//                          }
-//                      }
-//                  } else {
-//                      DispatchQueue.main.async {
-//                          self.messages.append(newMessage)
-//                          self.saveMessages()
-//                          AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-//                          completion()
-//                      }
-//                  }
-//              }
-//        //更新 lastUpdated 属性，用来刷新视图
-//        DispatchQueue.main.async {
-//            self.lastUpdated = Date()
-//        }
-//        //把 messages 数组这个消息存起来
-//        let encoder = JSONEncoder()
-//        do {
-//            let data = try encoder.encode(messages)
-//            let userDefaults = UserDefaults(suiteName: appGroupName)
-//            userDefaults?.set(data, forKey: storageKey)
-//        } catch {
-//            print("Error saving messages: \(error.localizedDescription)")
-//        }
-//        print("Saved messages: \(messages)")
-//    }
-//
-//    func saveMessages() {
-//            let encoder = JSONEncoder()
-//            do {
-//                let data = try encoder.encode(messages)
-//                let userDefaults = UserDefaults(suiteName: appGroupName)
-//                userDefaults?.set(data, forKey: storageKey)
-//            } catch {
-//                print("Error saving messages: \(error.localizedDescription)")
-//            }
-//            print("Saved messages: \(messages)")
-//        }
+
 //
 //    func sendRequest(type: RequestType, retryOnTimeout: Bool = true) {
 //        guard let url = URL(string: getMessageURL) else { return }
@@ -307,11 +268,11 @@ class MessageManager: ObservableObject {
 //    func reloadMessages() {
 //        messages = loadMessages()
 //    }
-    
 
 
 
-    
+
+
 //    func resetDialogue() {
 //        let currentDialogueID =  self.getOrCreateDialogueID().uuidString
 //        self.clearServerMessage(dialogueID: currentDialogueID,retryOnTimeout: true)
@@ -327,7 +288,7 @@ class MessageManager: ObservableObject {
 //        UserDefaults.standard.set(false, forKey: "CharacterConfigCompleted")
 //    }
 
-    
+
 //    func getOrCreateDialogueID() -> UUID {
 //        let userDefaults = UserDefaults.standard
 //        let uuidKey = "DialogueID"
@@ -340,7 +301,7 @@ class MessageManager: ObservableObject {
 //            return uuid
 //        }
 //    }
-    
+
 //    private func setupNotificationObserver() {
 //        NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
 //            .sink { [weak self] _ in
@@ -351,8 +312,8 @@ class MessageManager: ObservableObject {
 //            }
 //            .store(in: &cancellables)
 //    }
-    
-    
+
+
 //    func clearServerMessage(dialogueID: String, retryOnTimeout: Bool = true) {
 //        guard let url = URL(string: deleteCharacterURL) else { return }
 //        var urlRequest = URLRequest(url: url)
@@ -380,23 +341,17 @@ extension LocalMessage {
 }
 
 struct ServerMessage: Codable {
-    enum Role: String, Codable {
-        case user
-        case assistant
-        case system
-    }
-    
-    let role: Role
+    let role: String
     let content: String
     let timestamp: Date // 添加新字段
 }
 
 struct LocalMessage: Identifiable, Codable, Equatable {
-    let id: UUID?
-    let role: ServerMessage.Role
+    let id: UUID
+    let role: String
     let content: String
     let timestamp: Date // 添加的新字段
-
+    
     static func == (lhs: LocalMessage, rhs: LocalMessage) -> Bool {
         return lhs.id == rhs.id && lhs.role == rhs.role && lhs.content == rhs.content && lhs.timestamp == rhs.timestamp
     }
@@ -405,7 +360,7 @@ struct LocalMessage: Identifiable, Codable, Equatable {
 
 struct LocalMessageWithLastReply: Identifiable, Codable, Equatable {
     let id: UUID?
-    let role: ServerMessage.Role
+    let role: String
     let content: String
     let lastUserMessage: String
     

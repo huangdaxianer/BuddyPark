@@ -169,6 +169,14 @@ struct MessageView: View {
                         formatter.locale = Locale(identifier: "zh_CN")
                         let timeString = formatter.string(from: date)
                         userInput.textWithTime = "\(userInput.text)$\(timeString)"
+                        
+                        let userMessage = LocalMessage(id: UUID(), role: "user", content: userInput.textWithTime, timestamp: Date())
+                        messageManager.appendFullMessage(userMessage, lastUserReplyFromServer: nil) {
+                            // 这个闭包将在 'appendFullMessage' 执行完毕后执行
+                            //messageManager.sendRequest(type: .newMessage)
+                        }
+                        //messageManager.testNetwork()
+                        
                         userInput.text = ""
                     }
                 })
@@ -177,19 +185,6 @@ struct MessageView: View {
         .navigationBarHidden(true)  // 隐藏 Navigation Bar
     }
 }
-
-struct Border: ViewModifier {
-    let color: Color
-    let width: CGFloat
-
-    func body(content: Content) -> some View {
-        content.background(
-            RoundedRectangle(cornerRadius: 0)
-                .strokeBorder(color, lineWidth: width)
-        )
-    }
-}
-
 
 struct MessageRow: View {
     @Environment(\.colorScheme) var colorScheme
@@ -229,7 +224,7 @@ struct MessageRow: View {
             // Check if displayedContent starts with $
             if !displayedContent.hasPrefix("$") {
                 HStack {
-                    if message.role == .assistant {
+                    if message.role == "assistant" {
                         ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
                             VStack(alignment: .leading, spacing: 8) {
                                 ForEach(contents, id: \.self) { content in
@@ -360,8 +355,8 @@ struct MessageView_Previews: PreviewProvider {
         for i in 1...10 {
             let message = Message(context: context)
             message.id = UUID()
-            message.role = i % 2 == 0 ? "user" : "assistant"
-            message.content = "测试消息 \(i)"
+            message.role = "user"
+            message.content = "测试消息 \(i)#你好吗"
             message.timestamp = Date().addingTimeInterval(TimeInterval(i * 60))
             
             contact.addToMessages(message)
