@@ -63,6 +63,9 @@ struct MessageView: View {
     @ObservedObject var messageManager: MessageManager
     @State var isFirstResponder: Bool = false
     @StateObject var userInput = UserInput()
+    @State private var keyboardDynamicPadding: CGFloat = 0
+    @State private var keyboardHeight: CGFloat = 0
+    
     init(characterid: Int32, context: NSManagedObjectContext, messageManager: MessageManager) {
         self.messageManager = messageManager
     }
@@ -90,7 +93,6 @@ struct MessageView: View {
                     }
                     .modifier(ResignKeyboardAndLoseFocusGesture(isFirstResponder: $isFirstResponder))
                 }
-                
                 .padding(.top, 50)
                 .padding(.bottom, 10)
                 .onAppear {
@@ -99,14 +101,10 @@ struct MessageView: View {
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                     scrollToBottom(with: scrollViewProxy)
                 }
-                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-                    scrollToBottom(with: scrollViewProxy, delay: 0.2)
-                }
                 .gesture(DragGesture().onChanged { _ in
                     UIApplication.shared.endEditing()
                 })
                 .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-                    print("Keyboard will show")
                     DispatchQueue.main.asyncAfter(deadline: .now()) {
                         withAnimation {
                             scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
@@ -115,6 +113,18 @@ struct MessageView: View {
                 }
                 .edgesIgnoringSafeArea(.bottom)  // 忽略底部的安全区
             }
+            .onAppear {
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { (noti) in
+                    DispatchQueue.main.asyncAfter(deadline: .now()) {
+                        keyboardHeight = 70
+                    }
+                }
+
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { (noti) in
+                    keyboardHeight = 0
+                }
+            }.padding(.bottom, keyboardHeight)
+            
             
             VStack() {
                 ZStack {
@@ -188,7 +198,18 @@ struct MessageView: View {
                         userInput.text = ""
                     }
                 })
+            }.onAppear {
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { (noti) in
+                    keyboardDynamicPadding = 10
+                }
+
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { (noti) in
+                    keyboardDynamicPadding = 0
+                }
             }
+            .padding(.bottom, keyboardDynamicPadding) // 添加这一行
+            
+            
         }
         .navigationBarHidden(true)  // 隐藏 Navigation Bar
     }
