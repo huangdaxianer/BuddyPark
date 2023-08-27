@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreData
+import AudioToolbox
 
 class UserInput: ObservableObject {
     @Published var text: String = ""
@@ -104,14 +105,14 @@ struct MessageView: View {
                 .gesture(DragGesture().onChanged { _ in
                     UIApplication.shared.endEditing()
                 })
-//                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-//                    print("Keyboard will show")
-//                    DispatchQueue.main.asyncAfter(deadline: .now()) {
-//                        withAnimation {
-//                            scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
-//                        }
-//                    }
-//                }
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+                    print("Keyboard will show")
+                    DispatchQueue.main.asyncAfter(deadline: .now()) {
+                        withAnimation {
+                            scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
+                        }
+                    }
+                }
                 .edgesIgnoringSafeArea(.bottom)  // 忽略底部的安全区
             }
             
