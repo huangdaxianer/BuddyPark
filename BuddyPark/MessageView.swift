@@ -65,6 +65,8 @@ struct MessageView: View {
     @StateObject var userInput = UserInput()
     @State private var keyboardDynamicPadding: CGFloat = 0
     @State private var keyboardHeight: CGFloat = 0
+    @State private var ifShowIndicator: Bool = true
+    
     
     init(characterid: Int32, context: NSManagedObjectContext, messageManager: MessageManager) {
         self.messageManager = messageManager
@@ -75,7 +77,7 @@ struct MessageView: View {
             Color("chat_bg_color")
                 .edgesIgnoringSafeArea(.all)
             ScrollViewReader { scrollViewProxy in
-                ScrollView {
+                ScrollView(showsIndicators: ifShowIndicator)  {
                     LazyVStack {
                         ForEach(Array(messageManager.messages.enumerated()), id: \.element.id) { index, message in
                             let previousMessageTimestamp: Date = index > 0 ? messageManager.messages[index - 1].timestamp : Date.distantPast
@@ -83,7 +85,11 @@ struct MessageView: View {
                         }
                         Rectangle()
                             .fill(Color.clear)
-                            .frame(height: 100)
+                            .frame(height: 0.1)  // 新添加的10点高的Rectangle
+                            .id("additionalOffset")
+                        Rectangle()
+                            .fill(Color.clear)
+                            .frame(height: 95)
                             .id("bottomRectangle")
                             .onChange(of: messageManager.lastUpdated) { _ in
                                 withAnimation {
@@ -107,7 +113,7 @@ struct MessageView: View {
                 .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
                     DispatchQueue.main.asyncAfter(deadline: .now()) {
                         withAnimation {
-                            scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
+                            scrollViewProxy.scrollTo("additionalOffset", anchor: .bottom)
                         }
                     }
                 }
@@ -115,12 +121,13 @@ struct MessageView: View {
             }
             .onAppear {
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { (noti) in
-                    DispatchQueue.main.asyncAfter(deadline: .now()) {
-                        keyboardHeight = 70
-                    }
+                    ifShowIndicator=false
+                    keyboardHeight = 70
                 }
-
+                
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { (noti) in
+                    ifShowIndicator=true
+                    
                     keyboardHeight = 0
                 }
             }.padding(.bottom, keyboardHeight)
@@ -202,7 +209,7 @@ struct MessageView: View {
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { (noti) in
                     keyboardDynamicPadding = 10
                 }
-
+                
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { (noti) in
                     keyboardDynamicPadding = 0
                 }
@@ -216,7 +223,7 @@ struct MessageView: View {
     
     private func scrollToBottom(with scrollViewProxy: ScrollViewProxy, delay: Double = 0.1) {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                scrollViewProxy.scrollTo("bottomRectangle", anchor: .bottom)
+            scrollViewProxy.scrollTo("bottomRectangle", anchor: .bottom)
         }
     }
 }
