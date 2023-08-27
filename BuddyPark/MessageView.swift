@@ -55,7 +55,6 @@ struct CustomTextFieldView: View {
     }
 }
 
-
 struct MessageView: View {
     
     @Environment(\.managedObjectContext) var context
@@ -82,7 +81,6 @@ struct MessageView: View {
                             .fill(Color.clear)
                             .frame(height: 100)
                             .id("bottomRectangle")
-                        // 当消息更新的时候自动滚动
                             .onChange(of: messageManager.lastUpdated) { _ in
                                 withAnimation {
                                     scrollViewProxy.scrollTo("bottomRectangle", anchor: .bottom)
@@ -106,14 +104,14 @@ struct MessageView: View {
                 .gesture(DragGesture().onChanged { _ in
                     UIApplication.shared.endEditing()
                 })
-                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
-                    print("Keyboard will show")
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        withAnimation {
-                            scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
-                        }
-                    }
-                }
+//                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+//                    print("Keyboard will show")
+//                    DispatchQueue.main.asyncAfter(deadline: .now()) {
+//                        withAnimation {
+//                            scrollViewProxy.scrollTo(messageManager.messages.last?.id, anchor: .bottom)
+//                        }
+//                    }
+//                }
                 .edgesIgnoringSafeArea(.bottom)  // 忽略底部的安全区
             }
             
@@ -196,9 +194,7 @@ struct MessageView: View {
     
     private func scrollToBottom(with scrollViewProxy: ScrollViewProxy, delay: Double = 0.1) {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            withAnimation {
                 scrollViewProxy.scrollTo("bottomRectangle", anchor: .bottom)
-            }
         }
     }
 }
