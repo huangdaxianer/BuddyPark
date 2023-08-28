@@ -236,7 +236,6 @@ struct MessageRow: View {
     @State private var showingAlert = false
     @EnvironmentObject var avatarUpdater: AvatarUpdater
     @State private var showingSubscriptionView = false
-    let appGroupName = "group.com.penghao.BuddyPark"
     var message: LocalMessage
     var previousMessageTimestamp: Date?
     

@@ -25,17 +25,19 @@ class SessionManager: ObservableObject {
 }
 
 class MessageManager: ObservableObject {
+    
     @Published var messages: [LocalMessage] = []
     @Published var lastUpdated = Date()
     @Published var isTyping = false
     private var contact: Contact
     private let context: NSManagedObjectContext
     
+
     enum UserRole: String {
         case user
         case assistant
     }
-
+    
     init(characterid: Int32, context: NSManagedObjectContext) {
         self.context = context
         
@@ -88,53 +90,51 @@ class MessageManager: ObservableObject {
         }
         DispatchQueue.main.async { self.lastUpdated = Date() }
     }
-
-
-        private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
-            guard let lastMessage = messages.last else {
-                saveMessage(newMessage)
-                return true
-            }
-            
-            switch (lastMessage.role, newMessage.role) {
-            case (UserRole.user.rawValue, UserRole.user.rawValue):
-                let combinedContent = lastMessage.content + "#" + newMessage.content
-                let combinedMessage = LocalMessage(id: newMessage.id, role: UserRole.user.rawValue, content: combinedContent, timestamp: Date())
-                removeMessage(lastMessage)  // 删除原始消息
-                saveMessage(combinedMessage)
-                return true  // 为了确保新消息被添加，我们返回 true
-            case (UserRole.assistant.rawValue, UserRole.assistant.rawValue) where newMessage.content.count > lastMessage.content.count:
-                saveMessage(newMessage)
-                return true
-            default:
-                saveMessage(newMessage)
-                return true
-            }
+    
+    
+    private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
+        guard let lastMessage = messages.last else {
+            saveMessage(newMessage)
+            return true
         }
-
-        private func removeMessage(_ localMessage: LocalMessage) {
-            // 首先从本地数组中删除
-            if let index = messages.firstIndex(where: { $0.id == localMessage.id }) {
-                messages.remove(at: index)
-            }
-            
-            // 然后从 CoreData 中删除
-            let fetchRequest: NSFetchRequest<Message> = Message.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "id == %@", localMessage.id as CVarArg)
-            
-            do {
-                let fetchedMessages = try context.fetch(fetchRequest)
-                if let messageToDelete = fetchedMessages.first {
-                    context.delete(messageToDelete)
-                    try context.save()
-                }
-            } catch {
-                print("Error removing message from CoreData: \(error.localizedDescription)")
-            }
+        
+        switch (lastMessage.role, newMessage.role) {
+        case (UserRole.user.rawValue, UserRole.user.rawValue):
+            let combinedContent = lastMessage.content + "#" + newMessage.content
+            let combinedMessage = LocalMessage(id: newMessage.id, role: UserRole.user.rawValue, content: combinedContent, timestamp: Date())
+            removeMessage(lastMessage)  // 删除原始消息
+            saveMessage(combinedMessage)
+            return true  // 为了确保新消息被添加，我们返回 true
+        case (UserRole.assistant.rawValue, UserRole.assistant.rawValue) where newMessage.content.count > lastMessage.content.count:
+            saveMessage(newMessage)
+            return true
+        default:
+            saveMessage(newMessage)
+            return true
         }
-
-
-
+    }
+    
+    private func removeMessage(_ localMessage: LocalMessage) {
+        // 首先从本地数组中删除
+        if let index = messages.firstIndex(where: { $0.id == localMessage.id }) {
+            messages.remove(at: index)
+        }
+        
+        // 然后从 CoreData 中删除
+        let fetchRequest: NSFetchRequest<Message> = Message.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", localMessage.id as CVarArg)
+        
+        do {
+            let fetchedMessages = try context.fetch(fetchRequest)
+            if let messageToDelete = fetchedMessages.first {
+                context.delete(messageToDelete)
+                try context.save()
+            }
+        } catch {
+            print("Error removing message from CoreData: \(error.localizedDescription)")
+        }
+    }
+    
     func saveMessage(_ localMessage: LocalMessage) {
         let newMessage = Message(context: self.context)
         newMessage.id = localMessage.id
@@ -144,7 +144,7 @@ class MessageManager: ObservableObject {
         newMessage.characterid = self.contact.characterid
         newMessage.contact = self.contact
         self.contact.addToMessages(newMessage)
-
+        
         do {
             try self.context.save()
             self.messages.append(localMessage)  // 这里同步更新 messages 数组
@@ -153,98 +153,96 @@ class MessageManager: ObservableObject {
             print("Error saving message: \(error.localizedDescription)")
         }
     }
+    
+    enum RequestType: String {
+        case newMessage = "new-message"
+        case appRestart = "app-restart"
+    }
+    
+    func sendRequest(type: RequestType, retryOnTimeout: Bool = true) {
+        guard let url = URL(string: messageService) else { return }
+        var urlRequest = URLRequest(url: url)
+        let Character = UserDefaults.standard.string(forKey: "Character") ?? ""
+        let encodedCharacter = Character.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        let deviceToken = UserDefaults.standard.string(forKey: "deviceToken") ?? ""
+        let prompt = UserDefaults.standard.string(forKey: "prompt") ?? ""
+        let userID = UserDefaults.standard.string(forKey: "userUUID") ?? ""
+        let encodedPrompt = prompt.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue(apiKey, forHTTPHeaderField: "Authorization")
+        //        urlRequest.setValue(getOrCreateDialogueID().uuidString, forHTTPHeaderField: "X-Dialogueid")
+        urlRequest.setValue(userID, forHTTPHeaderField: "X-Userid")
+        urlRequest.setValue(type.rawValue, forHTTPHeaderField: "X-Request-Type")
+        urlRequest.setValue(encodedCharacter, forHTTPHeaderField: "X-Character")
+        urlRequest.setValue(deviceToken, forHTTPHeaderField: "X-Device-Token")
+        urlRequest.setValue(encodedPrompt, forHTTPHeaderField: "X-Prompt")
+        print("正在通过 sendrequest 发送消息，type 是", RequestType.self)
+        
+        // Set timeout interval
+        urlRequest.timeoutInterval = 60.0
+        
+        if type == .newMessage {
+            if SubscriptionManager.shared.canSendMessage() {
+                
+                let request = ServerRequest(messages: messages.map { $0.toServerMessage() })
+                
+                do {
+                    let requestBody = try JSONEncoder().encode(request)
+                    urlRequest.httpBody = requestBody
+                    print("sending message")
+                } catch {
+                    print("Error encoding request body: \(error.localizedDescription)")
+                    return
+                }
+                urlRequest.httpMethod = "POST"
+            } else {
+                urlRequest.httpMethod = "GET"
+            }
+            
+            
+            URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+                if let error = error {
+                    print("Error fetching message: \(error.localizedDescription)")
+                    
+                    // If the error can be cast as an NSError, print more detailed information
+                    if let nsError = error as NSError? {
+                        print("Error domain: \(nsError.domain)")
+                        print("Error code: \(nsError.code)")
+                        print("Error user info: \(nsError.userInfo)")
+                    }
+                    
+                    // 超时重试
+                    if (error as NSError).code == NSURLErrorTimedOut && retryOnTimeout {
+                        self.sendRequest(type: .appRestart, retryOnTimeout: false)
+                        print("错误了")
+                    }
+                    return
+                }
+                
+                if let data = data {
+                    do {
+                        let decoder = JSONDecoder()
+                        let lastMessage = try decoder.decode(LocalMessageWithLastReply.self, from: data) //这个是新消息
+                        let newLastMessage = LocalMessage(id: UUID(), role: lastMessage.role, content: lastMessage.content, timestamp: Date())
+                        self.appendFullMessage(newLastMessage, lastUserReplyFromServer: lastMessage.lastUserMessage) {}
+                        print("没有超时，正常返回结果了")
+                        
+                    } catch {
+                    }
+                }
+            }.resume()                } else {
+                return
+            }
+        
+        
+    }
+    
 }
 
 //新方法就是输入所有完整的消息，只比长短，然后更新消息
 
-//
 
-//
-//    func sendRequest(type: RequestType, retryOnTimeout: Bool = true) {
-//        guard let url = URL(string: getMessageURL) else { return }
-//        var urlRequest = URLRequest(url: url)
-//        let Character = UserDefaults.standard.string(forKey: "Character") ?? ""
-//        let encodedCharacter = Character.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-//        let deviceToken = UserDefaults.standard.string(forKey: "deviceToken") ?? ""
-//        let prompt = UserDefaults.standard.string(forKey: "prompt") ?? ""
-//        let userID = UserDefaults.standard.string(forKey: "userUUID") ?? ""
-//        let encodedPrompt = prompt.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-//        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-//        urlRequest.setValue(apiKey, forHTTPHeaderField: "Authorization")
-//        urlRequest.setValue(getOrCreateDialogueID().uuidString, forHTTPHeaderField: "X-Dialogueid")
-//        urlRequest.setValue(userID, forHTTPHeaderField: "X-Userid")
-//        urlRequest.setValue(type.rawValue, forHTTPHeaderField: "X-Request-Type")
-//        urlRequest.setValue(encodedCharacter, forHTTPHeaderField: "X-Character")
-//        urlRequest.setValue(deviceToken, forHTTPHeaderField: "X-Device-Token")
-//        urlRequest.setValue(encodedPrompt, forHTTPHeaderField: "X-Prompt")
-//        print("正在通过 sendrequest 发送消息，type 是", RequestType.self)
-//
-//        // Set timeout interval
-//        urlRequest.timeoutInterval = 60.0
-//
-//        if type == .newMessage {
-//            // 获取现有的 freeMessageLeft 值
-//            let userDefaults = UserDefaults(suiteName: appGroupName)
-//            var freeMessageLeft = userDefaults?.integer(forKey: "freeMessageLeft") ?? 0
-//
-//            // 确保免费消息数量大于0，然后减少1
-//            if freeMessageLeft > 0 {
-//                freeMessageLeft -= 1
-//                userDefaults?.set(freeMessageLeft, forKey: "freeMessageLeft")
-//            } else {
-//                // 如果没有免费消息，请处理此情况，例如通过返回错误或通知用户
-//                print("No free messages left.")
-//                return
-//            }
-//
-//            let request = ServerRequest(messages: messages.map { $0.toServerMessage() })
-//
-//            do {
-//                let requestBody = try JSONEncoder().encode(request)
-//                urlRequest.httpBody = requestBody
-//                print("sending message")
-//            } catch {
-//                print("Error encoding request body: \(error.localizedDescription)")
-//                return
-//            }
-//            urlRequest.httpMethod = "POST"
-//        } else {
-//            urlRequest.httpMethod = "GET"
-//        }
-//
-//
-//        URLSession.shared.dataTask(with: urlRequest) { data, response, error in
-//            if let error = error {
-//                print("Error fetching message: \(error.localizedDescription)")
-//
-//                // If the error can be cast as an NSError, print more detailed information
-//                if let nsError = error as NSError? {
-//                    print("Error domain: \(nsError.domain)")
-//                    print("Error code: \(nsError.code)")
-//                    print("Error user info: \(nsError.userInfo)")
-//                }
-//
-//                // 超时重试
-//                if (error as NSError).code == NSURLErrorTimedOut && retryOnTimeout {
-//                    self.sendRequest(type: .appRestart, retryOnTimeout: false)
-//                    print("错误了")
-//                }
-//                return
-//            }
-//
-//            if let data = data {
-//                do {
-//                    let decoder = JSONDecoder()
-//                    let lastMessage = try decoder.decode(LocalMessageWithLastReply.self, from: data) //这个是新消息
-//                    let newLastMessage = LocalMessage(id: UUID(), role: lastMessage.role, content: lastMessage.content, timestamp: Date())
-//                    self.appendFullMessage(newLastMessage, lastUserReplyFromServer: lastMessage.lastUserMessage) {}
-//                    print("没有超时，正常返回结果了")
-//
-//                } catch {
-//                }
-//            }
-//        }.resume()
-//    }
+
 //
 //    func testNetwork() {
 //        let testNetworkURL = URL(string: "https://service-ly7fdync-1251732024.jp.apigw.tencentcs.com/release/")
