@@ -15,13 +15,16 @@ class SessionManager: ObservableObject {
     
     func session(for characterid: Int32) -> MessageManager {
         if let session = sessions[characterid] {
+            print("找到了与 characterid: \(characterid) 对应的 Session")
             return session
         } else {
-            let newSession = MessageManager(characterid: characterid, context: context) // 传递 context 参数
+            print("没有找到与 characterid: \(characterid) 对应的 Session, 创建新的 Session")
+            let newSession = MessageManager(characterid: characterid, context: context)
             sessions[characterid] = newSession
             return newSession
         }
     }
+
 }
 
 class MessageManager: ObservableObject {

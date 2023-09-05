@@ -5,9 +5,9 @@ import UserNotifications
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
     let notificationManager = NotificationManager.shared
-    var sessionManager: SessionManager!
-    let storageKey = "messages"
+ //   var sessionManager: SessionManager!
     
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         UNUserNotificationCenter.current().delegate = self // 修改这里
 
@@ -79,19 +79,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
               return
           }
 
-          let messageManager = sessionManager.session(for: characterId)
+        let messageManager = globalSessionManager?.session(for: characterId)
           let fullText = (userInfo["aps"] as? [String: Any])?["full-text"] as? String
           let freeMessageLeftString = (userInfo["aps"] as? [String: Any])?["free-message-left"] as? String
           let lastUserMessageFromServer = (userInfo["aps"] as? [String: Any])?["users-reply"] as? String
           
           let newFullMessage = LocalMessage(id: UUID(), role: "assistant", content: fullText ?? notification.request.content.body, timestamp: Date())
-          messageManager.appendFullMessage(newFullMessage, lastUserReplyFromServer: lastUserMessageFromServer){}
+        messageManager?.appendFullMessage(newFullMessage, lastUserReplyFromServer: lastUserMessageFromServer){}
 
         // 这里还要处理根据通知里的消息处理订阅状态的逻辑
       }
 
 }
 
+var globalSessionManager: SessionManager?
 
 @main
 struct BuddyParkApp: App {
@@ -101,14 +102,17 @@ struct BuddyParkApp: App {
 
     init() {
         let context = persistenceController.container.viewContext
-        _sessionManager = StateObject(wrappedValue: SessionManager(context: context))
+        let sessionManager = SessionManager(context: context)
+        _sessionManager = StateObject(wrappedValue: sessionManager)
+        globalSessionManager = sessionManager
     }
+
 
     var body: some Scene {
         WindowGroup {
-            HomeView(sessionManager: sessionManager)
+            HomeView(sessionManager: globalSessionManager ?? sessionManager)
                  .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                 .environmentObject(sessionManager)
+                 .environmentObject(globalSessionManager ?? sessionManager)
         }
     }
 }

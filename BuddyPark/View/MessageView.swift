@@ -214,7 +214,7 @@ struct MessageView: View {
             
             
         }
-        //.navigationBarHidden(true)  // 隐藏 Navigation Bar
+        .navigationBarHidden(true)  // 隐藏 Navigation Bar
     }
     
     private func scrollToBottom(with scrollViewProxy: ScrollViewProxy, delay: Double = 0.1) {
