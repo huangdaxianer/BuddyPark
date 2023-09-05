@@ -26,10 +26,7 @@ struct ResignKeyboardAndLoseFocusGesture: ViewModifier {
     }
 }
 
-struct User {
-    let uuid: String
-    let isNewUser: Bool
-}
+
 
 struct CustomTextFieldView: View {
     @ObservedObject var userInput: UserInput
@@ -197,8 +194,7 @@ struct MessageView: View {
                         
                         let userMessage = LocalMessage(id: UUID(), role: "user", content: userInput.textWithTime, timestamp: Date())
                         messageManager.appendFullMessage(userMessage, lastUserReplyFromServer: nil) {
-                            // 这个闭包将在 'appendFullMessage' 执行完毕后执行
-                            //messageManager.sendRequest(type: .newMessage)
+                        messageManager.sendRequest(type: .newMessage)
                         }
                         //messageManager.testNetwork()
                         
@@ -218,7 +214,7 @@ struct MessageView: View {
             
             
         }
-        .navigationBarHidden(true)  // 隐藏 Navigation Bar
+        //.navigationBarHidden(true)  // 隐藏 Navigation Bar
     }
     
     private func scrollToBottom(with scrollViewProxy: ScrollViewProxy, delay: Double = 0.1) {

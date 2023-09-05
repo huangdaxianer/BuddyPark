@@ -162,28 +162,17 @@ class MessageManager: ObservableObject {
     func sendRequest(type: RequestType, retryOnTimeout: Bool = true) {
         guard let url = URL(string: messageService) else { return }
         var urlRequest = URLRequest(url: url)
-        let Character = UserDefaults.standard.string(forKey: "Character") ?? ""
-        let encodedCharacter = Character.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        let deviceToken = UserDefaults.standard.string(forKey: "deviceToken") ?? ""
-        let prompt = UserDefaults.standard.string(forKey: "prompt") ?? ""
-        let userID = UserDefaults.standard.string(forKey: "userUUID") ?? ""
-        let encodedPrompt = prompt.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.setValue(apiKey, forHTTPHeaderField: "Authorization")
-        //        urlRequest.setValue(getOrCreateDialogueID().uuidString, forHTTPHeaderField: "X-Dialogueid")
-        urlRequest.setValue(userID, forHTTPHeaderField: "X-Userid")
-        urlRequest.setValue(type.rawValue, forHTTPHeaderField: "X-Request-Type")
-        urlRequest.setValue(encodedCharacter, forHTTPHeaderField: "X-Character")
-        urlRequest.setValue(deviceToken, forHTTPHeaderField: "X-Device-Token")
-        urlRequest.setValue(encodedPrompt, forHTTPHeaderField: "X-Prompt")
-        print("正在通过 sendrequest 发送消息，type 是", RequestType.self)
-        
-        // Set timeout interval
         urlRequest.timeoutInterval = 60.0
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue(type.rawValue, forHTTPHeaderField: "X-Request-Type")
+        urlRequest.setValue(apiKey, forHTTPHeaderField: "Authorization")
+        if let uuidString = self.contact.id?.uuidString { urlRequest.setValue(uuidString, forHTTPHeaderField: "X-Dialogueid") }
+        urlRequest.setValue(String(self.contact.characterid), forHTTPHeaderField: "X-Characterid")
+        urlRequest.setValue(UserProfileManager.shared.getUserID() ?? "", forHTTPHeaderField: "X-Userid")
+        urlRequest.setValue(UserDefaults.standard.string(forKey: "deviceToken") ?? "", forHTTPHeaderField: "X-Device-Token")
         
         if type == .newMessage {
             if SubscriptionManager.shared.canSendMessage() {
-                
                 let request = ServerRequest(messages: messages.map { $0.toServerMessage() })
                 
                 do {
@@ -203,15 +192,6 @@ class MessageManager: ObservableObject {
             URLSession.shared.dataTask(with: urlRequest) { data, response, error in
                 if let error = error {
                     print("Error fetching message: \(error.localizedDescription)")
-                    
-                    // If the error can be cast as an NSError, print more detailed information
-                    if let nsError = error as NSError? {
-                        print("Error domain: \(nsError.domain)")
-                        print("Error code: \(nsError.code)")
-                        print("Error user info: \(nsError.userInfo)")
-                    }
-                    
-                    // 超时重试
                     if (error as NSError).code == NSURLErrorTimedOut && retryOnTimeout {
                         self.sendRequest(type: .appRestart, retryOnTimeout: false)
                         print("错误了")
@@ -220,20 +200,16 @@ class MessageManager: ObservableObject {
                 }
                 
                 if let data = data {
-                    do {
-                        let decoder = JSONDecoder()
-                        let lastMessage = try decoder.decode(LocalMessageWithLastReply.self, from: data) //这个是新消息
-                        let newLastMessage = LocalMessage(id: UUID(), role: lastMessage.role, content: lastMessage.content, timestamp: Date())
-                        self.appendFullMessage(newLastMessage, lastUserReplyFromServer: lastMessage.lastUserMessage) {}
-                        print("没有超时，正常返回结果了")
-                        
-                    } catch {
-                    }
+                    let decoder = JSONDecoder()
+                    //let lastMessage = try decoder.decode(LocalMessageWithLastReply.self, from: data) //这个是新消息
+                    //let newLastMessage = LocalMessage(id: UUID(), role: lastMessage.role, content: lastMessage.content, timestamp: Date())
+                    //self.appendFullMessage(newLastMessage, lastUserReplyFromServer: lastMessage.lastUserMessage) {}
+                    print("没有超时，正常返回结果了")
                 }
-            }.resume()                } else {
+            }.resume()
+        } else {
                 return
             }
-        
         
     }
     

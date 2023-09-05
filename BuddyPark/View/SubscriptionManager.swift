@@ -1,10 +1,3 @@
-//
-//  SubscriptionManager.swift
-//  BuddyPark
-//
-//  Created by 黄鹏昊 on 2023/8/28.
-//
-
 import Foundation
 import StoreKit
 
@@ -23,17 +16,20 @@ class SubscriptionManager: NSObject, SKProductsRequestDelegate, SKPaymentTransac
     @Published var freeMessageLeft: Int = 0
     
     func canSendMessage() -> Bool {
-        let userDefaults = UserDefaults(suiteName: appGroupName)
-        var freeMessageLeft = userDefaults?.integer(forKey: "freeMessageLeft") ?? 0
+        return true
 
-        if freeMessageLeft > 0 {
-            freeMessageLeft -= 1
-            userDefaults?.set(freeMessageLeft, forKey: "freeMessageLeft")
-            return true
-        } else {
-            print("No free messages left.")
-            return false
-        }
+        
+//        let userDefaults = UserDefaults(suiteName: appGroupName)
+//        var freeMessageLeft = userDefaults?.integer(forKey: "freeMessageLeft") ?? 0
+//
+//        if freeMessageLeft > 0 {
+//            freeMessageLeft -= 1
+//            userDefaults?.set(freeMessageLeft, forKey: "freeMessageLeft")
+//            return true
+//        } else {
+//            print("No free messages left.")
+//            return false
+//        }
     }
 
     
