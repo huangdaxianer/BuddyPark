@@ -10,7 +10,9 @@ class CharacterData: ObservableObject {
     init() {
         loadCharactersFromCoreData()
         if characters.isEmpty {
-            updateCharactersInCoreData()  // Using "1" to fetch the first set of characters from the server
+            updateCharactersInCoreData {
+                self.loadCharactersFromCoreData()
+            }
         }
     }
     
@@ -29,18 +31,22 @@ class CharacterData: ObservableObject {
     }
 
     
-    func updateCharactersInCoreData() {
-        let currentMaxid = UserDefaults.standard.string(forKey: "currentMaxCharacterid") ?? "0"
-        let nextCharacterid = String(Int(currentMaxid)! + 1)
-        fetchCharactersFromServer(characterId: nextCharacterid) { (characters, error) in
-            if let characters = characters {
-                self.createCharactersInCoreData(characters: characters)
-                if let maxFetchedCharacterid = characters.max(by: { $0.characterid < $1.characterid })?.characterid {
-                    UserDefaults.standard.setValue(maxFetchedCharacterid, forKey: "currentMaxCharacterid")
-                }
-            }
-        }
-    }
+    func updateCharactersInCoreData(completion: @escaping () -> Void) {
+         let currentMaxid = UserDefaults.standard.string(forKey: "currentMaxCharacterid") ?? "0"
+         let nextCharacterid = String(Int(currentMaxid)! + 1)
+         fetchCharactersFromServer(characterId: nextCharacterid) { (characters, error) in
+             if let characters = characters {
+                 self.createCharactersInCoreData(characters: characters)
+                 if let maxFetchedCharacterid = characters.max(by: { $0.characterid < $1.characterid })?.characterid {
+                     UserDefaults.standard.setValue(maxFetchedCharacterid, forKey: "currentMaxCharacterid")
+                 }
+                 completion()
+             } else {
+                 print("Error fetching characters: \(error?.localizedDescription ?? "Unknown error")")
+                 completion()
+             }
+         }
+     }
     
     private func createCharactersInCoreData(characters: [CharacterDataModel]) {
         let context = CoreDataManager.shared.persistentContainer.viewContext
