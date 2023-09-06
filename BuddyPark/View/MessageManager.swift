@@ -170,7 +170,7 @@ class MessageManager: ObservableObject {
         urlRequest.setValue(type.rawValue, forHTTPHeaderField: "X-Request-Type")
         urlRequest.setValue(apiKey, forHTTPHeaderField: "Authorization")
         if let uuidString = self.contact.id?.uuidString { urlRequest.setValue(uuidString, forHTTPHeaderField: "X-Dialogueid") }
-        urlRequest.setValue(String(self.contact.characterid), forHTTPHeaderField: "X-Characterid")
+        urlRequest.setValue(String(self.contact.characterid), forHTTPHeaderField: "X-characterid")
         urlRequest.setValue(UserProfileManager.shared.getUserID() ?? "", forHTTPHeaderField: "X-Userid")
         urlRequest.setValue(UserDefaults.standard.string(forKey: "deviceToken") ?? "", forHTTPHeaderField: "X-Device-Token")
         

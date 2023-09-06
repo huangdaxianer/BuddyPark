@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		F519A9042AA8284B00A4569B /* CharacterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F519A9032AA8284B00A4569B /* CharacterManager.swift */; };
 		F5362CAF2A9BBF2200FD3A52 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5362CAE2A9BBF2200FD3A52 /* Constants.swift */; };
+		F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187C52AA848280082E195 /* CoreDataManager.swift */; };
 		F55E423C2A93C4FB000BBB44 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423B2A93C4FB000BBB44 /* ProfileView.swift */; };
 		F55E423E2A947E40000BBB44 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423D2A947E40000BBB44 /* ColorExtension.swift */; };
 		F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005092A86200600BAF934 /* BuddyParkApp.swift */; };
@@ -75,6 +76,7 @@
 		F519A9032AA8284B00A4569B /* CharacterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterManager.swift; sourceTree = "<group>"; };
 		F5362CAD2A9872D800FD3A52 /* BuddyPark.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BuddyPark.entitlements; sourceTree = "<group>"; };
 		F5362CAE2A9BBF2200FD3A52 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		F54187C52AA848280082E195 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		F55E423B2A93C4FB000BBB44 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		F55E423D2A947E40000BBB44 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
 		F59005062A86200600BAF934 /* BuddyPark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BuddyPark.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -229,6 +231,7 @@
 				F5D73B3C2A9D10AF0075D3FA /* UserProfileManager.swift */,
 				F5D70A982A9CF76E0075D3FA /* SubscriptionManager.swift */,
 				F519A9032AA8284B00A4569B /* CharacterManager.swift */,
+				F54187C52AA848280082E195 /* CoreDataManager.swift */,
 			);
 			name = Manager;
 			path = View;
@@ -421,6 +424,7 @@
 				F55E423E2A947E40000BBB44 /* ColorExtension.swift in Sources */,
 				F519A9042AA8284B00A4569B /* CharacterManager.swift in Sources */,
 				F59005502A8A068F00BAF934 /* HomeViewModel.swift in Sources */,
+				F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */,
 				F590054A2A89F40500BAF934 /* MessageView.swift in Sources */,
 				F59E83AF2AA1851C0076D9FD /* NotificationManager.swift in Sources */,
 				F59005132A86200800BAF934 /* Persistence.swift in Sources */,

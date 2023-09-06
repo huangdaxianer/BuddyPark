@@ -52,7 +52,7 @@ struct SwipeableCardView: View {
             VStack {
                 GeometryReader { geometry in
                     VStack {
-                        Image(uiImage: model.pictures.first ?? UIImage())
+                        Image(uiImage: model.image ?? UIImage())
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(maxWidth: geometry.size.width - 26, maxHeight: geometry.size.height - 100)
@@ -194,19 +194,19 @@ extension SwipeableCardView {
     }
 }
 
-
-struct SwipeView_Previews: PreviewProvider {
-    @State static private var profiles: [ProfileCardModel] = [
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "22222", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "33333", age: 50, pictures: [UIImage(named: "elon_musk")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "44444", age: 50, pictures: [UIImage(named: "jeff_bezos")!],  intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
-        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 25, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。")
-    ]
-    static var previews: some View {
-        SwipeView(profiles: $profiles, onSwiped: {_,_ in})
-    }
-}
+//
+//struct SwipeView_Previews: PreviewProvider {
+//    @State static private var profiles: [ProfileCardModel] = [
+//        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+//        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "22222", age: 50, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+//        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "33333", age: 50, pictures: [UIImage(named: "elon_musk")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+//        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "44444", age: 50, pictures: [UIImage(named: "jeff_bezos")!],  intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"),
+//        ProfileCardModel(characterId: Int32(arc4random_uniform(1000)), name: "俊熙一号", age: 25, pictures: [UIImage(named: "junxi")!], intro: "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。")
+//    ]
+//    static var previews: some View {
+//        SwipeView(profiles: $profiles, onSwiped: {_,_ in})
+//    }
+//}
 
 
 

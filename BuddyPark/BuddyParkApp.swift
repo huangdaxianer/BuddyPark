@@ -73,13 +73,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     //在前台通过 APNS 收消息
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
           let userInfo = notification.request.content.userInfo
-          let characterIdString = (userInfo["aps"] as? [String: Any])?["characterid"] as? String // 假设 userInfo 里包含 characterid
-          guard let characterId = Int32(characterIdString ?? "") else {
-              print("无法从推送通知中获取 characterId")
+          let characteridString = (userInfo["aps"] as? [String: Any])?["characterid"] as? String // 假设 userInfo 里包含 characterid
+          guard let characterid = Int32(characteridString ?? "") else {
+              print("无法从推送通知中获取 characterid")
               return
           }
 
-        let messageManager = globalSessionManager?.session(for: characterId)
+        let messageManager = globalSessionManager?.session(for: characterid)
           let fullText = (userInfo["aps"] as? [String: Any])?["full-text"] as? String
           let freeMessageLeftString = (userInfo["aps"] as? [String: Any])?["free-message-left"] as? String
           let lastUserMessageFromServer = (userInfo["aps"] as? [String: Any])?["users-reply"] as? String
@@ -98,15 +98,19 @@ var globalSessionManager: SessionManager?
 struct BuddyParkApp: App {
     let persistenceController = PersistenceController.shared
     @StateObject var sessionManager: SessionManager
+
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     init() {
+        // 设置 CharacterManager 的图片存储目录
+        CharacterManager.shared.setupImageDirectory(for: .profile)
+
+        // 其他已有的初始化代码
         let context = persistenceController.container.viewContext
         let sessionManager = SessionManager(context: context)
         _sessionManager = StateObject(wrappedValue: sessionManager)
         globalSessionManager = sessionManager
     }
-
 
     var body: some Scene {
         WindowGroup {
@@ -116,6 +120,7 @@ struct BuddyParkApp: App {
         }
     }
 }
+
 
 
 
