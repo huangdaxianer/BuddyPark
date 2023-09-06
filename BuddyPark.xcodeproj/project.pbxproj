@@ -10,7 +10,8 @@
 		F519A9042AA8284B00A4569B /* CharacterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F519A9032AA8284B00A4569B /* CharacterManager.swift */; };
 		F5362CAF2A9BBF2200FD3A52 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5362CAE2A9BBF2200FD3A52 /* Constants.swift */; };
 		F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187C52AA848280082E195 /* CoreDataManager.swift */; };
-		F54187C92AA885210082E195 /* app.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187C82AA885210082E195 /* app.js */; };
+		F54187CC2AA887E90082E195 /* Message-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187CB2AA887E90082E195 /* Message-Service.js */; };
+		F54187CE2AA888030082E195 /* Character-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187CD2AA888030082E195 /* Character-Service.js */; };
 		F55E423C2A93C4FB000BBB44 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423B2A93C4FB000BBB44 /* ProfileView.swift */; };
 		F55E423E2A947E40000BBB44 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423D2A947E40000BBB44 /* ColorExtension.swift */; };
 		F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005092A86200600BAF934 /* BuddyParkApp.swift */; };
@@ -78,7 +79,8 @@
 		F5362CAD2A9872D800FD3A52 /* BuddyPark.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BuddyPark.entitlements; sourceTree = "<group>"; };
 		F5362CAE2A9BBF2200FD3A52 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		F54187C52AA848280082E195 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
-		F54187C82AA885210082E195 /* app.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = app.js; sourceTree = "<group>"; };
+		F54187CB2AA887E90082E195 /* Message-Service.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "Message-Service.js"; sourceTree = "<group>"; };
+		F54187CD2AA888030082E195 /* Character-Service.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "Character-Service.js"; sourceTree = "<group>"; };
 		F55E423B2A93C4FB000BBB44 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		F55E423D2A947E40000BBB44 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
 		F59005062A86200600BAF934 /* BuddyPark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BuddyPark.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -140,18 +142,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		F54187C72AA885210082E195 /* Message-Server */ = {
+		F54187CA2AA887E90082E195 /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				F54187C82AA885210082E195 /* app.js */,
+				F54187CD2AA888030082E195 /* Character-Service.js */,
+				F54187CB2AA887E90082E195 /* Message-Service.js */,
 			);
-			path = "Message-Server";
+			path = Server;
 			sourceTree = "<group>";
 		};
 		F59004FD2A86200600BAF934 = {
 			isa = PBXGroup;
 			children = (
-				F54187C72AA885210082E195 /* Message-Server */,
+				F54187CA2AA887E90082E195 /* Server */,
 				F59005082A86200600BAF934 /* BuddyPark */,
 				F590051E2A86200800BAF934 /* BuddyParkTests */,
 				F59005282A86200800BAF934 /* BuddyParkUITests */,
@@ -378,9 +381,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F54187C92AA885210082E195 /* app.js in Resources */,
 				F59005112A86200800BAF934 /* Preview Assets.xcassets in Resources */,
 				F590050E2A86200800BAF934 /* Assets.xcassets in Resources */,
+				F54187CE2AA888030082E195 /* Character-Service.js in Resources */,
+				F54187CC2AA887E90082E195 /* Message-Service.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

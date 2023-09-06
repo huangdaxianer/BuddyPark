@@ -8,47 +8,120 @@ class CharacterData: ObservableObject {
     @Published var characters: [ProfileCardModel] = []
     
     init() {
+        print("Initializing CharacterData...")
         loadCharactersFromCoreData()
         if characters.isEmpty {
-            createCharactersInCoreData()
-            loadCharactersFromCoreData()
+            print("No characters found in CoreData. Fetching from server...")
+            updateCharactersInCoreData(characterId: "1")  // Using "1" to fetch the first set of characters from the server
         }
     }
     
     private func loadCharactersFromCoreData() {
+        print("Loading characters from CoreData...")
         let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "characterid", ascending: true)]
         fetchRequest.predicate = NSPredicate(format: "status == %@", "raw") // 添加此行来过滤结果
+        
         do {
             let context = CoreDataManager.shared.persistentContainer.viewContext
             let fetchedCharacters = try context.fetch(fetchRequest)
+            print("Successfully loaded \(fetchedCharacters.count) characters from CoreData.")
             self.characters = fetchedCharacters.map { ProfileCardModel(character: $0) }
         } catch {
             print("Failed to fetch characters: \(error)")
         }
     }
-
     
-    private func createCharactersInCoreData() {
+    func updateCharactersInCoreData(characterId: String) {
+        print("Updating characters in CoreData with characterId: \(characterId)")
+        fetchCharactersFromServer(characterId: characterId) { (characters, error) in
+            if let characters = characters {
+                print("Successfully fetched \(characters.count) characters from server.")
+                self.createCharactersInCoreData(characters: characters)
+            } else {
+                print("Error fetching characters: \(error?.localizedDescription ?? "Unknown error")")
+            }
+        }
+    }
+    
+    private func createCharactersInCoreData(characters: [CharacterDataModel]) {
+        print("Creating characters in CoreData...")
         let context = CoreDataManager.shared.persistentContainer.viewContext
         
-        guard let junxiImage = UIImage(named: "junxi") else {
-            print("Failed to load 'junxi' image from assets")
-            return
-        }
-        
-        for i in 1...20 {
+        for characterData in characters {
+            print("Processing character: \(characterData.characterName)")
             let character = Character(context: context)
-            character.characterid = Int32(705 + i)
-            character.name = "俊熙\(i)号"
-            character.age = 21
-            character.intro = "体育校队队长，母胎单身，肌肉发达头脑也不简单，喜欢大哥哥。"
+            if let intId = Int(characterData.characterid) {
+                character.characterid = Int32(intId)
+            } else {
+                print("Error: Cannot convert \(characterData.characterid) to Int32.")
+            }
+            character.name = characterData.characterName
+            character.age = Int16(characterData.age) ?? 0
+            character.intro = characterData.intro
             character.status = "raw"
-            CharacterManager.shared.saveImage(characterid: character.characterid, image: junxiImage, type: .profile)
+            
+            CharacterManager.shared.downloadImage(from: URL(string: characterData.avatarImage)!) { image in
+                if let image = image {
+                    print("Successfully downloaded image for character \(character.characterid)")
+                    CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .avatar)
+                } else {
+                    print("Failed to download image for character \(character.characterid)")
+                }
+            }
+            
+            CharacterManager.shared.downloadImage(from: URL(string: characterData.profileImage)!) { image in
+                if let image = image {
+                    print("Successfully downloaded image for character \(character.characterid)")
+                    CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .profile)
+                } else {
+                    print("Failed to download image for character \(character.characterid)")
+                }
+            }
+            
         }
         
         CoreDataManager.shared.saveContext()
+        print("Characters successfully created in CoreData.")
     }
+    
+    func fetchCharactersFromServer(characterId: String, completion: @escaping ([CharacterDataModel]?, Error?) -> Void) {
+        print("Fetching characters from server using URL: \(messageService)...")
+        let urlString = messageService + "getCharacters?characterid=\(characterId)"
+        
+        guard let url = URL(string: urlString) else {
+            completion(nil, NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { (data, response, error) in
+            if let data = data {
+                do {
+                    let characters = try JSONDecoder().decode([CharacterDataModel].self, from: data)
+                    print("Successfully decoded \(characters.count) characters from server data.")
+                    completion(characters, nil)
+                } catch {
+                    print("Failed to decode characters from server data: \(error)")
+                    completion(nil, error)
+                }
+            } else {
+                print("No data received from server. Error: \(error?.localizedDescription ?? "Unknown error")")
+                completion(nil, error)
+            }
+        }.resume()
+    }
+}
+
+
+
+//这个是用来定义服务端的返回数据的
+struct CharacterDataModel: Codable {
+    let age: String
+    let avatarImage: String
+    let characterName: String
+    let profileImage: String
+    let intro: String
+    let characterid: String
 }
 
 
@@ -72,25 +145,25 @@ struct ProfileCardModel {
 class CharacterManager {
     // 单例模式
     static let shared = CharacterManager()
-
+    
     private init() {}  // 私有化构造器以确保外部不能创建该类的实例
-
+    
     enum ImageType {
         case profile
         case avatar
     }
-
+    
     enum CharacterStatus: String {
         case raw
         case liked
         case unliked
     }
-
+    
     // 文件系统的目录路径
     private var documentDirectory: URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
-
+    
     private func directory(for type: ImageType) -> URL {
         switch type {
         case .profile:
@@ -111,26 +184,77 @@ class CharacterManager {
             }
         }
     }
-
+    
     func loadImage(characterid: Int32, type: ImageType) -> UIImage? {
         let imagePath = directory(for: type).appendingPathComponent("\(characterid)").path
-        if FileManager.default.fileExists(atPath: imagePath), let image = UIImage(contentsOfFile: imagePath) {
-            return image
+        
+        // 打印要查找的图像路径
+        print("Attempting to load image from path: \(imagePath)")
+        
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: imagePath) {
+            print("File exists at path: \(imagePath)")
+            
+            if let image = UIImage(contentsOfFile: imagePath) {
+                print("Successfully loaded image for character ID: \(characterid) of type: \(type)")
+                return image
+            } else {
+                print("Error: Unable to create UIImage from file at path: \(imagePath)")
+            }
+        } else {
+            print("Error: File does not exist at path: \(imagePath)")
         }
+        
         return nil
+    }
+
+    
+    func downloadImage(from url: URL, completion: @escaping (UIImage?) -> Void) {
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data, error == nil else {
+                completion(nil)
+                return
+            }
+            completion(UIImage(data: data))
+        }
+        task.resume()
     }
     
     func saveImage(characterid: Int32, image: UIImage, type: ImageType) {
-        let imagePath = directory(for: type).appendingPathComponent("\(characterid)")
+        let directoryPath = directory(for: type)
+        let imagePath = directoryPath.appendingPathComponent("\(characterid)")
+        
+        // 打印保存图片的目标路径
+        print("Target path to save image: \(imagePath.path)")
+        
+        let fileManager = FileManager.default
+        if !fileManager.fileExists(atPath: directoryPath.path) {
+            do {
+                // 如果文件夹不存在，创建它
+                try fileManager.createDirectory(at: directoryPath, withIntermediateDirectories: true, attributes: nil)
+                print("Successfully created directory at path: \(directoryPath.path)")
+            } catch {
+                print("Error creating directory: \(error)")
+                return
+            }
+        } else {
+            print("Directory already exists at path: \(directoryPath.path)")
+        }
+        
         // 将 UIImage 转换为 Data
         if let imageData = image.jpegData(compressionQuality: 1.0) {
             do {
                 try imageData.write(to: imagePath)
+                print("Successfully saved image for character ID: \(characterid) of type: \(type) at path: \(imagePath.path)")
             } catch {
                 print("Error saving image: \(error)")
             }
+        } else {
+            print("Error: Unable to convert UIImage to jpegData for character ID: \(characterid)")
         }
     }
+
+
     
     func updateCharacterStatus(characterid: Int32, status: CharacterStatus) {
         let context = CoreDataManager.shared.persistentContainer.viewContext
@@ -147,7 +271,7 @@ class CharacterManager {
             print("Error updating character status: \(error)")
         }
     }
-
+    
 }
 
 

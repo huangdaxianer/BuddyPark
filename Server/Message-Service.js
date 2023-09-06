@@ -32,7 +32,7 @@ production: process.env.NODE_ENV === 'production' // 根据实际情况设置为
 
 let provider = new apn.Provider(apnsOptions);
 
-app.all(`*`, async (req, res) => {
+app.all('/sendMessage', async (req, res) => {
     //初始化常量
     const openai_key = process.env.OPENAI_KEY
     let isClientDisconnected = false;

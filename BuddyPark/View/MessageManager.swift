@@ -163,7 +163,9 @@ class MessageManager: ObservableObject {
     }
     
     func sendRequest(type: RequestType, retryOnTimeout: Bool = true) {
-        guard let url = URL(string: messageService) else { return }
+        let sendMessageEndpoint = "sendMessage"
+        let completeURLString = messageService + sendMessageEndpoint
+        guard let url = URL(string: completeURLString) else { return }
         var urlRequest = URLRequest(url: url)
         urlRequest.timeoutInterval = 60.0
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
