@@ -8,16 +8,13 @@ class CharacterData: ObservableObject {
     @Published var characters: [ProfileCardModel] = []
     
     init() {
-        print("Initializing CharacterData...")
         loadCharactersFromCoreData()
         if characters.isEmpty {
-            print("No characters found in CoreData. Fetching from server...")
-            updateCharactersInCoreData(characterId: "1")  // Using "1" to fetch the first set of characters from the server
+            updateCharactersInCoreData()  // Using "1" to fetch the first set of characters from the server
         }
     }
     
     private func loadCharactersFromCoreData() {
-        print("Loading characters from CoreData...")
         let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "characterid", ascending: true)]
         fetchRequest.predicate = NSPredicate(format: "status == %@", "raw") // 添加此行来过滤结果
@@ -25,24 +22,27 @@ class CharacterData: ObservableObject {
         do {
             let context = CoreDataManager.shared.persistentContainer.viewContext
             let fetchedCharacters = try context.fetch(fetchRequest)
-            print("Successfully loaded \(fetchedCharacters.count) characters from CoreData.")
             self.characters = fetchedCharacters.map { ProfileCardModel(character: $0) }
         } catch {
             print("Failed to fetch characters: \(error)")
         }
     }
+
     
-    func updateCharactersInCoreData(characterId: String) {
-        print("Updating characters in CoreData with characterId: \(characterId)")
-        fetchCharactersFromServer(characterId: characterId) { (characters, error) in
+    func updateCharactersInCoreData() {
+        let currentMaxid = UserDefaults.standard.string(forKey: "currentMaxCharacterid") ?? "0"
+        let nextCharacterid = String(Int(currentMaxid)! + 1)
+        fetchCharactersFromServer(characterId: nextCharacterid) { (characters, error) in
             if let characters = characters {
-                print("Successfully fetched \(characters.count) characters from server.")
                 self.createCharactersInCoreData(characters: characters)
-            } else {
-                print("Error fetching characters: \(error?.localizedDescription ?? "Unknown error")")
+                if let maxFetchedCharacterid = characters.max(by: { $0.characterid < $1.characterid })?.characterid {
+                    UserDefaults.standard.setValue(maxFetchedCharacterid, forKey: "currentMaxCharacterid")
+                }
             }
         }
     }
+
+
     
     private func createCharactersInCoreData(characters: [CharacterDataModel]) {
         print("Creating characters in CoreData...")
