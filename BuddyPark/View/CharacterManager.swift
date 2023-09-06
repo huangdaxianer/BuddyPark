@@ -41,20 +41,14 @@ class CharacterData: ObservableObject {
             }
         }
     }
-
-
     
     private func createCharactersInCoreData(characters: [CharacterDataModel]) {
-        print("Creating characters in CoreData...")
         let context = CoreDataManager.shared.persistentContainer.viewContext
-        
         for characterData in characters {
-            print("Processing character: \(characterData.characterName)")
             let character = Character(context: context)
             if let intId = Int(characterData.characterid) {
                 character.characterid = Int32(intId)
             } else {
-                print("Error: Cannot convert \(characterData.characterid) to Int32.")
             }
             character.name = characterData.characterName
             character.age = Int16(characterData.age) ?? 0
@@ -63,30 +57,21 @@ class CharacterData: ObservableObject {
             
             CharacterManager.shared.downloadImage(from: URL(string: characterData.avatarImage)!) { image in
                 if let image = image {
-                    print("Successfully downloaded image for character \(character.characterid)")
                     CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .avatar)
                 } else {
-                    print("Failed to download image for character \(character.characterid)")
                 }
             }
             
             CharacterManager.shared.downloadImage(from: URL(string: characterData.profileImage)!) { image in
                 if let image = image {
-                    print("Successfully downloaded image for character \(character.characterid)")
                     CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .profile)
-                } else {
-                    print("Failed to download image for character \(character.characterid)")
                 }
             }
-            
         }
-        
         CoreDataManager.shared.saveContext()
-        print("Characters successfully created in CoreData.")
     }
     
     func fetchCharactersFromServer(characterId: String, completion: @escaping ([CharacterDataModel]?, Error?) -> Void) {
-        print("Fetching characters from server using URL: \(messageService)...")
         let urlString = messageService + "getCharacters?characterid=\(characterId)"
         
         guard let url = URL(string: urlString) else {
@@ -98,14 +83,11 @@ class CharacterData: ObservableObject {
             if let data = data {
                 do {
                     let characters = try JSONDecoder().decode([CharacterDataModel].self, from: data)
-                    print("Successfully decoded \(characters.count) characters from server data.")
                     completion(characters, nil)
                 } catch {
-                    print("Failed to decode characters from server data: \(error)")
                     completion(nil, error)
                 }
             } else {
-                print("No data received from server. Error: \(error?.localizedDescription ?? "Unknown error")")
                 completion(nil, error)
             }
         }.resume()
