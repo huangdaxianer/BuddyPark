@@ -209,11 +209,4 @@ struct SwipeView_Previews: PreviewProvider {
 }
 
 
-struct ProfileCardModel {
-    let characterId: Int32
-    let name: String
-    let age: Int
-    let pictures: [UIImage]
-    let intro: String
-}
 

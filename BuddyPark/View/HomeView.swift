@@ -2,7 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @StateObject private var profileData = ProfileData()
+    @StateObject private var characterData = CharacterData()
     @StateObject private var viewModel = HomeViewModel()
     @ObservedObject var sessionManager: SessionManager
     @State private var selectedTab: Int = 0
@@ -16,8 +16,8 @@ struct HomeView: View {
                 ZStack {
                     switch selectedTab {
                     case 0:
-                        SwipeView(profiles: $profileData.profiles, onSwiped: viewModel.onSwiped)
-                            .environmentObject(profileData)
+                        SwipeView(profiles: $characterData.characters, onSwiped: viewModel.onSwiped)
+                            .environmentObject(characterData)
                     case 1:
                         MessageListView(selectedCharacterId: $selectedCharacterId)
                             .environment(\.managedObjectContext, viewContext)
