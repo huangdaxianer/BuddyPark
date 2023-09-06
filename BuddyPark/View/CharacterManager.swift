@@ -36,46 +36,56 @@ class CharacterData: ObservableObject {
          let nextCharacterid = String(Int(currentMaxid)! + 1)
          fetchCharactersFromServer(characterId: nextCharacterid) { (characters, error) in
              if let characters = characters {
-                 self.createCharactersInCoreData(characters: characters)
-                 if let maxFetchedCharacterid = characters.max(by: { $0.characterid < $1.characterid })?.characterid {
-                     UserDefaults.standard.setValue(maxFetchedCharacterid, forKey: "currentMaxCharacterid")
-                 }
-                 completion()
-             } else {
+                   self.createCharactersInCoreData(characters: characters) {
+                       if let maxFetchedCharacterid = characters.max(by: { $0.characterid < $1.characterid })?.characterid {
+                           UserDefaults.standard.setValue(maxFetchedCharacterid, forKey: "currentMaxCharacterid")
+                       }
+                       completion()
+                   }
+               } else {
                  print("Error fetching characters: \(error?.localizedDescription ?? "Unknown error")")
                  completion()
              }
          }
      }
     
-    private func createCharactersInCoreData(characters: [CharacterDataModel]) {
+    private func createCharactersInCoreData(characters: [CharacterDataModel], completion: @escaping () -> Void) {
         let context = CoreDataManager.shared.persistentContainer.viewContext
+        let group = DispatchGroup()
+
         for characterData in characters {
             let character = Character(context: context)
             if let intId = Int(characterData.characterid) {
                 character.characterid = Int32(intId)
-            } else {
             }
             character.name = characterData.characterName
             character.age = Int16(characterData.age) ?? 0
             character.intro = characterData.intro
             character.status = "raw"
-            
+
+            group.enter()
             CharacterManager.shared.downloadImage(from: URL(string: characterData.avatarImage)!) { image in
                 if let image = image {
                     CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .avatar)
-                } else {
                 }
+                group.leave()
             }
-            
+
+            group.enter()
             CharacterManager.shared.downloadImage(from: URL(string: characterData.profileImage)!) { image in
                 if let image = image {
                     CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .profile)
                 }
+                group.leave()
             }
         }
-        CoreDataManager.shared.saveContext()
+
+        group.notify(queue: .main) {
+            CoreDataManager.shared.saveContext()
+            completion()
+        }
     }
+
     
     func fetchCharactersFromServer(characterId: String, completion: @escaping ([CharacterDataModel]?, Error?) -> Void) {
         let urlString = messageService + "getCharacters?characterid=\(characterId)"
