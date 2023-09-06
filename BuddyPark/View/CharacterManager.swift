@@ -10,7 +10,7 @@ class CharacterData: ObservableObject {
     init() {
         loadCharactersFromCoreData()
         if characters.isEmpty {
-      //      createCharactersInCoreData()
+            createCharactersInCoreData()
             loadCharactersFromCoreData()
         }
     }

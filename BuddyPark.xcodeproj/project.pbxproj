@@ -10,6 +10,7 @@
 		F519A9042AA8284B00A4569B /* CharacterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F519A9032AA8284B00A4569B /* CharacterManager.swift */; };
 		F5362CAF2A9BBF2200FD3A52 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5362CAE2A9BBF2200FD3A52 /* Constants.swift */; };
 		F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187C52AA848280082E195 /* CoreDataManager.swift */; };
+		F54187C92AA885210082E195 /* app.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187C82AA885210082E195 /* app.js */; };
 		F55E423C2A93C4FB000BBB44 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423B2A93C4FB000BBB44 /* ProfileView.swift */; };
 		F55E423E2A947E40000BBB44 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423D2A947E40000BBB44 /* ColorExtension.swift */; };
 		F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005092A86200600BAF934 /* BuddyParkApp.swift */; };
@@ -77,6 +78,7 @@
 		F5362CAD2A9872D800FD3A52 /* BuddyPark.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BuddyPark.entitlements; sourceTree = "<group>"; };
 		F5362CAE2A9BBF2200FD3A52 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		F54187C52AA848280082E195 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
+		F54187C82AA885210082E195 /* app.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = app.js; sourceTree = "<group>"; };
 		F55E423B2A93C4FB000BBB44 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		F55E423D2A947E40000BBB44 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
 		F59005062A86200600BAF934 /* BuddyPark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BuddyPark.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -103,11 +105,6 @@
 		F59E83B82AA1855C0076D9FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F59E83C02AA18C500076D9FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F5D70A982A9CF76E0075D3FA /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
-		F5D73B352A9D01010075D3FA /* yarn.lock */ = {isa = PBXFileReference; lastKnownFileType = text; path = yarn.lock; sourceTree = "<group>"; };
-		F5D73B372A9D01010075D3FA /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
-		F5D73B392A9D01010075D3FA /* scf_bootstrap */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = scf_bootstrap; sourceTree = "<group>"; };
-		F5D73B3A2A9D01010075D3FA /* AuthKey_FYMB5T6F5B.p8 */ = {isa = PBXFileReference; lastKnownFileType = text; path = AuthKey_FYMB5T6F5B.p8; sourceTree = "<group>"; };
-		F5D73B3B2A9D01010075D3FA /* app.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = app.js; sourceTree = "<group>"; };
 		F5D73B3C2A9D10AF0075D3FA /* UserProfileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -143,10 +140,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F54187C72AA885210082E195 /* Message-Server */ = {
+			isa = PBXGroup;
+			children = (
+				F54187C82AA885210082E195 /* app.js */,
+			);
+			path = "Message-Server";
+			sourceTree = "<group>";
+		};
 		F59004FD2A86200600BAF934 = {
 			isa = PBXGroup;
 			children = (
-				F5D70A9A2A9D00EE0075D3FA /* message-service */,
+				F54187C72AA885210082E195 /* Message-Server */,
 				F59005082A86200600BAF934 /* BuddyPark */,
 				F590051E2A86200800BAF934 /* BuddyParkTests */,
 				F59005282A86200800BAF934 /* BuddyParkUITests */,
@@ -244,18 +249,6 @@
 				F59E83B82AA1855C0076D9FD /* Info.plist */,
 			);
 			path = BuddyParkNSE;
-			sourceTree = "<group>";
-		};
-		F5D70A9A2A9D00EE0075D3FA /* message-service */ = {
-			isa = PBXGroup;
-			children = (
-				F5D73B352A9D01010075D3FA /* yarn.lock */,
-				F5D73B372A9D01010075D3FA /* package.json */,
-				F5D73B392A9D01010075D3FA /* scf_bootstrap */,
-				F5D73B3A2A9D01010075D3FA /* AuthKey_FYMB5T6F5B.p8 */,
-				F5D73B3B2A9D01010075D3FA /* app.js */,
-			);
-			path = "message-service";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -385,6 +378,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F54187C92AA885210082E195 /* app.js in Resources */,
 				F59005112A86200800BAF934 /* Preview Assets.xcassets in Resources */,
 				F590050E2A86200800BAF934 /* Assets.xcassets in Resources */,
 			);
