@@ -5,35 +5,24 @@ import CoreData
 
 
 class CharacterData: ObservableObject {
-//    @Published var characters: [ProfileCardModel] = [] {
-//           didSet {
-//               if characters.isEmpty {
-//                   updateCharactersInCoreData {
-//                       self.loadCharactersFromCoreData()
-//                   }
-//               }
-//           }
-//       }
-//
-//       init() {
-//           loadCharactersFromCoreData()
-//           if characters.isEmpty {
-//               updateCharactersInCoreData {
-//                   self.loadCharactersFromCoreData()
-//               }
-//           }
-//       }
-    
-    @Published var characters: [ProfileCardModel] = []
-    
-    init() {
-        loadCharactersFromCoreData()
-        if characters.isEmpty {
-            updateCharactersInCoreData {
-                self.loadCharactersFromCoreData()
-            }
-        }
-    }
+    @Published var characters: [ProfileCardModel] = [] {
+           didSet {
+               if characters.isEmpty {
+                   updateCharactersInCoreData {
+                       self.loadCharactersFromCoreData()
+                   }
+               }
+           }
+       }
+
+       init() {
+           loadCharactersFromCoreData()
+           if characters.isEmpty {
+               updateCharactersInCoreData {
+                   self.loadCharactersFromCoreData()
+               }
+           }
+       }
     
     private func loadCharactersFromCoreData() {
         let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()
