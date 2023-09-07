@@ -21,44 +21,21 @@ class HomeViewModel: ObservableObject {
                 let message = Message(context: context)
                 message.content = messageContent
                 message.timestamp = Date().addingTimeInterval(TimeInterval(index * 60))
-                message.role = "assistant" // 假设这些实例消息都是 AI 发出的
+                message.role = "assistant"
                 message.characterid = Int32(userProfile.characterid)
-                message.contact = contact // 关联 Message 和 Contact
-                message.id = UUID() // 为每条消息分配一个UUID
-                contact.addToMessages(message) // 将消息添加到 Contact 的 messages relationship
+                message.contact = contact
+                message.id = UUID()
+                contact.addToMessages(message)
             }
         }
 
-        // 更新 Character 的状态
-        let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "characterid == %d", userProfile.characterid)
-        
-        do {
-            let characters = try context.fetch(fetchRequest)
-            if let character = characters.first {
-                character.status = hasLiked ? "liked" : "unliked"
-                try context.save()
-              //  printAllContacts()
-                print("保存成功!")
-            }
-        } catch {
-            print("保存失败: \(error.localizedDescription)")
-        }
+        // 使用 CharacterManager 的方法更新状态
+        let newStatus: CharacterManager.CharacterStatus = hasLiked ? .liked : .unliked
+        CharacterManager.shared.printAllCharactersFromCoreData()
+        CharacterManager.shared.updateCharacterStatus(characterid: Int32(userProfile.characterid), status: newStatus)
+        CharacterManager.shared.printAllCharactersFromCoreData()
+
     }
-
-//    func printAllContacts() {
-//        let context = PersistenceController.shared.container.viewContext
-//        let fetchRequest = NSFetchRequest<Contact>(entityName: "Contact")
-//
-//        do {
-//            let contacts = try context.fetch(fetchRequest)
-//            contacts.forEach { contact in
-//                print("Name: \(contact.name ?? ""), characterid: \(contact.characterid)")
-//            }
-//        } catch {
-//            print("读取失败: \(error.localizedDescription)")
-//        }
-//    }
 }
 
 

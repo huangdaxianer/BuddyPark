@@ -18,6 +18,7 @@ class CharacterData: ObservableObject {
        init() {
            loadCharactersFromCoreData()
            if characters.isEmpty {
+               print("is empty")
                updateCharactersInCoreData {
                    self.loadCharactersFromCoreData()
                }
@@ -32,13 +33,23 @@ class CharacterData: ObservableObject {
         do {
             let context = CoreDataManager.shared.persistentContainer.viewContext
             let fetchedCharacters = try context.fetch(fetchRequest)
+            
+            // 打印原始数据
+            for character in fetchedCharacters {
+                print("Character ID: \(character.characterid)")
+                print("Name: \(character.name ?? "N/A")")
+                print("Age: \(character.age)")
+                print("Intro: \(character.intro ?? "N/A")")
+                print("Status: \(character.status ?? "N/A")")
+                print("-------") // 可以为每个角色添加一个分隔符，使输出更加清晰
+            }
+            
             self.characters = fetchedCharacters.map { ProfileCardModel(character: $0) }
         } catch {
             print("Failed to fetch characters: \(error)")
         }
     }
 
-    
     func updateCharactersInCoreData(completion: @escaping () -> Void) {
          let currentMaxid = UserDefaults.standard.string(forKey: "currentMaxCharacterid") ?? "0"
          let nextCharacterid = String(Int(currentMaxid)! + 1)
@@ -62,29 +73,36 @@ class CharacterData: ObservableObject {
         let group = DispatchGroup()
 
         for characterData in characters {
-            let character = Character(context: context)
             if let intId = Int(characterData.characterid) {
-                character.characterid = Int32(intId)
-            }
-            character.name = characterData.characterName
-            character.age = Int16(characterData.age) ?? 0
-            character.intro = characterData.intro
-            character.status = "raw"
+                let characterID = Int32(intId)
 
-            group.enter()
-            CharacterManager.shared.downloadImage(from: URL(string: characterData.avatarImage)!) { image in
-                if let image = image {
-                    CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .avatar)
+                // 检查是否已经存在这个 characterid
+                if characterExists(withID: characterID, in: context) {
+                    continue // 如果存在，则跳过创建步骤
                 }
-                group.leave()
-            }
 
-            group.enter()
-            CharacterManager.shared.downloadImage(from: URL(string: characterData.profileImage)!) { image in
-                if let image = image {
-                    CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .profile)
+                let character = Character(context: context)
+                character.characterid = characterID
+                character.name = characterData.characterName
+                character.age = Int16(characterData.age) ?? 0
+                character.intro = characterData.intro
+                character.status = "raw"
+
+                group.enter()
+                CharacterManager.shared.downloadImage(from: URL(string: characterData.avatarImage)!) { image in
+                    if let image = image {
+                        CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .avatar)
+                    }
+                    group.leave()
                 }
-                group.leave()
+
+                group.enter()
+                CharacterManager.shared.downloadImage(from: URL(string: characterData.profileImage)!) { image in
+                    if let image = image {
+                        CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .profile)
+                    }
+                    group.leave()
+                }
             }
         }
 
@@ -94,6 +112,19 @@ class CharacterData: ObservableObject {
         }
     }
 
+    private func characterExists(withID id: Int32, in context: NSManagedObjectContext) -> Bool {
+        let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "characterid == %d", id)
+        fetchRequest.fetchLimit = 1
+
+        do {
+            let count = try context.count(for: fetchRequest)
+            return count > 0
+        } catch {
+            print("Error checking if character exists: \(error)")
+            return false
+        }
+    }
     
     func fetchCharactersFromServer(characterId: String, completion: @escaping ([CharacterDataModel]?, Error?) -> Void) {
         let urlString = messageService + "getCharacters?characterid=\(characterId)"
@@ -147,6 +178,9 @@ struct ProfileCardModel: Identifiable {
         self.image = CharacterManager.shared.loadImage(characterid: character.characterid, type: .profile)
     }
 }
+
+
+
 extension ProfileCardModel: Equatable {
     static func == (lhs: ProfileCardModel, rhs: ProfileCardModel) -> Bool {
         return lhs.characterid == rhs.characterid
@@ -199,24 +233,12 @@ class CharacterManager {
     
     func loadImage(characterid: Int32, type: ImageType) -> UIImage? {
         let imagePath = directory(for: type).appendingPathComponent("\(characterid)").path
-        
-        // 打印要查找的图像路径
-        print("Attempting to load image from path: \(imagePath)")
-        
         let fileManager = FileManager.default
         if fileManager.fileExists(atPath: imagePath) {
-            print("File exists at path: \(imagePath)")
-            
             if let image = UIImage(contentsOfFile: imagePath) {
-                print("Successfully loaded image for character ID: \(characterid) of type: \(type)")
                 return image
-            } else {
-                print("Error: Unable to create UIImage from file at path: \(imagePath)")
             }
-        } else {
-            print("Error: File does not exist at path: \(imagePath)")
         }
-        
         return nil
     }
 
@@ -275,14 +297,67 @@ class CharacterManager {
         
         do {
             let characters = try context.fetch(fetchRequest)
+            
+            // 打印匹配到的Character的数量
+            print("Number of matching characters: \(characters.count)")
+            
             if let character = characters.first {
                 character.status = status.rawValue
                 try context.save()
+                
+                // 打印已更新的角色的所有信息
+                print("Updated Character Info:")
+                print("Character ID: \(character.characterid)")
+                print("Name: \(character.name ?? "N/A")")
+                print("Age: \(character.age)")
+                print("Intro: \(character.intro ?? "N/A")")
+                print("Status: \(character.status ?? "N/A")")
+                print("-------")
             }
         } catch {
             print("Error updating character status: \(error)")
         }
+        
+        // 手动fetch操作来确认数据已经被更新
+        do {
+            let verifyCharacters = try context.fetch(fetchRequest)
+            if let verifyCharacter = verifyCharacters.first {
+                print("Verification after Update:")
+                print("Character ID: \(verifyCharacter.characterid)")
+                print("Name: \(verifyCharacter.name ?? "N/A")")
+                print("Age: \(verifyCharacter.age)")
+                print("Intro: \(verifyCharacter.intro ?? "N/A")")
+                print("Status: \(verifyCharacter.status ?? "N/A")")
+                print("-------")
+            }
+        } catch {
+            print("Error verifying updated character status: \(error)")
+        }
     }
+    
+    func printAllCharactersFromCoreData() {
+        let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "characterid", ascending: true)]
+        
+        do {
+            let context = CoreDataManager.shared.persistentContainer.viewContext
+            let fetchedCharacters = try context.fetch(fetchRequest)
+            
+            print("All Characters in CoreData:")
+            for character in fetchedCharacters {
+                print("Character ID: \(character.characterid)")
+                print("Name: \(character.name ?? "N/A")")
+                print("Age: \(character.age)")
+                print("Intro: \(character.intro ?? "N/A")")
+                print("Status: \(character.status ?? "N/A")")
+                print("-------")
+            }
+        } catch {
+            print("Failed to fetch all characters: \(error)")
+        }
+    }
+
+    
     
 }
 
