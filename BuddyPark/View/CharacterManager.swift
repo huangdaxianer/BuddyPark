@@ -142,12 +142,13 @@ struct CharacterDataModel: Codable {
 }
 
 
-struct ProfileCardModel {
+struct ProfileCardModel: Identifiable {
+    var id: Int32 { characterid }
     let characterid: Int32
     let name: String
     let age: Int
     let intro: String
-    let image: UIImage?  // 新增一个 UIImage 类型的属性来保存图片
+    let image: UIImage?  
     
     init(character: Character) {
         self.characterid = character.characterid
@@ -155,6 +156,11 @@ struct ProfileCardModel {
         self.age = Int(character.age)
         self.intro = character.intro ?? ""
         self.image = CharacterManager.shared.loadImage(characterid: character.characterid, type: .profile)
+    }
+}
+extension ProfileCardModel: Equatable {
+    static func == (lhs: ProfileCardModel, rhs: ProfileCardModel) -> Bool {
+        return lhs.characterid == rhs.characterid
     }
 }
 

@@ -19,11 +19,9 @@ struct SwipeView: View {
             VStack {
                 ZStack {
                     Text("no-more-profiles").font(.title3).fontWeight(.medium).foregroundColor(Color(UIColor.systemGray)).multilineTextAlignment(.center)
-                    ForEach(profiles.indices.reversed(), id: \.self) { index in
- //                       let model: ProfileCardModel = profiles[index]
-//                        SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: onSwiped)
-                        SwipeableCardView(model: profiles[index], swipeAction: $swipeAction, onSwiped: handleCardSwipedInternal)
-                            .offset(x: index == profiles.count - 1 ? 0 : 10, y: index == profiles.count - 1 ? 0 : 10)
+                    ForEach(profiles.reversed()) { profile in
+                        SwipeableCardView(model: profile, swipeAction: $swipeAction, onSwiped: handleCardSwipedInternal)
+                            .offset(x: profile == profiles.last ? 0 : 10, y: profile == profiles.last ? 0 : 10)
                     }
                 }
             }
@@ -50,14 +48,12 @@ struct SwipeableCardView: View {
     private let like = "LIKE"
     private let screenWidthLimit = UIScreen.main.bounds.width * 0.5
     let model: ProfileCardModel
-//    @State private var shouldBeHidden: Bool = false
     @State private var dragOffset = CGSize.zero
     @Binding var swipeAction: SwipeAction
     
     var onSwiped: (ProfileCardModel, Bool) -> ()
     
     var body: some View {
-//        if !shouldBeHidden {
             VStack {
                 GeometryReader { geometry in
                     VStack {
@@ -121,7 +117,6 @@ struct SwipeableCardView: View {
                     performSwipe(newValue)
                 }
             })
- //       }
     }
 }
 
@@ -150,7 +145,6 @@ extension SwipeableCardView {
                 self.dragOffset.height += screenWidthLimit // 增加竖直方向的偏移
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                self.shouldBeHidden = true
                 onSwiped(model, true)
             }
         } else if(hasDisliked(translationX)){
@@ -160,7 +154,6 @@ extension SwipeableCardView {
                 self.dragOffset.height += screenWidthLimit // 增加竖直方向的偏移
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-//                self.shouldBeHidden = true
                 onSwiped(model, false)
             }
         } else{
