@@ -20,8 +20,9 @@ struct SwipeView: View {
                 ZStack {
                     Text("no-more-profiles").font(.title3).fontWeight(.medium).foregroundColor(Color(UIColor.systemGray)).multilineTextAlignment(.center)
                     ForEach(profiles.indices.reversed(), id: \.self) { index in
-                        let model: ProfileCardModel = profiles[index]
-                        SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: onSwiped)
+ //                       let model: ProfileCardModel = profiles[index]
+//                        SwipeableCardView(model: model, swipeAction: $swipeAction, onSwiped: onSwiped)
+                        SwipeableCardView(model: profiles[index], swipeAction: $swipeAction, onSwiped: handleCardSwipedInternal)
                             .offset(x: index == profiles.count - 1 ? 0 : 10, y: index == profiles.count - 1 ? 0 : 10)
                     }
                 }
@@ -30,6 +31,14 @@ struct SwipeView: View {
             Rectangle()  // 添加的占位符矩形
                 .fill(Color.clear) // 设置为透明颜色
                 .frame(height: 130) // 设置高度为 90
+        }
+    }
+    
+    func handleCardSwipedInternal(model: ProfileCardModel, isLiked: Bool) {
+        onSwiped(model, isLiked)  // 调用传递给 SwipeView 的原有方法
+        if let index = profiles.firstIndex(where: { $0.characterid == model.characterid }) {
+            print(index)
+            profiles.remove(at: index)
         }
     }
 }
@@ -41,14 +50,14 @@ struct SwipeableCardView: View {
     private let like = "LIKE"
     private let screenWidthLimit = UIScreen.main.bounds.width * 0.5
     let model: ProfileCardModel
-    @State private var shouldBeHidden: Bool = false
+//    @State private var shouldBeHidden: Bool = false
     @State private var dragOffset = CGSize.zero
     @Binding var swipeAction: SwipeAction
     
     var onSwiped: (ProfileCardModel, Bool) -> ()
     
     var body: some View {
-        if !shouldBeHidden {
+//        if !shouldBeHidden {
             VStack {
                 GeometryReader { geometry in
                     VStack {
@@ -112,7 +121,7 @@ struct SwipeableCardView: View {
                     performSwipe(newValue)
                 }
             })
-        }
+ //       }
     }
 }
 
@@ -141,7 +150,7 @@ extension SwipeableCardView {
                 self.dragOffset.height += screenWidthLimit // 增加竖直方向的偏移
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.shouldBeHidden = true
+//                self.shouldBeHidden = true
                 onSwiped(model, true)
             }
         } else if(hasDisliked(translationX)){
@@ -151,7 +160,7 @@ extension SwipeableCardView {
                 self.dragOffset.height += screenWidthLimit // 增加竖直方向的偏移
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.shouldBeHidden = true
+//                self.shouldBeHidden = true
                 onSwiped(model, false)
             }
         } else{

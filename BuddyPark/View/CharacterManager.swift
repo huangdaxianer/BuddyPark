@@ -5,6 +5,25 @@ import CoreData
 
 
 class CharacterData: ObservableObject {
+//    @Published var characters: [ProfileCardModel] = [] {
+//           didSet {
+//               if characters.isEmpty {
+//                   updateCharactersInCoreData {
+//                       self.loadCharactersFromCoreData()
+//                   }
+//               }
+//           }
+//       }
+//
+//       init() {
+//           loadCharactersFromCoreData()
+//           if characters.isEmpty {
+//               updateCharactersInCoreData {
+//                   self.loadCharactersFromCoreData()
+//               }
+//           }
+//       }
+    
     @Published var characters: [ProfileCardModel] = []
     
     init() {

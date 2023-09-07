@@ -38,7 +38,7 @@ class HomeViewModel: ObservableObject {
             if let character = characters.first {
                 character.status = hasLiked ? "liked" : "unliked"
                 try context.save()
-                printAllContacts()
+              //  printAllContacts()
                 print("保存成功!")
             }
         } catch {
@@ -46,19 +46,19 @@ class HomeViewModel: ObservableObject {
         }
     }
 
-    func printAllContacts() {
-        let context = PersistenceController.shared.container.viewContext
-        let fetchRequest = NSFetchRequest<Contact>(entityName: "Contact")
-        
-        do {
-            let contacts = try context.fetch(fetchRequest)
-            contacts.forEach { contact in
-                print("Name: \(contact.name ?? ""), characterid: \(contact.characterid)")
-            }
-        } catch {
-            print("读取失败: \(error.localizedDescription)")
-        }
-    }
+//    func printAllContacts() {
+//        let context = PersistenceController.shared.container.viewContext
+//        let fetchRequest = NSFetchRequest<Contact>(entityName: "Contact")
+//
+//        do {
+//            let contacts = try context.fetch(fetchRequest)
+//            contacts.forEach { contact in
+//                print("Name: \(contact.name ?? ""), characterid: \(contact.characterid)")
+//            }
+//        } catch {
+//            print("读取失败: \(error.localizedDescription)")
+//        }
+//    }
 }
 
 
