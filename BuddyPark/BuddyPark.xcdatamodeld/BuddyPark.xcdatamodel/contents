@@ -23,6 +23,11 @@
         <attribute name="updateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="character" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Character" inverseName="contact" inverseEntity="Character"/>
         <relationship name="messages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Message" inverseName="contact" inverseEntity="Message"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="characterid"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <entity name="Message" representedClassName="Message" syncable="YES" codeGenerationType="class">
         <attribute name="characterid" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
@@ -31,5 +36,10 @@
         <attribute name="role" optional="YES" attributeType="String"/>
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="contact" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Contact" inverseName="messages" inverseEntity="Contact"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="id"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
 </model>

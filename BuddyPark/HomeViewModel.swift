@@ -31,10 +31,7 @@ class HomeViewModel: ObservableObject {
 
         // 使用 CharacterManager 的方法更新状态
         let newStatus: CharacterManager.CharacterStatus = hasLiked ? .liked : .unliked
-        CharacterManager.shared.printAllCharactersFromCoreData()
         CharacterManager.shared.updateCharacterStatus(characterid: Int32(userProfile.characterid), status: newStatus)
-        CharacterManager.shared.printAllCharactersFromCoreData()
-
     }
 }
 

@@ -33,17 +33,6 @@ class CharacterData: ObservableObject {
         do {
             let context = CoreDataManager.shared.persistentContainer.viewContext
             let fetchedCharacters = try context.fetch(fetchRequest)
-            
-            // 打印原始数据
-            for character in fetchedCharacters {
-                print("Character ID: \(character.characterid)")
-                print("Name: \(character.name ?? "N/A")")
-                print("Age: \(character.age)")
-                print("Intro: \(character.intro ?? "N/A")")
-                print("Status: \(character.status ?? "N/A")")
-                print("-------") // 可以为每个角色添加一个分隔符，使输出更加清晰
-            }
-            
             self.characters = fetchedCharacters.map { ProfileCardModel(character: $0) }
         } catch {
             print("Failed to fetch characters: \(error)")
@@ -149,9 +138,6 @@ class CharacterData: ObservableObject {
     }
 }
 
-
-
-//这个是用来定义服务端的返回数据的
 struct CharacterDataModel: Codable {
     let age: String
     let avatarImage: String
@@ -257,31 +243,22 @@ class CharacterManager {
     func saveImage(characterid: Int32, image: UIImage, type: ImageType) {
         let directoryPath = directory(for: type)
         let imagePath = directoryPath.appendingPathComponent("\(characterid)")
-        
-        // 打印保存图片的目标路径
-        print("Target path to save image: \(imagePath.path)")
-        
         let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: directoryPath.path) {
             do {
                 // 如果文件夹不存在，创建它
                 try fileManager.createDirectory(at: directoryPath, withIntermediateDirectories: true, attributes: nil)
-                print("Successfully created directory at path: \(directoryPath.path)")
             } catch {
-                print("Error creating directory: \(error)")
                 return
             }
         } else {
-            print("Directory already exists at path: \(directoryPath.path)")
         }
         
         // 将 UIImage 转换为 Data
         if let imageData = image.jpegData(compressionQuality: 1.0) {
             do {
                 try imageData.write(to: imagePath)
-                print("Successfully saved image for character ID: \(characterid) of type: \(type) at path: \(imagePath.path)")
             } catch {
-                print("Error saving image: \(error)")
             }
         } else {
             print("Error: Unable to convert UIImage to jpegData for character ID: \(characterid)")
@@ -297,22 +274,9 @@ class CharacterManager {
         
         do {
             let characters = try context.fetch(fetchRequest)
-            
-            // 打印匹配到的Character的数量
-            print("Number of matching characters: \(characters.count)")
-            
             if let character = characters.first {
                 character.status = status.rawValue
                 try context.save()
-                
-                // 打印已更新的角色的所有信息
-                print("Updated Character Info:")
-                print("Character ID: \(character.characterid)")
-                print("Name: \(character.name ?? "N/A")")
-                print("Age: \(character.age)")
-                print("Intro: \(character.intro ?? "N/A")")
-                print("Status: \(character.status ?? "N/A")")
-                print("-------")
             }
         } catch {
             print("Error updating character status: \(error)")
@@ -322,42 +286,10 @@ class CharacterManager {
         do {
             let verifyCharacters = try context.fetch(fetchRequest)
             if let verifyCharacter = verifyCharacters.first {
-                print("Verification after Update:")
-                print("Character ID: \(verifyCharacter.characterid)")
-                print("Name: \(verifyCharacter.name ?? "N/A")")
-                print("Age: \(verifyCharacter.age)")
-                print("Intro: \(verifyCharacter.intro ?? "N/A")")
-                print("Status: \(verifyCharacter.status ?? "N/A")")
-                print("-------")
             }
         } catch {
-            print("Error verifying updated character status: \(error)")
         }
     }
-    
-    func printAllCharactersFromCoreData() {
-        let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "characterid", ascending: true)]
-        
-        do {
-            let context = CoreDataManager.shared.persistentContainer.viewContext
-            let fetchedCharacters = try context.fetch(fetchRequest)
-            
-            print("All Characters in CoreData:")
-            for character in fetchedCharacters {
-                print("Character ID: \(character.characterid)")
-                print("Name: \(character.name ?? "N/A")")
-                print("Age: \(character.age)")
-                print("Intro: \(character.intro ?? "N/A")")
-                print("Status: \(character.status ?? "N/A")")
-                print("-------")
-            }
-        } catch {
-            print("Failed to fetch all characters: \(error)")
-        }
-    }
-
-    
     
 }
 
