@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    @Environment(\.managedObjectContext) private var viewContext
+    let viewContext = CoreDataManager.shared.persistentContainer.viewContext // 从CoreDataManager中获取viewContext
     @StateObject private var characterData = CharacterData()
     @StateObject private var viewModel = HomeViewModel()
     @ObservedObject var sessionManager: SessionManager
@@ -31,7 +31,8 @@ struct HomeView: View {
                     VStack {
                         Spacer() // 用于推动 CustomTabBar 到底部
                         CustomTabBar(selectedTab: $selectedTab)
-                    }                }
+                    }
+                }
                 .navigationBarTitleDisplayMode(.inline) // 禁用大标题样式
                 .edgesIgnoringSafeArea(.bottom)
 
@@ -39,7 +40,7 @@ struct HomeView: View {
                     "",
                     destination: selectedCharacterId.map { characterId in
                         MessageView(characterid: characterId,
-                                    context: viewContext,
+                                    context: viewContext, // 使用统一的viewContext
                                     messageManager: sessionManager.session(for: characterId))
                     },
                     isActive: $isNavigatingToMessageView
@@ -49,6 +50,7 @@ struct HomeView: View {
         }
     }
 }
+
 
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
@@ -100,13 +102,13 @@ struct TabBarButton: View {
 
 
 
-struct HomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        let context = PersistenceController.preview.container.viewContext
-        let sessionManager = SessionManager(context: context)
-        
-        return HomeView(sessionManager: sessionManager)
-            .environment(\.managedObjectContext, context)
-    }
-}
+//struct HomeView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        let context = PersistenceController.preview.container.viewContext
+//        let sessionManager = SessionManager(context: context)
+//        
+//        return HomeView(sessionManager: sessionManager)
+//            .environment(\.managedObjectContext, context)
+//    }
+//}
 
