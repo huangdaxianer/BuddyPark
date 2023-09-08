@@ -3,7 +3,6 @@ import SwiftUI
 import UIKit
 import CoreData
 
-
 class CharacterData: ObservableObject {
     @Published var isLoading: Bool = false
 
@@ -18,7 +17,6 @@ class CharacterData: ObservableObject {
             }
         }
     }
-
 
     init() {
         loadCharactersFromCoreData()
@@ -172,8 +170,6 @@ struct ProfileCardModel: Identifiable {
     }
 }
 
-
-
 extension ProfileCardModel: Equatable {
     static func == (lhs: ProfileCardModel, rhs: ProfileCardModel) -> Bool {
         return lhs.characterid == rhs.characterid
@@ -182,7 +178,6 @@ extension ProfileCardModel: Equatable {
 
 
 class CharacterManager {
-    // 单例模式
     static let shared = CharacterManager()
     
     private init() {}  // 私有化构造器以确保外部不能创建该类的实例
@@ -198,7 +193,6 @@ class CharacterManager {
         case unliked
     }
     
-    // 文件系统的目录路径
     private var documentDirectory: URL {
         return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
@@ -283,21 +277,12 @@ class CharacterManager {
             let characters = try context.fetch(fetchRequest)
             if let character = characters.first {
                 character.status = status.rawValue
-                try context.save()
+                CoreDataManager.shared.saveContext()
             }
         } catch {
             print("Error updating character status: \(error)")
         }
-        
-        // 手动fetch操作来确认数据已经被更新
-        do {
-            let verifyCharacters = try context.fetch(fetchRequest)
-            if let verifyCharacter = verifyCharacters.first {
-            }
-        } catch {
-        }
     }
-    
 }
 
 

@@ -102,10 +102,7 @@ struct BuddyParkApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     init() {
-        // 设置 CharacterManager 的图片存储目录
         CharacterManager.shared.setupImageDirectory(for: .profile)
-
-        // 其他已有的初始化代码
         let context = persistenceController.container.viewContext
         let sessionManager = SessionManager(context: context)
         _sessionManager = StateObject(wrappedValue: sessionManager)
@@ -114,11 +111,12 @@ struct BuddyParkApp: App {
 
     var body: some Scene {
         WindowGroup {
-            HomeView(sessionManager: globalSessionManager ?? sessionManager)
-                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                 .environmentObject(globalSessionManager ?? sessionManager)
+            HomeView(sessionManager: sessionManager)
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .environmentObject(sessionManager)
         }
     }
+
 }
 
 
