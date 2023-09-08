@@ -150,7 +150,7 @@ class MessageManager: ObservableObject {
         newMessage.contact = self.contact
 
         // Ensure ordered relationship
-        var existingMessages = self.contact.messages as? NSOrderedSet ?? NSOrderedSet()
+        var existingMessages = self.contact.messages ?? NSOrderedSet()
         let mutableMessages = existingMessages.mutableCopy() as! NSMutableOrderedSet
         mutableMessages.add(newMessage)
         self.contact.messages = mutableMessages.copy() as? NSOrderedSet

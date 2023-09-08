@@ -53,6 +53,17 @@ struct MessageRowView: View {
         return (contact.messages?.array as? [Message])?.last
     }
 
+    var processedLastMessage: String {
+        guard let content = lastMessage?.content else { return "" }
+        let mainContentComponents = content.split(separator: "@", maxSplits: 1).map(String.init)
+        let mainContent = mainContentComponents.count > 1 ? mainContentComponents[1] : content
+        let lastSubContent = mainContent.split(separator: "#").last ?? ""
+        let finalContent = lastSubContent.split(separator: "$", maxSplits: 1).first ?? ""
+        return String(finalContent)
+    }
+
+
+    
     var body: some View {
         VStack {
             ZStack {
@@ -102,21 +113,39 @@ struct MessageRowView: View {
                         }
 
                         ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 45)
-                                .fill(Color(red: 0, green: 102 / 255, blue: 255 / 255))
-                                .frame(height: 44)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 45)
-                                        .stroke(Color.black, lineWidth: 2)
-                                )
-                            Text(lastMessage?.content ?? "")
-                                .font(.system(size: 14))
-                                .fontWeight(.bold)
-                                .foregroundColor(Color(white: 100))
-                                .padding(.leading, 19)
-                                .truncationMode(.tail)
-                                .lineLimit(1)
+                            if lastMessage?.role == "user" {
+                                RoundedRectangle(cornerRadius: 45)
+                                    .fill(Color.white)
+                                    .frame(height: 44)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 45)
+                                            .stroke(Color.black, lineWidth: 2)
+                                    )
+                                Text(processedLastMessage)
+                                    .font(.system(size: 16))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color.black)
+                                    .padding(.leading, 19)
+                                    .truncationMode(.tail)
+                                    .lineLimit(1)
+                            } else {
+                                RoundedRectangle(cornerRadius: 45)
+                                    .fill(Color(red: 0, green: 102 / 255, blue: 255 / 255))
+                                    .frame(height: 44)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 45)
+                                            .stroke(Color.black, lineWidth: 2)
+                                    )
+                                Text(processedLastMessage)
+                                    .font(.system(size: 16))
+                                    .fontWeight(.bold)
+                                    .foregroundColor(Color(white: 100))
+                                    .padding(.leading, 19)
+                                    .truncationMode(.tail)
+                                    .lineLimit(1)
+                            }
                         }
+
 
 
                     }
