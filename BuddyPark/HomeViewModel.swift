@@ -5,7 +5,6 @@ import CoreData
 class HomeViewModel: ObservableObject {
     
     func onSwiped(userProfile: ProfileCardModel, hasLiked: Bool) {
-        // 1. 使用 CoreDataManager 的 context
         let context = CoreDataManager.shared.persistentContainer.viewContext
 
         if hasLiked {
@@ -16,7 +15,6 @@ class HomeViewModel: ObservableObject {
             contact.updateTime = Date()
             contact.id = UUID()
     
-            // 2. 使用 CoreDataManager 的 saveContext 方法
             CoreDataManager.shared.saveContext()
             
             let sampleMessages = ["你好#很高兴认识你！", "希望我们可以成为好朋友！", "随时可以和我聊天哦！"]
@@ -31,11 +29,10 @@ class HomeViewModel: ObservableObject {
                 contact.addToMessages(message)
             }
         }
-
-        // 使用 CharacterManager 的方法更新状态
         let newStatus: CharacterManager.CharacterStatus = hasLiked ? .liked : .unliked
         CharacterManager.shared.updateCharacterStatus(characterid: Int32(userProfile.characterid), status: newStatus)
     }
 }
+
 
 

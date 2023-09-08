@@ -91,6 +91,7 @@ struct MessageRowView: View {
                             Spacer()
                             Text(contact.updateTime != nil ? DateFormatter.localizedString(from: contact.updateTime!, dateStyle: .none, timeStyle: .short) : "")
                                 .font(.custom("SF Pro Rounded", size: 16))
+                                .fontWeight(.black)
                                 .frame(alignment: .trailing)
                                 .padding(.trailing, 10)
                             

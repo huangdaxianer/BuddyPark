@@ -284,6 +284,7 @@ class CharacterManager {
             print("Error updating character status: \(error)")
         }
     }
+
 }
 
 

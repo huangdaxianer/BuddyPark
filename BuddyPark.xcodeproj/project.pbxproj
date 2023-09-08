@@ -12,7 +12,6 @@
 		F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187C52AA848280082E195 /* CoreDataManager.swift */; };
 		F54187CC2AA887E90082E195 /* Message-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187CB2AA887E90082E195 /* Message-Service.js */; };
 		F54187CE2AA888030082E195 /* Character-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187CD2AA888030082E195 /* Character-Service.js */; };
-		F54187D02AAB6B570082E195 /* FaceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187CF2AAB6B570082E195 /* FaceDetector.swift */; };
 		F55E423C2A93C4FB000BBB44 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423B2A93C4FB000BBB44 /* ProfileView.swift */; };
 		F55E423E2A947E40000BBB44 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423D2A947E40000BBB44 /* ColorExtension.swift */; };
 		F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005092A86200600BAF934 /* BuddyParkApp.swift */; };
@@ -82,7 +81,6 @@
 		F54187C52AA848280082E195 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		F54187CB2AA887E90082E195 /* Message-Service.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "Message-Service.js"; sourceTree = "<group>"; };
 		F54187CD2AA888030082E195 /* Character-Service.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "Character-Service.js"; sourceTree = "<group>"; };
-		F54187CF2AAB6B570082E195 /* FaceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDetector.swift; sourceTree = "<group>"; };
 		F55E423B2A93C4FB000BBB44 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		F55E423D2A947E40000BBB44 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
 		F59005062A86200600BAF934 /* BuddyPark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BuddyPark.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -186,7 +184,6 @@
 				F59E83AD2AA184E40076D9FD /* Manager */,
 				F59E83AC2AA184D80076D9FD /* View */,
 				F590054F2A8A068F00BAF934 /* HomeViewModel.swift */,
-				F54187CF2AAB6B570082E195 /* FaceDetector.swift */,
 				F590053A2A86225F00BAF934 /* Extensions.swift */,
 				F590050D2A86200800BAF934 /* Assets.xcassets */,
 				F59005122A86200800BAF934 /* Persistence.swift */,
@@ -427,7 +424,6 @@
 				F59005502A8A068F00BAF934 /* HomeViewModel.swift in Sources */,
 				F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */,
 				F590054A2A89F40500BAF934 /* MessageView.swift in Sources */,
-				F54187D02AAB6B570082E195 /* FaceDetector.swift in Sources */,
 				F59E83AF2AA1851C0076D9FD /* NotificationManager.swift in Sources */,
 				F59005132A86200800BAF934 /* Persistence.swift in Sources */,
 				F5D73B3D2A9D10AF0075D3FA /* UserProfileManager.swift in Sources */,
