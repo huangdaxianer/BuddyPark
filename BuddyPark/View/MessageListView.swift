@@ -2,7 +2,7 @@ import SwiftUI
 import CoreData
 
 struct MessageListView: View {
-    @Environment(\.managedObjectContext) private var viewContext
+    let viewContext = CoreDataManager.shared.persistentContainer.viewContext // 添加这一行
     @EnvironmentObject var sessionManager: SessionManager
     @Binding var selectedCharacterId: Int32?
 
@@ -21,26 +21,27 @@ struct MessageListView: View {
                     .frame(width: 120)
                 Spacer() // 将下方内容推到底部
             }
-                ScrollView {
-                    VStack {
-                        Rectangle()
-                            .fill(Color.clear)
-                            .frame(height: 45)
-                        ForEach(contacts, id: \.self) { contact in
-                            MessageRowView(contact: contact,
-                                           context: viewContext,
-                                           messageManager: sessionManager.session(for: contact.characterid))
-                        }
-                        Rectangle()
-                            .fill(Color.clear)
-                            .frame(height: 120)
+            ScrollView {
+                VStack {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: 45)
+                    ForEach(contacts, id: \.self) { contact in
+                        MessageRowView(contact: contact,
+                                       context: viewContext, // 使用统一的 viewContext
+                                       messageManager: sessionManager.session(for: contact.characterid))
                     }
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: 120)
                 }
+            }
         }
         .navigationTitle("消息")
         .navigationBarHidden(true)  // 隐藏 Navigation Bar
     }
 }
+
 
 
 struct MessageRowView: View {
@@ -130,41 +131,41 @@ struct MessageRowView: View {
 
 
 
-
-struct MessageListView_Previews: PreviewProvider {
-    @State static var selectedCharacterId: Int32? = nil
-    
-    static var previews: some View {
-        MessageListView(selectedCharacterId: $selectedCharacterId)
-            .environment(\.managedObjectContext, preview.container.viewContext)
-            .environmentObject(SessionManager(context: preview.container.viewContext)) // 添加 SessionManager 作为环境对象
-    }
-    
-    static var preview: PersistenceController = {
-        let result = PersistenceController(inMemory: true)
-        let viewContext = result.container.viewContext
-
-        // 随机填充一些名字
-        let names = ["junxi", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "elon_musk"]
-        for name in names {
-            let contact = Contact(context: viewContext)
-            contact.name = name
-            contact.characterid = Int32.random(in: 1000...9999)
-            contact.lastMessage = "最近怎么样？我想知道你最近的消息到底怎么回事" // 填充最后一条消息
-            contact.updateTime = Date() // 填充当前时间
-        }
-
-        do {
-            try viewContext.save()
-        } catch {
-            // 处理错误
-            let nsError = error as NSError
-            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-        }
-
-        return result
-    }()
-}
+//
+//struct MessageListView_Previews: PreviewProvider {
+//    @State static var selectedCharacterId: Int32? = nil
+//    
+//    static var previews: some View {
+//        MessageListView(selectedCharacterId: $selectedCharacterId)
+//            .environment(\.managedObjectContext, preview.container.viewContext)
+//            .environmentObject(SessionManager(context: preview.container.viewContext)) // 添加 SessionManager 作为环境对象
+//    }
+//    
+//    static var preview: PersistenceController = {
+//        let result = PersistenceController(inMemory: true)
+//        let viewContext = result.container.viewContext
+//
+//        // 随机填充一些名字
+//        let names = ["junxi", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "elon_musk"]
+//        for name in names {
+//            let contact = Contact(context: viewContext)
+//            contact.name = name
+//            contact.characterid = Int32.random(in: 1000...9999)
+//            contact.lastMessage = "最近怎么样？我想知道你最近的消息到底怎么回事" // 填充最后一条消息
+//            contact.updateTime = Date() // 填充当前时间
+//        }
+//
+//        do {
+//            try viewContext.save()
+//        } catch {
+//            // 处理错误
+//            let nsError = error as NSError
+//            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+//        }
+//
+//        return result
+//    }()
+//}
 
 
 

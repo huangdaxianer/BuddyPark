@@ -20,9 +20,9 @@ struct HomeView: View {
                             .environmentObject(characterData)
                     case 1:
                         MessageListView(selectedCharacterId: $selectedCharacterId)
-                            .environment(\.managedObjectContext, viewContext)
                             .environmentObject(sessionManager)
-                            .edgesIgnoringSafeArea(.bottom)  // 忽略底部安全区
+                            .edgesIgnoringSafeArea(.bottom)
+
                     case 2:
                         ProfileView()
                     default:
