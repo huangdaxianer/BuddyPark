@@ -64,12 +64,14 @@ class MessageManager: ObservableObject {
     }
     
     private func loadMessages() -> [LocalMessage] {
-        guard let messagesSet = contact.messages as? Set<Message> else {
+        guard let messagesSet = contact.messages as? NSOrderedSet else {
             print("Failed to cast messages to correct type.")
             return []
         }
         
-        return messagesSet.map {
+        return messagesSet.array.compactMap {
+            $0 as? Message
+        }.map {
             LocalMessage(id: $0.id ?? UUID(),
                          role: $0.role ?? "user",
                          content: $0.content ?? "",
@@ -146,8 +148,13 @@ class MessageManager: ObservableObject {
         newMessage.timestamp = localMessage.timestamp
         newMessage.characterid = self.contact.characterid
         newMessage.contact = self.contact
-        self.contact.addToMessages(newMessage)
-        
+
+        // Ensure ordered relationship
+        var existingMessages = self.contact.messages as? NSOrderedSet ?? NSOrderedSet()
+        let mutableMessages = existingMessages.mutableCopy() as! NSMutableOrderedSet
+        mutableMessages.add(newMessage)
+        self.contact.messages = mutableMessages.copy() as? NSOrderedSet
+
         do {
             try self.context.save()
             self.messages.append(localMessage)  // 这里同步更新 messages 数组
@@ -156,6 +163,7 @@ class MessageManager: ObservableObject {
             print("Error saving message: \(error.localizedDescription)")
         }
     }
+
     
     enum RequestType: String {
         case newMessage = "new-message"
@@ -217,7 +225,6 @@ class MessageManager: ObservableObject {
             }
         
     }
-    
 }
 
 //新方法就是输入所有完整的消息，只比长短，然后更新消息
