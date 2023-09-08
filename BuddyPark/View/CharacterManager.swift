@@ -223,6 +223,7 @@ class CharacterManager {
         let fileManager = FileManager.default
         if fileManager.fileExists(atPath: imagePath) {
             if let image = UIImage(contentsOfFile: imagePath) {
+                print("成功加载了照片")
                 return image
             }
         }
@@ -284,6 +285,10 @@ class CharacterManager {
         }
     }
 }
+
+
+
+
 
 
 

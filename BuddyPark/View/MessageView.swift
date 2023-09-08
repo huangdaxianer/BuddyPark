@@ -64,7 +64,6 @@ struct MessageView: View {
     @State private var keyboardHeight: CGFloat = 0
     @State private var ifShowIndicator: Bool = true
     
-    
     init(characterid: Int32, context: NSManagedObjectContext, messageManager: MessageManager) {
         self.messageManager = messageManager
     }

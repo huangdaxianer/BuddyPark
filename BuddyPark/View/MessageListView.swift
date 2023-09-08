@@ -5,12 +5,12 @@ struct MessageListView: View {
     let viewContext = CoreDataManager.shared.persistentContainer.viewContext // 添加这一行
     @EnvironmentObject var sessionManager: SessionManager
     @Binding var selectedCharacterId: Int32?
-
+    
     @FetchRequest(
         entity: Contact.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Contact.name, ascending: true)]
     ) private var contacts: FetchedResults<Contact>
-
+    
     var body: some View {
         ZStack {
             Color.backgroundBlue.edgesIgnoringSafeArea(.all)
@@ -42,15 +42,13 @@ struct MessageListView: View {
     }
 }
 
-
-
 struct MessageRowView: View {
     let contact: Contact
     let context: NSManagedObjectContext
     let messageManager: MessageManager
-
+    @State private var avatarImage: UIImage? = nil
     @State private var isSelected: Bool = false // 添加这个状态来控制导航
-
+    
     var body: some View {
         VStack {
             ZStack {
@@ -65,12 +63,22 @@ struct MessageRowView: View {
                     )
                 HStack {
                     // Avatar
-                    Image(contact.name ?? "")
-                        .resizable()
-                        .frame(width: 77, height: 77)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.black, lineWidth: 2))
-                        .padding(.leading, 19)
+                    if let avatar = avatarImage {
+                        Image(uiImage: avatar)
+                            .resizable()
+                            .frame(width: 77, height: 77)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.black, lineWidth: 2))
+                            .padding(.leading, 19)
+                    } else {
+                        Image("default_avatar")  // 你可以设置一个默认的头像，如果头像没有加载成功的话
+                            .resizable()
+                            .frame(width: 77, height: 77)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.black, lineWidth: 2))
+                            .padding(.leading, 19)
+                    }
+                    
                     
                     // Message and time area
                     VStack(alignment: .leading) {
@@ -85,7 +93,7 @@ struct MessageRowView: View {
                                 .font(.custom("SF Pro Rounded", size: 16))
                                 .frame(alignment: .trailing)
                                 .padding(.trailing, 10)
-
+                            
                         }
                         
                         ZStack(alignment: .leading) {
@@ -96,7 +104,7 @@ struct MessageRowView: View {
                                     RoundedRectangle(cornerRadius: 45)
                                         .stroke(Color.black, lineWidth: 2)
                                 )
-
+                            
                             Text(contact.lastMessage ?? "")
                                 .font(.system(size: 14))
                                 .fontWeight(.bold)
@@ -105,27 +113,31 @@ struct MessageRowView: View {
                                 .truncationMode(.tail)
                                 .lineLimit(1)
                         }
-
-
+                        
+                        
                     }
                     .padding(.horizontal, 10)
                 }
                 NavigationLink(
-                                destination: MessageView(characterid: contact.characterid, context: context, messageManager: messageManager),
-                                isActive: $isSelected,
-                                label: { EmptyView() }
-                            )
-                            .opacity(0) // 或者使用 .hidden()
+                    destination: MessageView(characterid: contact.characterid, context: context, messageManager: messageManager),
+                    isActive: $isSelected,
+                    label: { EmptyView() }
+                )
+                .opacity(0) // 或者使用 .hidden()
             }
             .frame(height: 125)
             .padding(.leading, 18)
             .padding(.trailing, 20)
-
+            
         }
         .frame(height: 135)
+        .onAppear {
+            avatarImage = CharacterManager.shared.loadImage(characterid: contact.characterid, type: .avatar)
+        }
+
         .onTapGesture {
-                  isSelected.toggle() // 当点击时，修改 isSelected 的值来触发导航
-              }
+            isSelected.toggle() // 当点击时，修改 isSelected 的值来触发导航
+        }
     }
 }
 
