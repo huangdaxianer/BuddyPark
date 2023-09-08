@@ -123,7 +123,7 @@ struct MessageRowView: View {
                     .padding(.horizontal, 10)
                 }
                 NavigationLink(
-                    destination: MessageView(characterid: contact.characterid, context: context, messageManager: messageManager),
+                    destination: MessageView(characterid: contact.characterid, messageManager: messageManager),
                     isActive: $isSelected,
                     label: { EmptyView() }
                 )

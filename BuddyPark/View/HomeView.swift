@@ -40,7 +40,6 @@ struct HomeView: View {
                     "",
                     destination: selectedCharacterId.map { characterId in
                         MessageView(characterid: characterId,
-                                    context: viewContext, // 使用统一的viewContext
                                     messageManager: sessionManager.session(for: characterId))
                     },
                     isActive: $isNavigatingToMessageView
