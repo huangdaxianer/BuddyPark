@@ -48,7 +48,11 @@ struct MessageRowView: View {
     let messageManager: MessageManager
     @State private var avatarImage: UIImage? = nil
     @State private var isSelected: Bool = false // 添加这个状态来控制导航
-    
+
+    var lastMessage: Message? {
+        return (contact.messages?.array as? [Message])?.last
+    }
+
     var body: some View {
         VStack {
             ZStack {
@@ -78,8 +82,8 @@ struct MessageRowView: View {
                             .overlay(Circle().stroke(Color.black, lineWidth: 2))
                             .padding(.leading, 19)
                     }
-                    
-                    
+
+
                     // Message and time area
                     VStack(alignment: .leading) {
                         HStack {
@@ -89,14 +93,14 @@ struct MessageRowView: View {
                                 .frame(alignment: .leading)
                                 .padding(.leading, 5)
                             Spacer()
-                            Text(contact.updateTime != nil ? DateFormatter.localizedString(from: contact.updateTime!, dateStyle: .none, timeStyle: .short) : "")
-                                .font(.custom("SF Pro Rounded", size: 16))
-                                .fontWeight(.black)
-                                .frame(alignment: .trailing)
-                                .padding(.trailing, 10)
-                            
+                            Text(lastMessage?.timestamp != nil ? DateFormatter.localizedString(from: lastMessage!.timestamp!, dateStyle: .none, timeStyle: .short) : "")
+                                              .font(.custom("SF Pro Rounded", size: 16))
+                                              .fontWeight(.black)
+                                              .frame(alignment: .trailing)
+                                              .padding(.trailing, 10)
+
                         }
-                        
+
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 45)
                                 .fill(Color(red: 0, green: 102 / 255, blue: 255 / 255))
@@ -105,8 +109,7 @@ struct MessageRowView: View {
                                     RoundedRectangle(cornerRadius: 45)
                                         .stroke(Color.black, lineWidth: 2)
                                 )
-                            
-                            Text(contact.lastMessage ?? "")
+                            Text(lastMessage?.content ?? "")
                                 .font(.system(size: 14))
                                 .fontWeight(.bold)
                                 .foregroundColor(Color(white: 100))
@@ -114,8 +117,8 @@ struct MessageRowView: View {
                                 .truncationMode(.tail)
                                 .lineLimit(1)
                         }
-                        
-                        
+
+
                     }
                     .padding(.horizontal, 10)
                 }
@@ -129,7 +132,7 @@ struct MessageRowView: View {
             .frame(height: 125)
             .padding(.leading, 18)
             .padding(.trailing, 20)
-            
+
         }
         .frame(height: 135)
         .onAppear {
@@ -141,7 +144,6 @@ struct MessageRowView: View {
         }
     }
 }
-
 
 
 //

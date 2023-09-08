@@ -260,3 +260,4 @@ class AppState {
 
     var swipeEnabled = false
 }
+
