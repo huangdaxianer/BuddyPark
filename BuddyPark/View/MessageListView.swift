@@ -77,22 +77,40 @@ struct MessageRowView: View {
                             .stroke(Color.black, lineWidth: 2)
                     )
                 HStack {
-                    // Avatar
-                    if let avatar = avatarImage {
-                        Image(uiImage: avatar)
-                            .resizable()
-                            .frame(width: 77, height: 77)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.black, lineWidth: 2))
-                            .padding(.leading, 19)
-                    } else {
-                        Image("default_avatar")  // 你可以设置一个默认的头像，如果头像没有加载成功的话
-                            .resizable()
-                            .frame(width: 77, height: 77)
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(Color.black, lineWidth: 2))
-                            .padding(.leading, 19)
+                    
+                    ZStack {
+                        // Avatar
+                        if let avatar = avatarImage {
+                            Image(uiImage: avatar)
+                                .resizable()
+                                .frame(width: 77, height: 77)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.black, lineWidth: 2))
+                        } else {
+                            Image("default_avatar")  // 默认头像
+                                .resizable()
+                                .frame(width: 77, height: 77)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.black, lineWidth: 2))
+                        }
+
+                        // New message badge
+                        if contact.newMessageNum > 0 {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.red)
+                                    .frame(width: 31, height: 31)
+                                    .overlay(Circle().stroke(Color.black, lineWidth: 2))
+
+                                Text("\(contact.newMessageNum)")
+                                    .font(.custom("SF Pro Rounded", size: 20))
+                                    .foregroundColor(.white)
+                            }
+                            .offset(x: 25, y: -25)  // 根据需要调整位置
+                        }
                     }
+                    .padding(.leading, 19)
+
 
 
                     // Message and time area

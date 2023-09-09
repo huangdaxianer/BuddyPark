@@ -14,7 +14,9 @@ class HomeViewModel: ObservableObject {
             contact.lastMessage = "你好啊"
             contact.updateTime = Date()
             contact.id = UUID()
-    
+            contact.newMessageNum = 3
+
+            
             CoreDataManager.shared.saveContext()
             
             let sampleMessages = ["你好#很高兴认识你！", "希望我们可以成为好朋友！", "随时可以和我聊天哦！"]

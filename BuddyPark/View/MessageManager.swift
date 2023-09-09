@@ -90,12 +90,21 @@ class MessageManager: ObservableObject {
         
         let shouldAppend = handleMessageAppending(newMessage)
         if shouldAppend {
-            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            // 增加 newMessageNum 的值
+            contact.newMessageNum += 1
+            
+            // 保存更改到上下文
+            do {
+                try context.save()
+            } catch {
+                let error = error as NSError
+                print("保存 newMessageNum 失败: \(error), \(error.userInfo)")
+            }
+            
             completion()
         }
         DispatchQueue.main.async { self.lastUpdated = Date() }
     }
-    
     
     private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
         guard let lastMessage = messages.last else {

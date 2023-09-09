@@ -81,7 +81,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let messageManager = globalSessionManager?.session(for: characterid)
           let fullText = (userInfo["aps"] as? [String: Any])?["full-text"] as? String
-          let freeMessageLeftString = (userInfo["aps"] as? [String: Any])?["free-message-left"] as? String
+         // let freeMessageLeftString = (userInfo["aps"] as? [String: Any])?["free-message-left"] as? String
           let lastUserMessageFromServer = (userInfo["aps"] as? [String: Any])?["users-reply"] as? String
           
           let newFullMessage = LocalMessage(id: UUID(), role: "assistant", content: fullText ?? notification.request.content.body, timestamp: Date())

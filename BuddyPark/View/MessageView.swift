@@ -278,7 +278,7 @@ struct MessageRow: View {
                                         )
                                 }
                             }
-                            .padding(.leading, 15)
+                            .padding(.leading, 10)
                             .padding(.top, 15)
                         }
                         Spacer()
@@ -302,7 +302,7 @@ struct MessageRow: View {
                                         )
                                 }
                             }
-                            .padding(.trailing, 15)
+                            .padding(.trailing, 10)
                             .padding(.top, 15)
                         }
                     }
