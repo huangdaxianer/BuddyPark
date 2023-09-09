@@ -20,7 +20,7 @@ class HomeViewModel: ObservableObject {
             CoreDataManager.shared.saveContext()
             
             let sampleMessages = ["你好#很高兴认识你！", "希望我们可以成为好朋友！", "随时可以和我聊天哦！"]
-            for (index, messageContent) in sampleMessages.enumerated() {
+            for (_, messageContent) in sampleMessages.enumerated() {
                 let message = Message(context: context)
                 message.content = messageContent
                 message.timestamp = Date()

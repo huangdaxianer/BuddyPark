@@ -141,7 +141,7 @@ struct MessageRowView: View {
                         ZStack(alignment: .leading) {
                             if lastMessage?.role == "user" {
                                 RoundedRectangle(cornerRadius: 45)
-                                    .fill(Color.white)
+                                    .fill(Color(white: 100))
                                     .frame(height: 44)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 45)
@@ -165,7 +165,7 @@ struct MessageRowView: View {
                                 Text(processedLastMessage)
                                     .font(.system(size: 16))
                                     .fontWeight(.bold)
-                                    .foregroundColor(Color(white: 100))
+                                    .foregroundColor(Color.white)
                                     .padding(.leading, 19)
                                     .truncationMode(.tail)
                                     .lineLimit(1)
