@@ -32,17 +32,16 @@ class NotificationService: UNNotificationServiceExtension {
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent) ?? bestAttemptContent
         
-        
-        // 打印接收到的推送通知内容
         print("接收到的推送通知内容: \(request.content.userInfo)")
         
         // 设置CoreData
         setupCoreDataStack()
         
         // 使用新的SessionManager和MessageManager逻辑处理消息
-        let userInfo = request.content.userInfo
-        let characteridString = (userInfo["aps"] as? [String: Any])?["characterid"] as? String
-        guard let characterid = Int32(characteridString ?? "") else {
+        guard let userInfo = request.content.userInfo as? [String: Any],
+              let apsData = userInfo["aps"] as? [String: Any],
+              let characteridString = apsData["characterid"] as? String,
+              let characterid = Int32(characteridString) else {
             print("无法从推送通知中获取 characterid")
             contentHandler(bestAttemptContent ?? request.content) // 确保总是回调 contentHandler
             return
@@ -53,7 +52,6 @@ class NotificationService: UNNotificationServiceExtension {
             print("成功获取或创建对应 characterid 的 MessageManager")
             let fullText = (userInfo["aps"] as? [String: Any])?["full-text"] as? String
             let lastUserMessageFromServer = (userInfo["aps"] as? [String: Any])?["users-reply"] as? String
-            
             let newFullMessage = LocalMessage(id: UUID(), role: "assistant", content: fullText ?? request.content.body, timestamp: Date())
             messageManager.appendFullMessage(newFullMessage, lastUserReplyFromServer: lastUserMessageFromServer){}
         } else {
@@ -100,19 +98,15 @@ class MessageManager: ObservableObject {
     @Published var lastUpdated = Date()
     @Published var isTyping = false
     private var contact: Contact
-    
-    var context: NSManagedObjectContext {
-        return CoreDataManager.shared.mainManagedObjectContext
-    }
-    
-    
+    private var context: NSManagedObjectContext // 修改为非计算属性
+
     enum UserRole: String {
         case user
         case assistant
     }
     
     init(characterid: Int32, context: NSManagedObjectContext) {
-        
+        self.context = context // 使用从外部传入的 context
         let fetchRequest: NSFetchRequest<Contact> = Contact.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "characterid == %d", characterid)
         
@@ -129,7 +123,7 @@ class MessageManager: ObservableObject {
     }
     
     var contactName: String {
-        return contact.name ?? "未知联系人"
+        return contact.name!
     }
     
     private func loadMessages() -> [LocalMessage] {
@@ -138,7 +132,7 @@ class MessageManager: ObservableObject {
             return []
         }
         
-        return messagesSet.array.compactMap {
+        let localMessages = messagesSet.array.compactMap {
             $0 as? Message
         }.map {
             LocalMessage(id: $0.id ?? UUID(),
@@ -146,7 +140,15 @@ class MessageManager: ObservableObject {
                          content: $0.content ?? "",
                          timestamp: $0.timestamp ?? Date())
         }.sorted(by: { $0.timestamp < $1.timestamp })
+        
+        // 打印消息
+        for message in localMessages {
+            print("ID: \(message.id), Role: \(message.role), Content: \(message.content), Timestamp: \(message.timestamp)")
+        }
+        
+        return localMessages
     }
+
     
     
     
@@ -166,10 +168,15 @@ class MessageManager: ObservableObject {
             CoreDataManager.shared.saveChanges()
             completion()
         }
-        DispatchQueue.main.async { self.lastUpdated = Date() }
+        DispatchQueue.main.async {
+            self.lastUpdated = Date()
+            self.messages = self.loadMessages()
+
+        }
     }
     
     func saveMessage(_ localMessage: LocalMessage) {
+
         let newMessage = Message(context: self.context)
         newMessage.id = localMessage.id
         newMessage.role = localMessage.role
@@ -177,39 +184,45 @@ class MessageManager: ObservableObject {
         newMessage.timestamp = localMessage.timestamp
         newMessage.characterid = self.contact.characterid
         newMessage.contact = self.contact
-        
+
         // Ensure ordered relationship
         let existingMessages = self.contact.messages ?? NSOrderedSet()
         let mutableMessages = existingMessages.mutableCopy() as! NSMutableOrderedSet
         mutableMessages.add(newMessage)
         self.contact.messages = mutableMessages.copy() as? NSOrderedSet
         CoreDataManager.shared.saveChanges()
+        print("消息已经保存到 CoreData")
         
         self.messages.append(localMessage)  // 这里同步更新 messages 数组
+        print("messages 数组已更新")
+        
         self.lastUpdated = Date()  // 这里更新 lastUpdated 以通知 SwiftUI 进行刷新
+        print("lastUpdated 已更新，SwiftUI 应该进行刷新")
     }
-    
+
+
     private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
+        print("处理消息追加: \(newMessage.content)")
+        
         guard let lastMessage = messages.last else {
             saveMessage(newMessage)
+            print("没有上一个消息，直接保存新消息")
             return true
         }
         
-        switch (lastMessage.role, newMessage.role) {
-        case (UserRole.user.rawValue, UserRole.user.rawValue):
+        if lastMessage.role == UserRole.user.rawValue && newMessage.role == UserRole.user.rawValue {
+            print("合并两条用户消息")
             let combinedContent = lastMessage.content + "#" + newMessage.content
             let combinedMessage = LocalMessage(id: newMessage.id, role: UserRole.user.rawValue, content: combinedContent, timestamp: Date())
-            removeMessage(lastMessage)  // 删除原始消息
+            removeMessage(lastMessage)
             saveMessage(combinedMessage)
-            return true  // 为了确保新消息被添加，我们返回 true
-        case (UserRole.assistant.rawValue, UserRole.assistant.rawValue) where newMessage.content.count > lastMessage.content.count:
-            saveMessage(newMessage)
-            return true
-        default:
-            saveMessage(newMessage)
             return true
         }
+        
+        saveMessage(newMessage)
+        return true
     }
+
     
     private func removeMessage(_ localMessage: LocalMessage) {
         // 首先从本地数组中删除
