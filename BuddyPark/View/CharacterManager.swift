@@ -284,7 +284,24 @@ class CharacterManager {
             print("Error updating character status: \(error)")
         }
     }
+    
+    func resetNewMessageNumForContact(characterid: Int32) {
+        let context = CoreDataManager.shared.persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<Contact> = Contact.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "characterid == %d", characterid)
+        
+        do {
+            let contacts = try context.fetch(fetchRequest)
+            if let contact = contacts.first {
+                contact.newMessageNum = 0
+                CoreDataManager.shared.saveContext()
+            }
+        } catch {
+            print("Error resetting newMessageNum for Contact: \(error)")
+        }
+    }
 
+    
 }
 
 

@@ -187,6 +187,7 @@ struct MessageRowView: View {
         }
 
         .onTapGesture {
+            CharacterManager.shared.resetNewMessageNumForContact(characterid: contact.characterid)
             isSelected.toggle() // 当点击时，修改 isSelected 的值来触发导航
         }
     }
