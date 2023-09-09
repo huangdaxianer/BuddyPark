@@ -67,7 +67,7 @@ class MessageManager: ObservableObject {
     }
     
     private func loadMessages() -> [LocalMessage] {
-        guard let messagesSet = contact.messages as? NSOrderedSet else {
+        guard let messagesSet = contact.messages else {
             print("Failed to cast messages to correct type.")
             return []
         }

@@ -78,3 +78,5 @@ final class CoreDataManager {
         NotificationCenter.default.addObserver(self, selector: #selector(saveChanges(notification:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
 }
+
+

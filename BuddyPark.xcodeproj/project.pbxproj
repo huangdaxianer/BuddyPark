@@ -12,6 +12,8 @@
 		F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187C52AA848280082E195 /* CoreDataManager.swift */; };
 		F54187CC2AA887E90082E195 /* Message-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187CB2AA887E90082E195 /* Message-Service.js */; };
 		F54187CE2AA888030082E195 /* Character-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187CD2AA888030082E195 /* Character-Service.js */; };
+		F54187D22AACD0680082E195 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187D12AACD0680082E195 /* CoreDataStack.swift */; };
+		F54187D42AACD5600082E195 /* BuddyPark.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F59005142A86200800BAF934 /* BuddyPark.xcdatamodeld */; };
 		F55E423C2A93C4FB000BBB44 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423B2A93C4FB000BBB44 /* ProfileView.swift */; };
 		F55E423E2A947E40000BBB44 /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423D2A947E40000BBB44 /* ColorExtension.swift */; };
 		F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59005092A86200600BAF934 /* BuddyParkApp.swift */; };
@@ -81,6 +83,8 @@
 		F54187C52AA848280082E195 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		F54187CB2AA887E90082E195 /* Message-Service.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "Message-Service.js"; sourceTree = "<group>"; };
 		F54187CD2AA888030082E195 /* Character-Service.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "Character-Service.js"; sourceTree = "<group>"; };
+		F54187D12AACD0680082E195 /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		F54187D52AACDC070082E195 /* BuddyParkNSE.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BuddyParkNSE.entitlements; sourceTree = "<group>"; };
 		F55E423B2A93C4FB000BBB44 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		F55E423D2A947E40000BBB44 /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
 		F59005062A86200600BAF934 /* BuddyPark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BuddyPark.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -240,6 +244,7 @@
 				F5D70A982A9CF76E0075D3FA /* SubscriptionManager.swift */,
 				F519A9032AA8284B00A4569B /* CharacterManager.swift */,
 				F54187C52AA848280082E195 /* CoreDataManager.swift */,
+				F54187D12AACD0680082E195 /* CoreDataStack.swift */,
 			);
 			name = Manager;
 			path = View;
@@ -248,6 +253,7 @@
 		F59E83B52AA1855C0076D9FD /* BuddyParkNSE */ = {
 			isa = PBXGroup;
 			children = (
+				F54187D52AACDC070082E195 /* BuddyParkNSE.entitlements */,
 				F59E83B62AA1855C0076D9FD /* NotificationService.swift */,
 				F59E83B82AA1855C0076D9FD /* Info.plist */,
 			);
@@ -424,6 +430,7 @@
 				F59005502A8A068F00BAF934 /* HomeViewModel.swift in Sources */,
 				F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */,
 				F590054A2A89F40500BAF934 /* MessageView.swift in Sources */,
+				F54187D22AACD0680082E195 /* CoreDataStack.swift in Sources */,
 				F59E83AF2AA1851C0076D9FD /* NotificationManager.swift in Sources */,
 				F59005132A86200800BAF934 /* Persistence.swift in Sources */,
 				F5D73B3D2A9D10AF0075D3FA /* UserProfileManager.swift in Sources */,
@@ -459,6 +466,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F59E83B72AA1855C0076D9FD /* NotificationService.swift in Sources */,
+				F54187D42AACD5600082E195 /* BuddyPark.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -740,6 +748,7 @@
 		F59E83BD2AA1855C0076D9FD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BuddyParkNSE/BuddyParkNSE.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4R46BG4QL5;
@@ -765,6 +774,7 @@
 		F59E83BE2AA1855C0076D9FD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BuddyParkNSE/BuddyParkNSE.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4R46BG4QL5;
