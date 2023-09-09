@@ -26,7 +26,11 @@ struct MessageListView: View {
                     Rectangle()
                         .fill(Color.clear)
                         .frame(height: 45)
-                    ForEach(contacts, id: \.self) { contact in
+                    ForEach(contacts.sorted(by: {
+                        let timestamp1 = ($0.messages?.lastObject as? Message)?.timestamp
+                        let timestamp2 = ($1.messages?.lastObject as? Message)?.timestamp
+                        return timestamp1 ?? Date.distantPast > timestamp2 ?? Date.distantPast
+                    }), id: \.self) { contact in
                         MessageRowView(contact: contact,
                                        context: viewContext, // 使用统一的 viewContext
                                        messageManager: sessionManager.session(for: contact.characterid))
@@ -51,6 +55,10 @@ struct MessageRowView: View {
 
     var lastMessage: Message? {
         return (contact.messages?.array as? [Message])?.last
+    }
+    
+    var lastMessageTimestamp: Date? {
+        return (contact.messages?.lastObject as? Message)?.timestamp
     }
 
     var processedLastMessage: String {

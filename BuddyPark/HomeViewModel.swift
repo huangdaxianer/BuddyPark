@@ -23,7 +23,7 @@ class HomeViewModel: ObservableObject {
             for (index, messageContent) in sampleMessages.enumerated() {
                 let message = Message(context: context)
                 message.content = messageContent
-                message.timestamp = Date().addingTimeInterval(TimeInterval(index * 60))
+                message.timestamp = Date()
                 message.role = "assistant"
                 message.characterid = Int32(userProfile.characterid)
                 message.contact = contact
