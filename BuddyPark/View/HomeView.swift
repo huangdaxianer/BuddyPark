@@ -94,6 +94,22 @@ struct TabBarButton: View {
     let index: Int
     var badgeCount: Int? = nil  // 添加可选的 Badge 计数
     
+    var badgeBackgroundColor: Color {
+        if index == 1 && selectedTab == 1 {
+            return Color.red
+        } else {
+            return Color.white
+        }
+    }
+    
+    var badgeTextColor: Color {
+        if index == 1 && selectedTab == 1 {
+            return Color.white
+        } else {
+            return Color.black
+        }
+    }
+
     var body: some View {
         ZStack {
             Button(action: { selectedTab = index }) {
@@ -109,19 +125,20 @@ struct TabBarButton: View {
             if let count = badgeCount, count > 0 {
                 ZStack {
                     Circle()
-                        .fill(Color.red)
+                        .fill(badgeBackgroundColor)
                         .frame(width: 25, height: 25)
                         .overlay(Circle().stroke(Color.black, lineWidth: 2))  // 黑色边框
                     
                     Text("\(count)")
-                        .font(.custom("SF Pro Rounded", size: 17))
-                        .foregroundColor(.white)
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundColor(badgeTextColor)
                 }
                 .offset(x: 15, y: -15)  // 根据需要调整位置
             }
         }
     }
 }
+
 
 
 

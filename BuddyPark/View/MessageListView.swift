@@ -111,7 +111,7 @@ struct MessageRowView: View {
                                     .overlay(Circle().stroke(Color.black, lineWidth: 2))
 
                                 Text("\(contact.newMessageNum)")
-                                    .font(.custom("SF Pro Rounded", size: 20))
+                                    .font(.system(size: 20, weight: .bold, design: .rounded))
                                     .foregroundColor(.white)
                             }
                             .offset(x: 25, y: -25)  // 根据需要调整位置
@@ -131,7 +131,7 @@ struct MessageRowView: View {
                                 .padding(.leading, 5)
                             Spacer()
                             Text(lastMessage?.timestamp != nil ? DateFormatter.localizedString(from: lastMessage!.timestamp!, dateStyle: .none, timeStyle: .short) : "")
-                                              .font(.custom("SF Pro Rounded", size: 16))
+                                .font(.system(size: 16, weight: .regular, design: .rounded))
                                               .fontWeight(.black)
                                               .frame(alignment: .trailing)
                                               .padding(.trailing, 10)
@@ -152,6 +152,7 @@ struct MessageRowView: View {
                                     .fontWeight(.bold)
                                     .foregroundColor(Color.black)
                                     .padding(.leading, 19)
+                                    .padding(.trailing, 5)
                                     .truncationMode(.tail)
                                     .lineLimit(1)
                             } else {
@@ -167,6 +168,7 @@ struct MessageRowView: View {
                                     .fontWeight(.bold)
                                     .foregroundColor(Color.white)
                                     .padding(.leading, 19)
+                                    .padding(.trailing, 5)
                                     .truncationMode(.tail)
                                     .lineLimit(1)
                             }
