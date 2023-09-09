@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    let viewContext = CoreDataManager.shared.persistentContainer.viewContext // 从CoreDataManager中获取viewContext
+    let viewContext = CoreDataManager.shared.mainManagedObjectContext // 使用 mainManagedObjectContext 替代 persistentContainer.viewContext
     @StateObject private var characterData = CharacterData()
     @StateObject private var viewModel = HomeViewModel()
     @ObservedObject var sessionManager: SessionManager

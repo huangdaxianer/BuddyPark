@@ -96,14 +96,14 @@ var globalSessionManager: SessionManager?
 
 @main
 struct BuddyParkApp: App {
-    let dataManager = CoreDataManager.shared // 使用CoreDataManager
+    let dataManager = CoreDataManager.shared
     @StateObject var sessionManager: SessionManager
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     init() {
         CharacterManager.shared.setupImageDirectory(for: .profile)
-        let context = dataManager.persistentContainer.viewContext // 使用CoreDataManager的viewContext
+        let context = dataManager.mainManagedObjectContext // 使用CoreDataManager的mainManagedObjectContext
         let sessionManager = SessionManager(context: context)
         _sessionManager = StateObject(wrappedValue: sessionManager)
         globalSessionManager = sessionManager
@@ -112,7 +112,7 @@ struct BuddyParkApp: App {
     var body: some Scene {
         WindowGroup {
             HomeView(sessionManager: sessionManager)
-                .environment(\.managedObjectContext, dataManager.persistentContainer.viewContext) // 使用CoreDataManager的viewContext
+                .environment(\.managedObjectContext, dataManager.mainManagedObjectContext) // 使用CoreDataManager的mainManagedObjectContext
                 .environmentObject(sessionManager)
         }
     }

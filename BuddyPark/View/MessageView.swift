@@ -55,7 +55,7 @@ struct CustomTextFieldView: View {
 
 struct MessageView: View {
     
-    let context = CoreDataManager.shared.persistentContainer.viewContext // 使用统一的 viewContext
+    let context = CoreDataManager.shared.mainManagedObjectContext // 使用 mainManagedObjectContext 替代原来的 viewContext
     let characterid: Int32
     @Environment(\.presentationMode) var presentationMode // 用于回到上一个页面
     @ObservedObject var messageManager: MessageManager
@@ -64,7 +64,6 @@ struct MessageView: View {
     @State private var keyboardDynamicPadding: CGFloat = 0
     @State private var keyboardHeight: CGFloat = 0
     @State private var ifShowIndicator: Bool = true
-    
     
     init(characterid: Int32, messageManager: MessageManager) {
         self.characterid = characterid  // 设置 characterid

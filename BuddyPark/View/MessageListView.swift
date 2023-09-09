@@ -2,7 +2,7 @@ import SwiftUI
 import CoreData
 
 struct MessageListView: View {
-    let viewContext = CoreDataManager.shared.persistentContainer.viewContext // 添加这一行
+    let viewContext = CoreDataManager.shared.mainManagedObjectContext // 修改这一行
     @EnvironmentObject var sessionManager: SessionManager
     @Binding var selectedCharacterId: Int32?
     

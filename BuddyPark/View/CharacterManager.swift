@@ -29,14 +29,13 @@ class CharacterData: ObservableObject {
         }
     }
 
-    
     private func loadCharactersFromCoreData() {
         let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "characterid", ascending: true)]
-        fetchRequest.predicate = NSPredicate(format: "status == %@", "raw") // 添加此行来过滤结果
+        fetchRequest.predicate = NSPredicate(format: "status == %@", "raw")
         
         do {
-            let context = CoreDataManager.shared.persistentContainer.viewContext
+            let context = CoreDataManager.shared.mainManagedObjectContext // Use main context for fetching
             let fetchedCharacters = try context.fetch(fetchRequest)
             self.characters = fetchedCharacters.map { ProfileCardModel(character: $0) }
         } catch {
@@ -45,34 +44,34 @@ class CharacterData: ObservableObject {
     }
 
     func updateCharactersInCoreData(completion: @escaping () -> Void) {
-         let currentMaxid = UserDefaults.standard.string(forKey: "currentMaxCharacterid") ?? "0"
-         let nextCharacterid = String(Int(currentMaxid)! + 1)
-         fetchCharactersFromServer(characterId: nextCharacterid) { (characters, error) in
-             if let characters = characters {
-                   self.createCharactersInCoreData(characters: characters) {
-                       if let maxFetchedCharacterid = characters.max(by: { $0.characterid < $1.characterid })?.characterid {
-                           UserDefaults.standard.setValue(maxFetchedCharacterid, forKey: "currentMaxCharacterid")
-                       }
-                       completion()
-                   }
-               } else {
-                 print("Error fetching characters: \(error?.localizedDescription ?? "Unknown error")")
-                 completion()
-             }
-         }
-     }
+        let currentMaxid = UserDefaults.standard.string(forKey: "currentMaxCharacterid") ?? "0"
+        let nextCharacterid = String(Int(currentMaxid)! + 1)
+        fetchCharactersFromServer(characterId: nextCharacterid) { (characters, error) in
+            if let characters = characters {
+                self.createCharactersInCoreData(characters: characters) {
+                    if let maxFetchedCharacterid = characters.max(by: { $0.characterid < $1.characterid })?.characterid {
+                        UserDefaults.standard.setValue(maxFetchedCharacterid, forKey: "currentMaxCharacterid")
+                    }
+                    completion()
+                }
+            } else {
+                print("Error fetching characters: \(error?.localizedDescription ?? "Unknown error")")
+                completion()
+            }
+        }
+    }
     
     private func createCharactersInCoreData(characters: [CharacterDataModel], completion: @escaping () -> Void) {
-        let context = CoreDataManager.shared.persistentContainer.viewContext
+        let context = CoreDataManager.shared.mainManagedObjectContext // Use main context for creating
         let group = DispatchGroup()
 
         for characterData in characters {
             if let intId = Int(characterData.characterid) {
                 let characterID = Int32(intId)
 
-                // 检查是否已经存在这个 characterid
+                // Check if the character with this characterid already exists
                 if characterExists(withID: characterID, in: context) {
-                    continue // 如果存在，则跳过创建步骤
+                    continue
                 }
 
                 let character = Character(context: context)
@@ -101,7 +100,7 @@ class CharacterData: ObservableObject {
         }
 
         group.notify(queue: .main) {
-            CoreDataManager.shared.saveContext()
+            CoreDataManager.shared.saveChanges() // Change from saveContext to the new method saveChanges
             completion()
         }
     }
@@ -270,7 +269,7 @@ class CharacterManager {
 
     
     func updateCharacterStatus(characterid: Int32, status: CharacterStatus) {
-        let context = CoreDataManager.shared.persistentContainer.viewContext
+        let context = CoreDataManager.shared.mainManagedObjectContext
         let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "characterid == %d", characterid)
         
@@ -278,7 +277,7 @@ class CharacterManager {
             let characters = try context.fetch(fetchRequest)
             if let character = characters.first {
                 character.status = status.rawValue
-                CoreDataManager.shared.saveContext()
+                CoreDataManager.shared.saveChanges()
             }
         } catch {
             print("Error updating character status: \(error)")
@@ -286,7 +285,7 @@ class CharacterManager {
     }
     
     func resetNewMessageNumForContact(characterid: Int32) {
-        let context = CoreDataManager.shared.persistentContainer.viewContext
+        let context = CoreDataManager.shared.mainManagedObjectContext
         let fetchRequest: NSFetchRequest<Contact> = Contact.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "characterid == %d", characterid)
         
@@ -294,19 +293,10 @@ class CharacterManager {
             let contacts = try context.fetch(fetchRequest)
             if let contact = contacts.first {
                 contact.newMessageNum = 0
-                CoreDataManager.shared.saveContext()
+                CoreDataManager.shared.saveChanges()
             }
         } catch {
             print("Error resetting newMessageNum for Contact: \(error)")
         }
     }
-
-    
 }
-
-
-
-
-
-
-
