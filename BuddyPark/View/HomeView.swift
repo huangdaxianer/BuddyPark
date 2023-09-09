@@ -53,7 +53,15 @@ struct HomeView: View {
 
 struct CustomTabBar: View {
     @Binding var selectedTab: Int
+    @FetchRequest(
+        entity: Contact.entity(),
+        sortDescriptors: []
+    ) var contacts: FetchedResults<Contact>
     
+    var totalNewMessages: Int {
+        return contacts.map { Int($0.newMessageNum) }.reduce(0, +)
+    }
+
     var body: some View {
         ZStack {
             // 背景
@@ -69,7 +77,7 @@ struct CustomTabBar: View {
             // 按钮组
             HStack(spacing: 20) {
                 TabBarButton(imageName: "SwipeView", selectedTab: $selectedTab, index: 0)
-                TabBarButton(imageName: "MessageListView", selectedTab: $selectedTab, index: 1)
+                TabBarButton(imageName: "MessageListView", selectedTab: $selectedTab, index: 1, badgeCount: totalNewMessages)
                 TabBarButton(imageName: "ProfileView", selectedTab: $selectedTab, index: 2)
             }
         }
@@ -84,18 +92,37 @@ struct TabBarButton: View {
     let imageName: String
     @Binding var selectedTab: Int
     let index: Int
+    var badgeCount: Int? = nil  // 添加可选的 Badge 计数
     
     var body: some View {
-        Button(action: { selectedTab = index }) {
-            Image(selectedTab == index ? imageName : "\(imageName)_empty")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 45, height: 45)
+        ZStack {
+            Button(action: { selectedTab = index }) {
+                Image(selectedTab == index ? imageName : "\(imageName)_empty")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 45, height: 45)
+            }
+            .padding()
+            .cornerRadius(10)
+            
+            // 如果 badgeCount 不为 nil 并且大于 0，就显示它
+            if let count = badgeCount, count > 0 {
+                ZStack {
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 25, height: 25)
+                        .overlay(Circle().stroke(Color.black, lineWidth: 2))  // 黑色边框
+                    
+                    Text("\(count)")
+                        .font(.custom("SF Pro Rounded", size: 17))
+                        .foregroundColor(.white)
+                }
+                .offset(x: 15, y: -15)  // 根据需要调整位置
+            }
         }
-        .padding()
-        .cornerRadius(10)
     }
 }
+
 
 
 

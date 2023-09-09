@@ -171,11 +171,9 @@ struct MessageRowView: View {
                                     .lineLimit(1)
                             }
                         }
-
-
-
                     }
-                    .padding(.horizontal, 10)
+                    .padding(.leading, 5)
+                    .padding(.trailing, 10)
                 }
                 NavigationLink(
                     destination: MessageView(characterid: contact.characterid, messageManager: messageManager),
