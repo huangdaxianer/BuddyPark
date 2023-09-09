@@ -24,7 +24,7 @@ class SessionManager: ObservableObject {
             return newSession
         }
     }
-
+    
 }
 
 class MessageManager: ObservableObject {
@@ -35,7 +35,7 @@ class MessageManager: ObservableObject {
     private var contact: Contact
     private let context: NSManagedObjectContext
     
-
+    
     enum UserRole: String {
         case user
         case assistant
@@ -92,15 +92,7 @@ class MessageManager: ObservableObject {
         if shouldAppend {
             // 增加 newMessageNum 的值
             contact.newMessageNum += 1
-            
-            // 保存更改到上下文
-            do {
-                try context.save()
-            } catch {
-                let error = error as NSError
-                print("保存 newMessageNum 失败: \(error), \(error.userInfo)")
-            }
-            
+            CoreDataManager.shared.saveContext()
             completion()
         }
         DispatchQueue.main.async { self.lastUpdated = Date() }
@@ -157,22 +149,19 @@ class MessageManager: ObservableObject {
         newMessage.timestamp = localMessage.timestamp
         newMessage.characterid = self.contact.characterid
         newMessage.contact = self.contact
-
+        
         // Ensure ordered relationship
-        var existingMessages = self.contact.messages ?? NSOrderedSet()
+        let existingMessages = self.contact.messages ?? NSOrderedSet()
         let mutableMessages = existingMessages.mutableCopy() as! NSMutableOrderedSet
         mutableMessages.add(newMessage)
         self.contact.messages = mutableMessages.copy() as? NSOrderedSet
-
-        do {
-            try self.context.save()
-            self.messages.append(localMessage)  // 这里同步更新 messages 数组
-            self.lastUpdated = Date()  // 这里更新 lastUpdated 以通知 SwiftUI 进行刷新
-        } catch {
-            print("Error saving message: \(error.localizedDescription)")
-        }
+        CoreDataManager.shared.saveContext()
+        
+        self.messages.append(localMessage)  // 这里同步更新 messages 数组
+        self.lastUpdated = Date()  // 这里更新 lastUpdated 以通知 SwiftUI 进行刷新
+        
     }
-
+    
     
     enum RequestType: String {
         case newMessage = "new-message"
@@ -230,8 +219,8 @@ class MessageManager: ObservableObject {
                 }
             }.resume()
         } else {
-                return
-            }
+            return
+        }
         
     }
 }
