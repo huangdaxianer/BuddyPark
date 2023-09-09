@@ -7,11 +7,11 @@ class NotificationService: UNNotificationServiceExtension {
     
     var contentHandler: ((UNNotificationContent) -> Void)?
     var bestAttemptContent: UNMutableNotificationContent?
-
+    
     let appGroupName = "group.com.penghao.BuddyPark"
     var persistentContainer: NSPersistentContainer!
     var globalSessionManager: SessionManager?
-
+    
     func setupCoreDataStack() {
         let container = NSPersistentContainer(name: "BuddyPark")
         if let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupName) {
@@ -30,14 +30,15 @@ class NotificationService: UNNotificationServiceExtension {
     
     override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
         self.contentHandler = contentHandler
-        bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
+        bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent) ?? bestAttemptContent
+        
         
         // 打印接收到的推送通知内容
         print("接收到的推送通知内容: \(request.content.userInfo)")
-
+        
         // 设置CoreData
         setupCoreDataStack()
-
+        
         // 使用新的SessionManager和MessageManager逻辑处理消息
         let userInfo = request.content.userInfo
         let characteridString = (userInfo["aps"] as? [String: Any])?["characterid"] as? String
@@ -47,21 +48,21 @@ class NotificationService: UNNotificationServiceExtension {
             return
         }
         print("成功获取 characterid: \(characterid)")
-
+        
         if let messageManager = globalSessionManager?.session(for: characterid) {
             print("成功获取或创建对应 characterid 的 MessageManager")
             let fullText = (userInfo["aps"] as? [String: Any])?["full-text"] as? String
             let lastUserMessageFromServer = (userInfo["aps"] as? [String: Any])?["users-reply"] as? String
-
+            
             let newFullMessage = LocalMessage(id: UUID(), role: "assistant", content: fullText ?? request.content.body, timestamp: Date())
             messageManager.appendFullMessage(newFullMessage, lastUserReplyFromServer: lastUserMessageFromServer){}
         } else {
             print("无法获取或创建对应 characterid 的 MessageManager")
         }
-
+        
         contentHandler(bestAttemptContent ?? request.content)
     }
-
+    
     
     override func serviceExtensionTimeWillExpire() {
         if let contentHandler = contentHandler, let bestAttemptContent = bestAttemptContent {
@@ -101,8 +102,8 @@ class MessageManager: ObservableObject {
     private var contact: Contact
     
     var context: NSManagedObjectContext {
-           return CoreDataManager.shared.mainManagedObjectContext
-       }
+        return CoreDataManager.shared.mainManagedObjectContext
+    }
     
     
     enum UserRole: String {
@@ -147,46 +148,46 @@ class MessageManager: ObservableObject {
         }.sorted(by: { $0.timestamp < $1.timestamp })
     }
     
-
-       
-       func appendFullMessage(_ newMessage: LocalMessage,
-                              lastUserReplyFromServer: String?,
-                              isFromBackground: Bool? = nil,
-                              completion: @escaping () -> Void) {
-           if isFromBackground == true { self.messages = self.loadMessages() }
-           if newMessage.role == UserRole.user.rawValue || newMessage.content.last == "#" {
-               DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.isTyping = false }
-           }
-           
-           let shouldAppend = handleMessageAppending(newMessage)
-           if shouldAppend {
-               // 增加 newMessageNum 的值
-               contact.newMessageNum += 1
-               CoreDataManager.shared.saveChanges()
-               completion()
-           }
-           DispatchQueue.main.async { self.lastUpdated = Date() }
-       }
-       
-       func saveMessage(_ localMessage: LocalMessage) {
-           let newMessage = Message(context: self.context)
-           newMessage.id = localMessage.id
-           newMessage.role = localMessage.role
-           newMessage.content = localMessage.content
-           newMessage.timestamp = localMessage.timestamp
-           newMessage.characterid = self.contact.characterid
-           newMessage.contact = self.contact
-           
-           // Ensure ordered relationship
-           let existingMessages = self.contact.messages ?? NSOrderedSet()
-           let mutableMessages = existingMessages.mutableCopy() as! NSMutableOrderedSet
-           mutableMessages.add(newMessage)
-           self.contact.messages = mutableMessages.copy() as? NSOrderedSet
-           CoreDataManager.shared.saveChanges()
-           
-           self.messages.append(localMessage)  // 这里同步更新 messages 数组
-           self.lastUpdated = Date()  // 这里更新 lastUpdated 以通知 SwiftUI 进行刷新
-       }
+    
+    
+    func appendFullMessage(_ newMessage: LocalMessage,
+                           lastUserReplyFromServer: String?,
+                           isFromBackground: Bool? = nil,
+                           completion: @escaping () -> Void) {
+        if isFromBackground == true { self.messages = self.loadMessages() }
+        if newMessage.role == UserRole.user.rawValue || newMessage.content.last == "#" {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.isTyping = false }
+        }
+        
+        let shouldAppend = handleMessageAppending(newMessage)
+        if shouldAppend {
+            // 增加 newMessageNum 的值
+            contact.newMessageNum += 1
+            CoreDataManager.shared.saveChanges()
+            completion()
+        }
+        DispatchQueue.main.async { self.lastUpdated = Date() }
+    }
+    
+    func saveMessage(_ localMessage: LocalMessage) {
+        let newMessage = Message(context: self.context)
+        newMessage.id = localMessage.id
+        newMessage.role = localMessage.role
+        newMessage.content = localMessage.content
+        newMessage.timestamp = localMessage.timestamp
+        newMessage.characterid = self.contact.characterid
+        newMessage.contact = self.contact
+        
+        // Ensure ordered relationship
+        let existingMessages = self.contact.messages ?? NSOrderedSet()
+        let mutableMessages = existingMessages.mutableCopy() as! NSMutableOrderedSet
+        mutableMessages.add(newMessage)
+        self.contact.messages = mutableMessages.copy() as? NSOrderedSet
+        CoreDataManager.shared.saveChanges()
+        
+        self.messages.append(localMessage)  // 这里同步更新 messages 数组
+        self.lastUpdated = Date()  // 这里更新 lastUpdated 以通知 SwiftUI 进行刷新
+    }
     
     private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
         guard let lastMessage = messages.last else {
