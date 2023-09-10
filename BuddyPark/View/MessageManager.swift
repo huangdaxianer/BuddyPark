@@ -6,9 +6,8 @@ import UIKit
 
 class SessionManager: ObservableObject {
     private var sessions: [Int32: MessageManager] = [:]
-    private let context: NSManagedObjectContext // 添加 context 属性
+    private let context: NSManagedObjectContext
     
-    // 添加构造函数以接收 context
     init(context: NSManagedObjectContext) {
         self.context = context
         NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
@@ -26,22 +25,12 @@ class SessionManager: ObservableObject {
     
     @objc func appWillEnterForeground() {
         context.refreshAllObjects()
-
         for (_, session) in sessions {
             context.performAndWait {
-                // ... [批量更新请求未改动]
                 session.refreshAndLoadMessages() // 用新方法代替 loadMessages()
             }
-            print("返回了前端")
         }
     }
-
-    
-    func reloadAllSessions() {
-        sessions = [:]
-    }
-
-
 }
 
 class MessageManager: ObservableObject {
@@ -78,7 +67,6 @@ class MessageManager: ObservableObject {
     
     public func loadMessages() {
         guard let messagesSet = contact.messages else {
-            print("Failed to cast messages to correct type.")
             self.messages = []
             return
         }
@@ -100,7 +88,6 @@ class MessageManager: ObservableObject {
     
     private func loadMessages() -> [LocalMessage] {
         guard let messagesSet = contact.messages else {
-            print("Failed to cast messages to correct type.")
             return []
         }
         
@@ -159,16 +146,14 @@ class MessageManager: ObservableObject {
         newMessage.timestamp = localMessage.timestamp
         newMessage.characterid = self.contact.characterid
         newMessage.contact = self.contact
-        
-        // Ensure ordered relationship
         let existingMessages = self.contact.messages ?? NSOrderedSet()
         let mutableMessages = existingMessages.mutableCopy() as! NSMutableOrderedSet
         mutableMessages.add(newMessage)
         self.contact.messages = mutableMessages.copy() as? NSOrderedSet
         CoreDataManager.shared.saveChanges()
         
-        self.messages.append(localMessage)  // 这里同步更新 messages 数组
-        self.lastUpdated = Date()  // 这里更新 lastUpdated 以通知 SwiftUI 进行刷新
+        self.messages.append(localMessage)
+        self.lastUpdated = Date()
     }
     
     private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {

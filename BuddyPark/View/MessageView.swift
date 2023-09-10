@@ -26,8 +26,6 @@ struct ResignKeyboardAndLoseFocusGesture: ViewModifier {
     }
 }
 
-
-
 struct CustomTextFieldView: View {
     @ObservedObject var userInput: UserInput
     @Binding var isFirstResponder: Bool
@@ -64,6 +62,8 @@ struct MessageView: View {
     @State private var keyboardDynamicPadding: CGFloat = 0
     @State private var keyboardHeight: CGFloat = 0
     @State private var ifShowIndicator: Bool = true
+    @State private var paddingHeight: CGFloat = 95
+
     
     init(characterid: Int32, messageManager: MessageManager) {
         self.characterid = characterid  // 设置 characterid
@@ -74,6 +74,7 @@ struct MessageView: View {
         ZStack {
             Color("chat_bg_color")
                 .edgesIgnoringSafeArea(.all)
+            
             ScrollViewReader { scrollViewProxy in
                 ScrollView(showsIndicators: ifShowIndicator)  {
                     LazyVStack {
@@ -87,7 +88,7 @@ struct MessageView: View {
                             .id("additionalOffset")
                         Rectangle()
                             .fill(Color.clear)
-                            .frame(height: 95)
+                            .frame(height: paddingHeight)
                             .id("bottomRectangle")
                             .onChange(of: messageManager.lastUpdated) { _ in
                                 withAnimation {
@@ -121,12 +122,13 @@ struct MessageView: View {
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { (noti) in
                     ifShowIndicator=false
                     keyboardHeight = 70
+                    paddingHeight = 0.1
                 }
                 
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { (noti) in
                     ifShowIndicator=true
-                    
                     keyboardHeight = 0
+                    paddingHeight = 95
                 }
             }.padding(.bottom, keyboardHeight)
             
@@ -186,7 +188,6 @@ struct MessageView: View {
                 Spacer()  // 推动下面的视图到底部
                 CustomTextFieldView(userInput: userInput, isFirstResponder: $isFirstResponder, onCommit: {
                     DispatchQueue.main.async {
-                        // 这里会把最新一条消息加上发送时间
                         let date = Date()
                         let formatter = DateFormatter()
                         formatter.dateFormat = "MM月dd日ahh:mm"
@@ -196,18 +197,19 @@ struct MessageView: View {
                         
                         let userMessage = LocalMessage(id: UUID(), role: "user", content: userInput.textWithTime, timestamp: Date())
                         messageManager.appendFullMessage(userMessage, lastUserReplyFromServer: nil) {
-                        messageManager.sendRequest(type: .newMessage)
+                            messageManager.sendRequest(type: .newMessage)
                         }
                         //messageManager.testNetwork()
                         
                         userInput.text = ""
                     }
                 })
-            }.onAppear {
+            }
+            .onAppear {
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { (noti) in
                     keyboardDynamicPadding = 10
                 }
-                
+
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { (noti) in
                     keyboardDynamicPadding = 0
                 }
@@ -220,11 +222,11 @@ struct MessageView: View {
     }
     
     private func scrollToBottom(with scrollViewProxy: ScrollViewProxy, delay: Double = 0.1) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                scrollViewProxy.scrollTo("bottomRectangle", anchor: .bottom)
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            scrollViewProxy.scrollTo("bottomRectangle", anchor: .bottom)
         }
     }
+}
 
 struct MessageRow: View {
     @Environment(\.colorScheme) var colorScheme
