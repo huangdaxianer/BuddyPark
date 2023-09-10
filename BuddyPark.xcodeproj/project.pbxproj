@@ -34,6 +34,7 @@
 		F59E83AF2AA1851C0076D9FD /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59E83AE2AA1851C0076D9FD /* NotificationManager.swift */; };
 		F59E83B72AA1855C0076D9FD /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59E83B62AA1855C0076D9FD /* NotificationService.swift */; };
 		F59E83BB2AA1855C0076D9FD /* BuddyParkNSE.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F59E83B42AA1855C0076D9FD /* BuddyParkNSE.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F5C0ACC12AAE1AEC0081DD23 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187C52AA848280082E195 /* CoreDataManager.swift */; };
 		F5D70A992A9CF76E0075D3FA /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D70A982A9CF76E0075D3FA /* SubscriptionManager.swift */; };
 		F5D73B3D2A9D10AF0075D3FA /* UserProfileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D73B3C2A9D10AF0075D3FA /* UserProfileManager.swift */; };
 /* End PBXBuildFile section */
@@ -465,6 +466,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F5C0ACC12AAE1AEC0081DD23 /* CoreDataManager.swift in Sources */,
 				F59E83B72AA1855C0076D9FD /* NotificationService.swift in Sources */,
 				F54187D42AACD5600082E195 /* BuddyPark.xcdatamodeld in Sources */,
 			);

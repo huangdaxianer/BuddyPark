@@ -31,10 +31,6 @@ class NotificationService: UNNotificationServiceExtension {
     override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent) ?? bestAttemptContent
-        
-        print("接收到的推送通知内容: \(request.content.userInfo)")
-        
-        // 设置CoreData
         setupCoreDataStack()
         
         // 使用新的SessionManager和MessageManager逻辑处理消息
@@ -46,16 +42,12 @@ class NotificationService: UNNotificationServiceExtension {
             contentHandler(bestAttemptContent ?? request.content) // 确保总是回调 contentHandler
             return
         }
-        print("成功获取 characterid: \(characterid)")
         
         if let messageManager = globalSessionManager?.session(for: characterid) {
-            print("成功获取或创建对应 characterid 的 MessageManager")
             let fullText = (userInfo["aps"] as? [String: Any])?["full-text"] as? String
             let lastUserMessageFromServer = (userInfo["aps"] as? [String: Any])?["users-reply"] as? String
             let newFullMessage = LocalMessage(id: UUID(), role: "assistant", content: fullText ?? request.content.body, timestamp: Date())
             messageManager.appendFullMessage(newFullMessage, lastUserReplyFromServer: lastUserMessageFromServer){}
-        } else {
-            print("无法获取或创建对应 characterid 的 MessageManager")
         }
         
         contentHandler(bestAttemptContent ?? request.content)
@@ -145,7 +137,6 @@ class MessageManager: ObservableObject {
         for message in localMessages {
             print("ID: \(message.id), Role: \(message.role), Content: \(message.content), Timestamp: \(message.timestamp)")
         }
-        
         return localMessages
     }
 
@@ -163,7 +154,6 @@ class MessageManager: ObservableObject {
         
         let shouldAppend = handleMessageAppending(newMessage)
         if shouldAppend {
-            // 增加 newMessageNum 的值
             contact.newMessageNum += 1
             CoreDataManager.shared.saveChanges()
             completion()
@@ -191,17 +181,11 @@ class MessageManager: ObservableObject {
         mutableMessages.add(newMessage)
         self.contact.messages = mutableMessages.copy() as? NSOrderedSet
         CoreDataManager.shared.saveChanges()
-        print("消息已经保存到 CoreData")
-        
         self.messages.append(localMessage)  // 这里同步更新 messages 数组
-        print("messages 数组已更新")
-        
         self.lastUpdated = Date()  // 这里更新 lastUpdated 以通知 SwiftUI 进行刷新
-        print("lastUpdated 已更新，SwiftUI 应该进行刷新")
         
         do {
               try self.context.save()
-              print("消息已经保存到 CoreData")
           } catch {
               print("保存消息到 CoreData 失败: \(error)")
           }
@@ -209,16 +193,12 @@ class MessageManager: ObservableObject {
 
 
     private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
-        print("处理消息追加: \(newMessage.content)")
-        
         guard let lastMessage = messages.last else {
             saveMessage(newMessage)
-            print("没有上一个消息，直接保存新消息")
             return true
         }
         
         if lastMessage.role == UserRole.user.rawValue && newMessage.role == UserRole.user.rawValue {
-            print("合并两条用户消息")
             let combinedContent = lastMessage.content + "#" + newMessage.content
             let combinedMessage = LocalMessage(id: newMessage.id, role: UserRole.user.rawValue, content: combinedContent, timestamp: Date())
             removeMessage(lastMessage)
@@ -232,12 +212,9 @@ class MessageManager: ObservableObject {
 
     
     private func removeMessage(_ localMessage: LocalMessage) {
-        // 首先从本地数组中删除
         if let index = messages.firstIndex(where: { $0.id == localMessage.id }) {
             messages.remove(at: index)
         }
-        
-        // 然后从 CoreData 中删除
         let fetchRequest: NSFetchRequest<Message> = Message.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", localMessage.id as CVarArg)
         
@@ -296,82 +273,4 @@ struct LocalMessageWithLastReply: Identifiable, Codable, Equatable {
 
 struct ServerRequest: Codable {
     let messages: [ServerMessage]
-}
-
-final class CoreDataManager {
-    static let shared = CoreDataManager(modelName: "BuddyPark")
-    
-    private let modelName: String
-    
-    init(modelName: String) {
-        self.modelName = modelName
-        setupNotificationHandling()
-    }
-    
-    private lazy var privateManagedObjectContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        context.persistentStoreCoordinator = self.persistantStoreCoordinator
-        return context
-    }()
-    
-    private(set) lazy var mainManagedObjectContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-        context.parent = self.privateManagedObjectContext
-        return context
-    }()
-    
-    private lazy var managedObjectModel: NSManagedObjectModel = {
-        guard let dataModelUrl = Bundle.main.url(forResource: self.modelName, withExtension: "momd") else { fatalError("Unable to find data model url") }
-        guard let dataModel = NSManagedObjectModel(contentsOf: dataModelUrl) else { fatalError("Unable to find data model") }
-        return dataModel
-    }()
-    
-    private lazy var persistantStoreCoordinator: NSPersistentStoreCoordinator = {
-        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
-        let fileManager = FileManager.default
-        let storeName = "\(self.modelName).sqlite"
-        let directory = fileManager.containerURL(forSecurityApplicationGroupIdentifier: "group.com.penghao.BuddyPark")!
-        let storeUrl = directory.appendingPathComponent(storeName)
-        
-        let options = [
-            NSMigratePersistentStoresAutomaticallyOption : true,
-            NSInferMappingModelAutomaticallyOption : true,
-        ]
-        
-        do {
-            try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeUrl, options: options)
-        } catch {
-            fatalError("Unable to add store: \(error)")
-        }
-        
-        return coordinator
-    }()
-    
-    func saveChanges() {
-        mainManagedObjectContext.perform {
-            do {
-                if self.mainManagedObjectContext.hasChanges {
-                    try self.mainManagedObjectContext.save()
-                }
-            } catch {
-                print("Saving error (child context): \(error.localizedDescription)")
-            }
-            do {
-                if self.privateManagedObjectContext.hasChanges {
-                    try self.privateManagedObjectContext.save()
-                }
-            } catch {
-                print("Saving error (parent context): \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    @objc private func saveChanges(notification: Notification) {
-        saveChanges()
-    }
-    
-    private func setupNotificationHandling() {
-        NotificationCenter.default.addObserver(self, selector: #selector(saveChanges(notification:)), name: UIApplication.willTerminateNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(saveChanges(notification:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
-    }
 }

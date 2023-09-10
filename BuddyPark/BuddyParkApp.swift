@@ -5,9 +5,7 @@ import UserNotifications
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
     let notificationManager = NotificationManager.shared
- //   var sessionManager: SessionManager!
     
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         UNUserNotificationCenter.current().delegate = self // 修改这里
 
@@ -30,15 +28,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return true
     }
     
-    //更新角标
-    func applicationWillEnterForeground(_ application: UIApplication) {
-        UIApplication.shared.applicationIconBadgeNumber = 0
-        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
-        let userDefaults = UserDefaults(suiteName: appGroupName)
-        userDefaults?.set(0, forKey: "badgeNumber")
-    }
-
-    
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         notificationManager.handleDeviceToken(deviceToken)
     }
@@ -46,26 +35,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         notificationManager.handleFailureToRegister(error)
     }
-    
-    //在后台处理用户的回复
-//    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-//        if response.actionIdentifier == "reply",
-//           let response = response as? UNTextInputNotificationResponse {
-//            let replyText = response.userText
-//            let date = Date()
-//            let formatter = DateFormatter()
-//            formatter.dateFormat = "MM月dd日HH:mm"
-//            let timeString = formatter.string(from: date)
-//            let replayWithTime = "\(replyText)$\(timeString)"
-//            let userMessage = LocalMessage(id: UUID(), role: .user, content: replayWithTime, timestamp: Date())
-//            DispatchQueue.main.async {
-//                self.messageManager.appendFullMessage(userMessage, lastUserReplyFromServer: nil, isFromBackground: true){}
-//            }
-//            messageManager.sendRequest(type: .newMessage)
-//        }
-//
-//        completionHandler()
-//    }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
     }
@@ -75,7 +44,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
           let userInfo = notification.request.content.userInfo
           let characteridString = (userInfo["aps"] as? [String: Any])?["characterid"] as? String // 假设 userInfo 里包含 characterid
           guard let characterid = Int32(characteridString ?? "") else {
-              print("无法从推送通知中获取 characterid")
               return
           }
 
@@ -89,7 +57,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // 这里还要处理根据通知里的消息处理订阅状态的逻辑
       }
-
 }
 
 var globalSessionManager: SessionManager?
@@ -121,5 +88,23 @@ struct BuddyParkApp: App {
 
 
 
-
+//在后台处理用户的回复
+//    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+//        if response.actionIdentifier == "reply",
+//           let response = response as? UNTextInputNotificationResponse {
+//            let replyText = response.userText
+//            let date = Date()
+//            let formatter = DateFormatter()
+//            formatter.dateFormat = "MM月dd日HH:mm"
+//            let timeString = formatter.string(from: date)
+//            let replayWithTime = "\(replyText)$\(timeString)"
+//            let userMessage = LocalMessage(id: UUID(), role: .user, content: replayWithTime, timestamp: Date())
+//            DispatchQueue.main.async {
+//                self.messageManager.appendFullMessage(userMessage, lastUserReplyFromServer: nil, isFromBackground: true){}
+//            }
+//            messageManager.sendRequest(type: .newMessage)
+//        }
+//
+//        completionHandler()
+//    }
 

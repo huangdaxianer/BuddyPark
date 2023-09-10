@@ -19,7 +19,9 @@ final class CoreDataManager {
     
     private(set) lazy var mainManagedObjectContext: NSManagedObjectContext = {
         let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+        
         context.parent = self.privateManagedObjectContext
+        context.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy // 添加这行
         return context
     }()
     
@@ -68,6 +70,7 @@ final class CoreDataManager {
             }
         }
     }
+    
     
     @objc private func saveChanges(notification: Notification) {
         saveChanges()
