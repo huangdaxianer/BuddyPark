@@ -11,17 +11,10 @@ final class CoreDataManager {
         setupNotificationHandling()
     }
     
-    private lazy var privateManagedObjectContext: NSManagedObjectContext = {
-        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        context.persistentStoreCoordinator = self.persistantStoreCoordinator
-        return context
-    }()
-    
     private(set) lazy var mainManagedObjectContext: NSManagedObjectContext = {
         let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-        
-        context.parent = self.privateManagedObjectContext
-        context.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy // 添加这行
+        context.persistentStoreCoordinator = self.persistantStoreCoordinator
+        context.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
         return context
     }()
     
@@ -62,15 +55,6 @@ final class CoreDataManager {
                 print("Saving error (child context): \(error.localizedDescription)")
             }
 
-            self.privateManagedObjectContext.perform {
-                do {
-                    if self.privateManagedObjectContext.hasChanges {
-                        try self.privateManagedObjectContext.save()
-                    }
-                } catch {
-                    print("Saving error (parent context): \(error.localizedDescription)")
-                }
-            }
         }
     }
 
