@@ -198,6 +198,13 @@ class MessageManager: ObservableObject {
         
         self.lastUpdated = Date()  // 这里更新 lastUpdated 以通知 SwiftUI 进行刷新
         print("lastUpdated 已更新，SwiftUI 应该进行刷新")
+        
+        do {
+              try self.context.save()
+              print("消息已经保存到 CoreData")
+          } catch {
+              print("保存消息到 CoreData 失败: \(error)")
+          }
     }
 
 
@@ -290,6 +297,7 @@ struct LocalMessageWithLastReply: Identifiable, Codable, Equatable {
 struct ServerRequest: Codable {
     let messages: [ServerMessage]
 }
+
 final class CoreDataManager {
     static let shared = CoreDataManager(modelName: "BuddyPark")
     
