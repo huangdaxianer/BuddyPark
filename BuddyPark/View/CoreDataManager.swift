@@ -61,16 +61,20 @@ final class CoreDataManager {
             } catch {
                 print("Saving error (child context): \(error.localizedDescription)")
             }
-            do {
-                if self.privateManagedObjectContext.hasChanges {
-                    try self.privateManagedObjectContext.save()
+
+            self.privateManagedObjectContext.perform {
+                do {
+                    if self.privateManagedObjectContext.hasChanges {
+                        try self.privateManagedObjectContext.save()
+                    }
+                } catch {
+                    print("Saving error (parent context): \(error.localizedDescription)")
                 }
-            } catch {
-                print("Saving error (parent context): \(error.localizedDescription)")
             }
         }
     }
-    
+
+
     
     @objc private func saveChanges(notification: Notification) {
         saveChanges()

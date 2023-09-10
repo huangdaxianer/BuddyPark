@@ -25,14 +25,28 @@ class SessionManager: ObservableObject {
     }
     
     @objc func appWillEnterForeground() {
+        context.refreshAllObjects()
         for (_, session) in sessions {
             context.performAndWait {
-                context.refreshAllObjects()
+                let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Message")
+                let request = NSBatchUpdateRequest(entityName: fetchRequest.entityName!)
+                request.resultType = .updatedObjectIDsResultType
+                
+                do {
+                    let result = try context.execute(request) as? NSBatchUpdateResult
+                    let objectIDArray = result?.result as? [NSManagedObjectID]
+                    let changes = [NSUpdatedObjectsKey: objectIDArray]
+                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes as [AnyHashable: Any], into: [context])
+                } catch {
+                    // Handle the error
+                }
+                
                 session.loadMessages()
             }
             print("返回了前端")
         }
     }
+
     
     func reloadAllSessions() {
         sessions = [:]
