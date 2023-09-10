@@ -26,22 +26,11 @@ class SessionManager: ObservableObject {
     
     @objc func appWillEnterForeground() {
         context.refreshAllObjects()
+
         for (_, session) in sessions {
             context.performAndWait {
-                let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Message")
-                let request = NSBatchUpdateRequest(entityName: fetchRequest.entityName!)
-                request.resultType = .updatedObjectIDsResultType
-                
-                do {
-                    let result = try context.execute(request) as? NSBatchUpdateResult
-                    let objectIDArray = result?.result as? [NSManagedObjectID]
-                    let changes = [NSUpdatedObjectsKey: objectIDArray]
-                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes as [AnyHashable: Any], into: [context])
-                } catch {
-                    // Handle the error
-                }
-                
-                session.loadMessages()
+                // ... [批量更新请求未改动]
+                session.refreshAndLoadMessages() // 用新方法代替 loadMessages()
             }
             print("返回了前端")
         }
@@ -144,6 +133,23 @@ class MessageManager: ObservableObject {
         }
         DispatchQueue.main.async { self.lastUpdated = Date() }
     }
+    
+    public func refreshAndLoadMessages() {
+           // 重新获取 contact
+           let fetchRequest: NSFetchRequest<Contact> = Contact.fetchRequest()
+           fetchRequest.predicate = NSPredicate(format: "characterid == %d", contact.characterid)
+           
+           do {
+               let contacts = try context.fetch(fetchRequest)
+               guard let refreshedContact = contacts.first else {
+                   fatalError("未找到与 characterid 匹配的 Contact")
+               }
+               self.contact = refreshedContact
+               self.messages = loadMessages()
+           } catch {
+               fatalError("获取 Contact 失败: \(error)")
+           }
+       }
     
     func saveMessage(_ localMessage: LocalMessage) {
         let newMessage = Message(context: self.context)
