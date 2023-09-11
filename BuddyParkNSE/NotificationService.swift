@@ -45,8 +45,15 @@ class NotificationService: UNNotificationServiceExtension {
         
         if let messageManager = globalSessionManager?.session(for: characterid) {
             let fullText = (userInfo["aps"] as? [String: Any])?["full-text"] as? String
+            let messageUUID: UUID
+            if let messageUUIDString = (userInfo["aps"] as? [String: Any])?["message-uuid"] as? String,
+               let validUUID = UUID(uuidString: messageUUIDString) {
+                messageUUID = validUUID
+            } else {
+                messageUUID = UUID() // 创建一个新的 UUID
+            }
             let lastUserMessageFromServer = (userInfo["aps"] as? [String: Any])?["users-reply"] as? String
-            let newFullMessage = LocalMessage(id: UUID(), role: "assistant", content: fullText ?? request.content.body, timestamp: Date())
+            let newFullMessage = LocalMessage(id: messageUUID, role: "assistant", content: fullText ?? request.content.body, timestamp: Date())
             messageManager.appendFullMessage(newFullMessage, lastUserReplyFromServer: lastUserMessageFromServer){}
         }
         

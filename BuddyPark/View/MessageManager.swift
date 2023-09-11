@@ -248,16 +248,23 @@ class MessageManager: ObservableObject {
                 
                 if let data = data {
                     let decoder = JSONDecoder()
-                    //let lastMessage = try decoder.decode(LocalMessageWithLastReply.self, from: data) //这个是新消息
-                    //let newLastMessage = LocalMessage(id: UUID(), role: lastMessage.role, content: lastMessage.content, timestamp: Date())
-                    //self.appendFullMessage(newLastMessage, lastUserReplyFromServer: lastMessage.lastUserMessage) {}
-                    print("没有超时，正常返回结果了")
+
+                    do {
+                        if let jsonResult = try? JSONSerialization.jsonObject(with: data, options: []) {
+                            print("Server Response:", jsonResult)
+                        } else {
+                            let responseString = String(data: data, encoding: .utf8) ?? "Unable to convert data to string"
+                            print("Server Response (String):", responseString)
+                        }
+                    } catch {
+                        print("Error decoding the response:", error)
+                    }
                 }
+
             }.resume()
         } else {
             return
         }
-        
     }
 }
 

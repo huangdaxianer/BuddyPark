@@ -32,17 +32,19 @@ production: process.env.NODE_ENV === 'production' // 根据实际情况设置为
 
 let provider = new apn.Provider(apnsOptions);
 
+const { v4: uuidv4 } = require('uuid');
+
 app.all('/sendMessage', async (req, res) => {
-    //初始化常量
+    
     const openai_key = process.env.OPENAI_KEY
+    const messageUUID = uuidv4();
+
     let isClientDisconnected = false;
     let url = `https://api.openai.com/v1/chat/completions`;
-    //判断请求类型
     const requestType = req.headers["x-request-type"];
     const proxy_key = req.headers.authorization || "";
     if (process.env.PROXY_KEY && proxy_key !== process.env.PROXY_KEY)
         return res.status(403).send('Forbidden');
-    //获取请求变量
     const dialogueID = req.headers['x-dialogueid'];
     const characterID = req.headers['x-characterid'];
     const userID = req.headers['x-userid'];
@@ -83,11 +85,11 @@ app.all('/sendMessage', async (req, res) => {
         let messages = req.body.messages || [];
         fullPrompt = messages[0].content + clientPrompt;
         savedPrompt = messages[0].content;
-        await saveTemporaryResultToStorage(dialogueID, deviceToken, characterID, messages, prompt, requestType);
+        await saveTemporaryResultToStorage(dialogueID, deviceToken, characterID, messages, prompt, requestType, messageUUID);
     }else if (requestType === "new-message"){
         // 这种情况下 fullPrompt 的参数直接套用 clientPrompt
         let messages = req.body.messages || [];
-        await saveTemporaryResultToStorage(dialogueID, deviceToken, characterID, messages, prompt, requestType);
+        await saveTemporaryResultToStorage(dialogueID, deviceToken, characterID, messages, prompt, requestType, messageUUID);
     }else if (requestType === "app-restart") {
         try {
             const lastUserReply = await getLastUserReplyFromFirebase(dialogueID);
@@ -200,7 +202,7 @@ app.all('/sendMessage', async (req, res) => {
                     console.log('User reply mismatch. Exiting function.', lastUserReply, lastMessageFromReq);
                     throw new Error('User reply mismatch'); //使用异常来退出函数
                 }
-                notificationPromises.push(pushNotification(deviceToken, message, usersReply, fullText, characterID, characterName));
+                notificationPromises.push(pushNotification(deviceToken, message, usersReply, fullText, characterID, characterName, messageUUID));
                 console.log('should have pushed notification', deviceToken, message, usersReply, fullText, characterID);
                 await sleep(3000);
             }
@@ -215,10 +217,9 @@ app.all('/sendMessage', async (req, res) => {
 
         response.body.on('end', async () => {
             let data = JSON.parse(Buffer.concat(chunks).toString());
-            // Await all pushNotification promises before saving the result to storage
             await Promise.all(notificationPromises);
             let localMessages = req.body.messages || [];
-            await saveResultToStorage(dialogueID, deviceToken, data, characterID, localMessages, prompt, requestType);
+            await saveResultToStorage(dialogueID, deviceToken, data, characterID, localMessages, prompt, requestType, messageUUID);
         });
     } catch (error) {
         console.error(error);
@@ -336,7 +337,7 @@ app.listen(port, () => {
     console.log(`Server start on http://localhost:${port}`);
 })
 
-async function saveResultToStorage(dialogueID, deviceToken, result, characterID, localMessages, prompt, requestType) {
+async function saveResultToStorage(dialogueID, deviceToken, result, characterID, localMessages, prompt, requestType, messageUUID) {
     const db = admin.database();
     const ref = db.ref(`results/${dialogueID}`);
     
@@ -351,7 +352,8 @@ async function saveResultToStorage(dialogueID, deviceToken, result, characterID,
         time,
         localMessages,
         deviceToken,
-        characterID
+        characterID,
+        messageUUID
     };
     
     ref.set(simplifiedResult, (error) => {
@@ -364,7 +366,7 @@ async function saveResultToStorage(dialogueID, deviceToken, result, characterID,
 }
 
     
-async function saveTemporaryResultToStorage(dialogueID, deviceToken, character, localMessages, prompt, requestType) {
+async function saveTemporaryResultToStorage(dialogueID, deviceToken, character, localMessages, prompt, requestType, messageUUID) {
     const db = admin.database();
     const ref = db.ref(`results/${dialogueID}`);
     
@@ -377,7 +379,8 @@ async function saveTemporaryResultToStorage(dialogueID, deviceToken, character, 
         time,
         localMessages,
         deviceToken,
-        character
+        character,
+        messageUUID
     };
     
     ref.set(simplifiedResult, (error) => {
@@ -389,7 +392,7 @@ async function saveTemporaryResultToStorage(dialogueID, deviceToken, character, 
     });
 }
 
-async function pushNotification(deviceToken, message, usersReply, fullText, characterID, characterName) {
+async function pushNotification(deviceToken, message, usersReply, fullText, characterID, characterName, messageUUID) {
     if (deviceToken) {
         console.log("start to push");
         let messageParts = message.split('#');
@@ -413,7 +416,8 @@ async function pushNotification(deviceToken, message, usersReply, fullText, char
                     "users-reply": usersReply,
                     "full-text": fullText,
 //                    "free-message-left": freeMessageLeft,
-                    "characterid": characterID
+                    "characterid": characterID,
+                    "message-uuid": messageUUID
                 },
                 "target-content-id": characterID,
                 "person": {
