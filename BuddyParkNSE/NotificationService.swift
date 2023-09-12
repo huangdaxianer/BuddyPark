@@ -33,17 +33,63 @@ class NotificationService: UNNotificationServiceExtension {
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent) ?? bestAttemptContent
         setupCoreDataStack()
         
-        // 使用新的SessionManager和MessageManager逻辑处理消息
         guard let userInfo = request.content.userInfo as? [String: Any],
               let apsData = userInfo["aps"] as? [String: Any],
               let characteridString = apsData["characterid"] as? String,
               let characterid = Int32(characteridString) else {
-            print("无法从推送通知中获取 characterid")
-            contentHandler(bestAttemptContent ?? request.content) // 确保总是回调 contentHandler
-            return
+                contentHandler(bestAttemptContent ?? request.content) // 确保总是回调 contentHandler
+                return
+        }
+                
+        if let sharedDirectoryUrl = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: self.appGroupName) {
+            let avatarDirectory = sharedDirectoryUrl.appendingPathComponent("CharacterAvatar") // 修正这里的目录名
+            let imagePath = avatarDirectory.appendingPathComponent("\(characterid)").path
+            if FileManager.default.fileExists(atPath: imagePath) {
+                
+                let avatarImageURL = URL(fileURLWithPath: imagePath)
+                let avatarImage = INImage(url: avatarImageURL)
+                
+                let notificationTitle = request.content.title
+
+                let person = INPerson(personHandle: INPersonHandle(value: characteridString, type: .unknown),
+                                      nameComponents: nil,
+                                      displayName: notificationTitle,
+                                      image: avatarImage,
+                                      contactIdentifier: nil,
+                                      customIdentifier: characteridString)
+                
+                let intent = INSendMessageIntent(recipients: nil,
+                                                 outgoingMessageType: .outgoingMessageText,
+                                                 content: notificationTitle,
+                                                 speakableGroupName: nil,
+                                                 conversationIdentifier: characteridString,
+                                                 serviceName: nil,
+                                                 sender: person,
+                                                 attachments: nil)
+
+                
+                let interaction = INInteraction(intent: intent, response: nil)
+                interaction.direction = INInteractionDirection.incoming
+                
+                interaction.donate { error in
+                    if let error = error {
+                    } else {
+                    }
+                    
+                    do {
+                        let updatedContent = try self.bestAttemptContent?.updating(from: intent)
+                        contentHandler(updatedContent ?? request.content)
+                    } catch {
+                        contentHandler(self.bestAttemptContent ?? request.content)
+                    }
+                }
+            } else {
+                contentHandler(bestAttemptContent ?? request.content)
+            }
         }
         
         if let messageManager = globalSessionManager?.session(for: characterid) {
+            
             let fullText = (userInfo["aps"] as? [String: Any])?["full-text"] as? String
             let messageUUID: UUID
             if let messageUUIDString = (userInfo["aps"] as? [String: Any])?["message-uuid"] as? String,
@@ -54,12 +100,11 @@ class NotificationService: UNNotificationServiceExtension {
             }
             let lastUserMessageFromServer = (userInfo["aps"] as? [String: Any])?["users-reply"] as? String
             let newFullMessage = LocalMessage(id: messageUUID, role: "assistant", content: fullText ?? request.content.body, timestamp: Date())
-            messageManager.appendFullMessage(newFullMessage, lastUserReplyFromServer: lastUserMessageFromServer){}
+            messageManager.appendFullMessage(newFullMessage, lastUserReplyFromServer: lastUserMessageFromServer){
+            }
         }
-        
-        contentHandler(bestAttemptContent ?? request.content)
     }
-    
+
     
     override func serviceExtensionTimeWillExpire() {
         if let contentHandler = contentHandler, let bestAttemptContent = bestAttemptContent {

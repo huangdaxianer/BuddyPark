@@ -193,7 +193,7 @@ class CharacterManager {
     }
     
     private var documentDirectory: URL {
-        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupName)!
     }
     
     private func directory(for type: ImageType) -> URL {
