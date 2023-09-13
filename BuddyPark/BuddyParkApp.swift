@@ -48,7 +48,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // 从通知内容中获取 userInfo，并尝试从中提取 characterid
         if let userInfo = notificationContent.userInfo as? [String: Any],
            let apsData = userInfo["aps"] as? [String: Any],
-           let characterID = apsData["characterid"] as? String {
+           let characterIDString = apsData["characterid"] as? String,
+           let characterID = Int32(characterIDString) {
             
             // 打印 characterid
             print("用户回复的 characterid: \(characterID)")
@@ -68,13 +69,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 let userMessage = LocalMessage(id: UUID(), role: "user", content: replayWithTime, timestamp: Date())
                 
                 DispatchQueue.main.async {
-                    // 此处假设你有一个针对特定 characterid 的 messageManager。你需要根据 characterID 实例化或获取合适的 messageManager。
-                    // 示例：
-                    // let messageManager = getMessageManager(for: characterID)
-                    // 替换为你的实际方法来获取对应characterID的messageManager
-                    
-                    messageManager.appendFullMessage(userMessage, lastUserReplyFromServer: nil, isFromBackground: true) {
-                        messageManager.sendRequest(type: .newMessage)
+                    // 通过 globalSessionManager 获取对应 characterID 的 messageManager
+                    if let messageManager = globalSessionManager?.session(for: characterID) {
+                        
+                        messageManager.appendFullMessage(userMessage, lastUserReplyFromServer: nil, isFromBackground: true) {
+                            messageManager.sendRequest(type: .newMessage)
+                        }
                     }
                 }
             }
