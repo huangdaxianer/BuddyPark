@@ -42,23 +42,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         
-        // 从 response 中获取通知内容
         let notificationContent = response.notification.request.content
-        
-        // 从通知内容中获取 userInfo，并尝试从中提取 characterid
         if let userInfo = notificationContent.userInfo as? [String: Any],
            let apsData = userInfo["aps"] as? [String: Any],
            let characterIDString = apsData["characterid"] as? String,
            let characterID = Int32(characterIDString) {
-            
-            // 打印 characterid
-            print("用户回复的 characterid: \(characterID)")
-            
-            // 如果用户执行的是“回复”操作并且 response 类型是 UNTextInputNotificationResponse
             if response.actionIdentifier == "reply",
                let textInputResponse = response as? UNTextInputNotificationResponse {
                 
-                let replyText = textInputResponse.userText
+                var replyText = textInputResponse.userText
+                replyText = replyText.replacingOccurrences(of: "\n", with: " ")
+                
                 let date = Date()
                 let formatter = DateFormatter()
                 formatter.dateFormat = "MM月dd日HH:mm"
@@ -81,7 +75,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         completionHandler()
     }
-
+    
     
     
     //在前台通过 APNS 收消息
