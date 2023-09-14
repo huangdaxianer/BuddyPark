@@ -20,15 +20,15 @@ struct WelcomeView: View {
     var body: some View {
         VStack {
             ScrollView {
-                // 这里设置背景颜色
-                Color(red: 255/255, green: 229/255, blue: 0/255)
-                    .edgesIgnoringSafeArea(.all)
-                
-                if currentStep == .selectGender || currentStep.rawValue >= ConfigStep.selectRoleGender.rawValue {
-                    VStack(alignment: .leading) { // 左对齐
-                        Text("请选择您的性别:")
-                            .font(.system(size: 40))
-                            .padding(.leading, 52) // 左边距
+                VStack {
+                    if currentStep == .selectGender || currentStep.rawValue >= ConfigStep.selectRoleGender.rawValue {
+                        VStack(alignment: .leading) {
+                            Text("我是...")
+                                .bold() // 加粗
+                                .font(.system(size: 40))
+                        }
+                        .padding()
+                        
                         HStack {
                             Button(action: {
                                 selectedGender = "男"
@@ -49,15 +49,15 @@ struct WelcomeView: View {
                             }
                         }
                     }
-                    .padding()
-                }
-                
-                // Step 2: Select role genders
-                if currentStep == .selectRoleGender || currentStep.rawValue >= ConfigStep.enterName.rawValue {
-                    VStack(alignment: .leading) { // 左对齐
-                        Text("请选择您喜欢的角色的性别:")
-                            .font(.system(size: 40))
-                            .padding(.leading, 52) // 左边距
+                    
+                    if currentStep == .selectRoleGender || currentStep.rawValue >= ConfigStep.enterName.rawValue {
+                        VStack(alignment: .leading) {
+                            Text("我喜欢...")
+                                .bold() // 加粗
+                                .font(.system(size: 40))
+                        }
+                        .padding()
+                        
                         HStack {
                             Button(action: {
                                 toggleRoleGender("男")
@@ -78,36 +78,35 @@ struct WelcomeView: View {
                             }
                         }
                     }
-                    .padding()
-                }
-                
-                // Step 3: Enter name
-                if currentStep == .enterName || currentStep.rawValue >= ConfigStep.enterBio.rawValue {
-                    VStack(alignment: .leading) { // 左对齐
-                        Text("请输入您的名字:")
-                            .font(.system(size: 40))
-                            .padding(.leading, 52) // 左边距
-                        TextField("名字", text: $userName)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
+                    if currentStep == .enterName || currentStep.rawValue >= ConfigStep.enterBio.rawValue {
+                        VStack(alignment: .leading) {
+                            Text("我叫...")
+                                .bold() // 加粗
+                                .font(.system(size: 40))
+                            TextField("名字", text: $userName)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        }
+                        .padding()
+                        
                         Button("继续") {
                             currentStep = .enterBio
                         }
                     }
-                    .padding()
-                }
-                
-                // Step 4: Enter Bio
-                if currentStep == .enterBio {
-                    VStack(alignment: .leading) { // 左对齐
-                        Text("请写下您的简介:")
-                            .font(.system(size: 40))
-                            .padding(.leading, 52) // 左边距
-                        TextEditor(text: $userBio)
-                            .frame(height: 100)
-                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
+                    
+                    if currentStep == .enterBio {
+                        VStack(alignment: .leading) {
+                            Text("自我介绍一下...")
+                                .bold() // 加粗
+                                .font(.system(size: 40))
+                            TextEditor(text: $userBio)
+                                .frame(height: 100)
+                                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
+                        }
+                        .padding()
                     }
-                    .padding()
                 }
+                .frame(width: 292)  // 整体内容的宽度设为 292
             }
             
             // Continue/Done button at the bottom
@@ -117,8 +116,11 @@ struct WelcomeView: View {
             }
             .padding()
         }
-        .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all)) // 设置整体背景颜色
+        .frame(maxWidth: .infinity, maxHeight: .infinity)  // 确保 VStack 占据整个屏幕
+        .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all))  // 设置整体背景颜色
+        .ignoresSafeArea(.all, edges: .all)
     }
+    
     
     func toggleRoleGender(_ gender: String) {
         if selectedRoleGenders.contains(gender) {
