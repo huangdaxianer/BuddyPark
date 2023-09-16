@@ -9,7 +9,7 @@ enum ConfigStep {
 }
 
 struct WelcomeView: View {
-        
+    
     enum ConfigStep: Int {
         case selectGender = 0
         case selectRoleGender = 1
@@ -25,15 +25,16 @@ struct WelcomeView: View {
     @State private var isContinueButtonEnabled: Bool = false
     
     var body: some View {
-        VStack {
-            ScrollView {
-                VStack {
-                    if currentStep == .selectGender {
+        ScrollViewReader { scrollView in
+            VStack {
+                ScrollView {
+                    VStack {
                         VStack(alignment: .leading) {
                             Text("我是...")
                                 .bold()
                                 .font(.system(size: 40))
                                 .frame(maxWidth: .infinity, alignment: .leading)
+                                .id(ConfigStep.selectGender)
                         }
                         .padding()
                         
@@ -58,90 +59,88 @@ struct WelcomeView: View {
                         }
                     }
                     
-                    if currentStep == .selectRoleGender {
-                        VStack(alignment: .leading) {
-                            Text("我喜欢...")
-                                .bold()
-                                .font(.system(size: 40))
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack(alignment: .leading) {
+                        Text("我喜欢...")
+                            .bold()
+                            .font(.system(size: 40))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .id(ConfigStep.selectRoleGender)
+                    }
+                    .padding()
+                    
+                    HStack {
+                        Button(action: {
+                            toggleRoleGender("男")
+                        }) {
+                            Image(selectedRoleGenders.contains("男") ? "male_character_selected" : "male_character_unselected")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 150, height: 150)
                         }
-                        .padding()
                         
-                        HStack {
-                            Button(action: {
-                                toggleRoleGender("男")
-                            }) {
-                                Image(selectedRoleGenders.contains("男") ? "male_character_selected" : "male_character_unselected")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 150, height: 150)
-                            }
-                            
-                            Button(action: {
-                                toggleRoleGender("女")
-                            }) {
-                                Image(selectedRoleGenders.contains("女") ? "female_character_selected" : "female_character_unselected")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 150, height: 150)
-                            }
+                        Button(action: {
+                            toggleRoleGender("女")
+                        }) {
+                            Image(selectedRoleGenders.contains("女") ? "female_character_selected" : "female_character_unselected")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 150, height: 150)
                         }
                     }
                     
-                    if currentStep == .enterName || currentStep.rawValue >= ConfigStep.enterBio.rawValue {
-                        VStack(alignment: .leading) {
-                            Text("我叫...")
-                                .bold()
-                                .font(.system(size: 40))
-                                .frame(maxWidth: .infinity, alignment: .leading) // 左对齐
-                            TextField("名字", text: $userName)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                        }
-                        .padding()
-                        
-                        Button("继续") {
-                            currentStep = .enterBio
-                        }
+                    VStack(alignment: .leading) {
+                        Text("我叫...")
+                            .bold()
+                            .font(.system(size: 40))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .id(ConfigStep.enterName)
+                        TextField("名字", text: $userName)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
+                    .padding()
                     
-                    if currentStep == .enterBio {
-                        VStack(alignment: .leading) {
-                            Text("自我介绍一下...")
-                                .bold()
-                                .font(.system(size: 40))
-                                .frame(maxWidth: .infinity, alignment: .leading) // 左对齐
-                            TextEditor(text: $userBio)
-                                .frame(height: 100)
-                                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
-                        }
-                        .padding()
+                    // Your code for entering name goes here
+                    
+                    VStack(alignment: .leading) {
+                        Text("自我介绍一下...")
+                            .bold()
+                            .font(.system(size: 40))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .id(ConfigStep.enterBio)
+                        TextEditor(text: $userBio)
+                            .frame(height: 100)
+                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
                     }
+                    .padding()
+                    
                 }
-                          .frame(width: 292)
-                      }
-                      
-                      Spacer()
-                      
-                      Button(action: {
-                          if isContinueButtonEnabled {
-                              currentStep = ConfigStep(rawValue: currentStep.rawValue + 1) ?? .enterBio
-                              isContinueButtonEnabled = false // Reset the button state
-                          }
-                      }) {
-                          Text(currentStep == .enterBio ? "完成" : "继续")
-                              .frame(width: 285, height: 66)
-                              .background(isContinueButtonEnabled ? Color(red: 0/255, green: 255/255, blue: 178/255) : Color(red: 0/255, green: 173/255, blue: 121/255))
-                              .cornerRadius(22)
-                              .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.black, lineWidth: 3))
-                      }
-                      .disabled(!isContinueButtonEnabled)
-                      .padding()
-                  }
-                  .frame(maxWidth: .infinity, maxHeight: .infinity)
-                  .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all))
-                  .ignoresSafeArea(.all, edges: .all)
-              }
-
+                .frame(width: 292)
+                
+                Spacer()
+                
+                Button(action: {
+                    if isContinueButtonEnabled {
+                        currentStep = ConfigStep(rawValue: currentStep.rawValue + 1) ?? .enterBio
+                        isContinueButtonEnabled = false
+                        withAnimation {
+                            scrollView.scrollTo(currentStep, anchor: .bottom)
+                        }
+                    }
+                }) {
+                    Text(currentStep == .enterBio ? "完成" : "继续")
+                        .frame(width: 285, height: 66)
+                        .background(isContinueButtonEnabled ? Color(red: 0/255, green: 255/255, blue: 178/255) : Color(red: 0/255, green: 173/255, blue: 121/255))
+                        .cornerRadius(22)
+                        .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.black, lineWidth: 3))
+                }
+                .disabled(!isContinueButtonEnabled)
+                .padding()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all))
+            .ignoresSafeArea(.all, edges: .all)
+        }
+    }
     
     func toggleRoleGender(_ gender: String) {
         if selectedRoleGenders.contains(gender) {
@@ -149,10 +148,11 @@ struct WelcomeView: View {
         } else {
             selectedRoleGenders.append(gender)
         }
+        // Update this as per your need
         currentStep = .enterName
     }
-
 }
+
 
 extension ConfigStep: Comparable {
     static func < (lhs: ConfigStep, rhs: ConfigStep) -> Bool {
