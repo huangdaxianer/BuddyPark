@@ -75,7 +75,6 @@ struct MessageRowView: View {
     var body: some View {
         VStack {
             ZStack {
-                // White rounded rectangle as the background
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.white)
                     .frame(height: 125)

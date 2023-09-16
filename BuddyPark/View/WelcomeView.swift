@@ -47,23 +47,19 @@ struct WelcomeView: View {
                             .frame(height: UIScreen.main.bounds.height - 400)
 
                         if currentStep.rawValue >= ConfigStep.selectGender.rawValue {
-                            genderSection                    .frame(maxWidth: 350)
-
+                            genderSection.frame(maxWidth: 330)
                         }
                         
                         if currentStep.rawValue >= ConfigStep.selectRoleGender.rawValue {
-                            roleGenderSection                    .frame(maxWidth: 350)
-
+                            roleGenderSection.frame(maxWidth: 330)
                         }
                         
                         if currentStep.rawValue >= ConfigStep.enterName.rawValue {
-                            nameSection                    .frame(maxWidth: 350)
-
+                            nameSection.frame(maxWidth: 330)
                         }
                         
                         if currentStep.rawValue >= ConfigStep.enterBio.rawValue {
-                            bioSection                    .frame(maxWidth: 350)
-
+                            bioSection.frame(maxWidth: 330)
                         }
                         Rectangle()
                             .foregroundColor(.clear)
@@ -75,21 +71,22 @@ struct WelcomeView: View {
                             scrollView.scrollTo("bottom")
                         }
                     }
-
                 }
 
-                
                 VStack {
                     Spacer()
                     Button(action: nextStep) {
-                        Text(currentStep == .enterBio ? "完成" : "继续")
-                            .frame(width: 285, height: 66)
+                        Text(currentStep == .enterBio ? "Continue" : "Next")
+                            .font(.system(size: 25, weight: .bold, design: .rounded))
+                            .foregroundColor(isContinueButtonEnabled ? Color.black : Color.black.opacity(0.2))
+                            .frame(width: 300, height: 66)
                             .background(isContinueButtonEnabled ? Color(red: 0/255, green: 255/255, blue: 178/255) : Color(red: 0/255, green: 173/255, blue: 121/255))
                             .cornerRadius(22)
                             .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.black, lineWidth: 3))
                     }
                     .disabled(!isContinueButtonEnabled)
                     .padding()
+
                 }
             }
             .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all))
@@ -100,10 +97,17 @@ struct WelcomeView: View {
     
     var genderSection: some View {
         VStack {
-            Text("我是...")
-                .bold()
-                .font(.system(size: 40))
-                .frame(maxWidth: .infinity, alignment: .leading)
+            ZStack(alignment: .bottom) {
+                Rectangle()
+                    .frame(width: 110, height: 10)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("我是...")
+                    .bold()
+                    .font(.system(size: 40))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
             HStack {
                 Button(action: { selectedGender = "男" }) {
                     Image(selectedGender == "男" ? "male_selected" : "male_unselected")
@@ -122,10 +126,16 @@ struct WelcomeView: View {
     
     var roleGenderSection: some View {
         VStack {
-            Text("我喜欢...")
-                .bold()
-                .font(.system(size: 40))
-                .frame(maxWidth: .infinity, alignment: .leading)
+            ZStack(alignment: .bottom) {
+                Rectangle()
+                    .frame(width: 150, height: 10)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("我喜欢...")
+                    .bold()
+                    .font(.system(size: 40))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
             HStack {
                 Button(action: { toggleRoleGender("男") }) {
                     Image(selectedRoleGenders.contains("男") ? "male_character_selected" : "male_character_unselected")
@@ -144,25 +154,52 @@ struct WelcomeView: View {
     
     var nameSection: some View {
         VStack {
-            Text("我叫...")
-                .bold()
-                .font(.system(size: 40))
-                .frame(maxWidth: .infinity, alignment: .leading)
+            ZStack(alignment: .bottom) {
+                Rectangle()
+                    .frame(width: 110, height: 10)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("我叫...")
+                    .bold()
+                    .font(.system(size: 40))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            
             TextField("名字", text: $userName)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
+                .frame(height: 74)
+                .font(.system(size: 30))
+                .foregroundColor(.black)
+                .background(Color.white)
+                .overlay(RoundedRectangle(cornerRadius: 22)
+                            .stroke(Color.black, lineWidth: 6))
+                .cornerRadius(22)
         }
+
         .padding()
     }
     
     var bioSection: some View {
         VStack {
-            Text("自我介绍一下...")
-                .bold()
-                .font(.system(size: 40))
-                .frame(maxWidth: .infinity, alignment: .leading)
+            ZStack(alignment: .bottom) {
+                Rectangle()
+                    .frame(width: 260, height: 10)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("自我介绍一下...")
+                    .bold()
+                    .font(.system(size: 40))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
             TextEditor(text: $userBio)
-                .frame(height: 100)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
+                .padding()
+                .frame(height: 200)
+                .font(.system(size: 30))
+                .foregroundColor(.black)
+                .background(Color.white)
+                .overlay(RoundedRectangle(cornerRadius: 22)
+                            .stroke(Color.black, lineWidth: 6))
+                .cornerRadius(22)
         }
         .padding()
     }
