@@ -47,19 +47,23 @@ struct WelcomeView: View {
                             .frame(height: UIScreen.main.bounds.height - 400)
 
                         if currentStep.rawValue >= ConfigStep.selectGender.rawValue {
-                            genderSection
+                            genderSection                    .frame(maxWidth: 350)
+
                         }
                         
                         if currentStep.rawValue >= ConfigStep.selectRoleGender.rawValue {
-                            roleGenderSection
+                            roleGenderSection                    .frame(maxWidth: 350)
+
                         }
                         
                         if currentStep.rawValue >= ConfigStep.enterName.rawValue {
-                            nameSection
+                            nameSection                    .frame(maxWidth: 350)
+
                         }
                         
                         if currentStep.rawValue >= ConfigStep.enterBio.rawValue {
-                            bioSection
+                            bioSection                    .frame(maxWidth: 350)
+
                         }
                         Rectangle()
                             .foregroundColor(.clear)
@@ -69,12 +73,11 @@ struct WelcomeView: View {
                     .onChange(of: currentStep) { newValue in
                         withAnimation {
                             scrollView.scrollTo("bottom")
-
                         }
                     }
-     
+
                 }
-                
+
                 
                 VStack {
                     Spacer()
@@ -90,6 +93,7 @@ struct WelcomeView: View {
                 }
             }
             .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all))
+
         }
     }
     
