@@ -9,136 +9,139 @@ enum ConfigStep {
 }
 
 struct WelcomeView: View {
-    
     enum ConfigStep: Int {
         case selectGender = 0
         case selectRoleGender = 1
         case enterName = 2
         case enterBio = 3
     }
-
     @State private var currentStep: ConfigStep = .selectGender
     @State private var selectedGender: String = ""
     @State private var selectedRoleGenders: [String] = []
     @State private var userName: String = ""
     @State private var userBio: String = ""
-    @State private var isContinueButtonEnabled: Bool = false
+    
+    var isContinueButtonEnabled: Bool {
+        switch currentStep {
+        case .selectGender:
+            return !selectedGender.isEmpty
+        case .selectRoleGender:
+            return !selectedRoleGenders.isEmpty
+        case .enterName:
+            return !userName.isEmpty
+        case .enterBio:
+            return !userBio.isEmpty
+        }
+    }
     
     var body: some View {
-        ScrollViewReader { scrollView in
-            VStack {
-                ScrollView {
-                    VStack {
-                        VStack(alignment: .leading) {
-                            Text("我是...")
-                                .bold()
-                                .font(.system(size: 40))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .id(ConfigStep.selectGender)
-                        }
-                        .padding()
-                        
-                        HStack {
-                            Button(action: {
-                                selectedGender = "男"
-                                isContinueButtonEnabled = true
-                            }) {
-                                Image(selectedGender == "男" ? "male_selected" : "male_unselected")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                            }
-                            
-                            Button(action: {
-                                selectedGender = "女"
-                                isContinueButtonEnabled = true
-                            }) {
-                                Image(selectedGender == "女" ? "female_selected" : "female_unselected")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                            }
-                        }
-                    }
-                    
-                    VStack(alignment: .leading) {
-                        Text("我喜欢...")
-                            .bold()
-                            .font(.system(size: 40))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .id(ConfigStep.selectRoleGender)
-                    }
-                    .padding()
-                    
-                    HStack {
-                        Button(action: {
-                            toggleRoleGender("男")
-                        }) {
-                            Image(selectedRoleGenders.contains("男") ? "male_character_selected" : "male_character_unselected")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 150, height: 150)
-                        }
-                        
-                        Button(action: {
-                            toggleRoleGender("女")
-                        }) {
-                            Image(selectedRoleGenders.contains("女") ? "female_character_selected" : "female_character_unselected")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 150, height: 150)
-                        }
-                    }
-                    
-                    VStack(alignment: .leading) {
-                        Text("我叫...")
-                            .bold()
-                            .font(.system(size: 40))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .id(ConfigStep.enterName)
-                        TextField("名字", text: $userName)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                    }
-                    .padding()
-                    
-                    // Your code for entering name goes here
-                    
-                    VStack(alignment: .leading) {
-                        Text("自我介绍一下...")
-                            .bold()
-                            .font(.system(size: 40))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .id(ConfigStep.enterBio)
-                        TextEditor(text: $userBio)
-                            .frame(height: 100)
-                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
-                    }
-                    .padding()
-                    
+        VStack {
+            ScrollView {
+                if currentStep.rawValue >= ConfigStep.selectGender.rawValue {
+                    genderSection
                 }
-                .frame(width: 292)
                 
-                Spacer()
-                
-                Button(action: {
-                    if isContinueButtonEnabled {
-                        currentStep = ConfigStep(rawValue: currentStep.rawValue + 1) ?? .enterBio
-                        isContinueButtonEnabled = false
-                        withAnimation {
-                            scrollView.scrollTo(currentStep, anchor: .bottom)
-                        }
-                    }
-                }) {
-                    Text(currentStep == .enterBio ? "完成" : "继续")
-                        .frame(width: 285, height: 66)
-                        .background(isContinueButtonEnabled ? Color(red: 0/255, green: 255/255, blue: 178/255) : Color(red: 0/255, green: 173/255, blue: 121/255))
-                        .cornerRadius(22)
-                        .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.black, lineWidth: 3))
+                if currentStep.rawValue >= ConfigStep.selectRoleGender.rawValue {
+                    roleGenderSection
                 }
-                .disabled(!isContinueButtonEnabled)
-                .padding()
+                
+                if currentStep.rawValue >= ConfigStep.enterName.rawValue {
+                    nameSection
+                }
+                
+                if currentStep.rawValue >= ConfigStep.enterBio.rawValue {
+                    bioSection
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all))
-            .ignoresSafeArea(.all, edges: .all)
+            
+            Spacer()
+            
+            Button(action: nextStep) {
+                Text(currentStep == .enterBio ? "完成" : "继续")
+                    .frame(width: 285, height: 66)
+                    .background(isContinueButtonEnabled ? Color.green : Color.gray)
+                    .cornerRadius(22)
+                    .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.black, lineWidth: 3))
+            }
+            .disabled(!isContinueButtonEnabled)
+            .padding()
+        }
+    }
+    
+    var genderSection: some View {
+        VStack {
+            Text("我是...")
+                .bold()
+                .font(.system(size: 40))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack {
+                Button(action: { selectedGender = "男" }) {
+                    Image(selectedGender == "男" ? "male_selected" : "male_unselected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+                Button(action: { selectedGender = "女" }) {
+                    Image(selectedGender == "女" ? "female_selected" : "female_unselected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            }
+        }
+        .padding()
+    }
+    
+    var roleGenderSection: some View {
+        VStack {
+            Text("我喜欢...")
+                .bold()
+                .font(.system(size: 40))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack {
+                Button(action: { toggleRoleGender("男") }) {
+                    Image(selectedRoleGenders.contains("男") ? "male_character_selected" : "male_character_unselected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+                Button(action: { toggleRoleGender("女") }) {
+                    Image(selectedRoleGenders.contains("女") ? "female_character_selected" : "female_character_unselected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                }
+            }
+        }
+        .padding()
+    }
+    
+    var nameSection: some View {
+        VStack {
+            Text("我叫...")
+                .bold()
+                .font(.system(size: 40))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            TextField("名字", text: $userName)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+        }
+        .padding()
+    }
+    
+    var bioSection: some View {
+        VStack {
+            Text("自我介绍一下...")
+                .bold()
+                .font(.system(size: 40))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            TextEditor(text: $userBio)
+                .frame(height: 100)
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
+        }
+        .padding()
+    }
+    
+    func nextStep() {
+        if isContinueButtonEnabled {
+            if let nextStep = ConfigStep(rawValue: currentStep.rawValue + 1) {
+                currentStep = nextStep
+            }
         }
     }
     
@@ -148,8 +151,6 @@ struct WelcomeView: View {
         } else {
             selectedRoleGenders.append(gender)
         }
-        // Update this as per your need
-        currentStep = .enterName
     }
 }
 
