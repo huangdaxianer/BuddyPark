@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 enum ConfigStep {
     case selectGender
@@ -11,10 +12,13 @@ enum ConfigStep {
 struct FirstResponderTextField: UIViewRepresentable {
     @Binding var text: String
     var isFirstResponder: Bool = false
+    var onContinue: (() -> Void)?
     
     func makeUIView(context: Context) -> UITextField {
         let textField = UITextField()
-        textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldChanged(_:)), for: .editingChanged)
+        textField.delegate = context.coordinator
+        textField.returnKeyType = .continue
+        textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged) // 新增
         return textField
     }
     
@@ -29,18 +33,25 @@ struct FirstResponderTextField: UIViewRepresentable {
         Coordinator(self)
     }
     
-    class Coordinator: NSObject {
+    class Coordinator: NSObject, UITextFieldDelegate {
         var parent: FirstResponderTextField
         
         init(_ parent: FirstResponderTextField) {
             self.parent = parent
         }
         
-        @objc func textFieldChanged(_ textField: UITextField) {
+        // 新增方法
+        @objc func textFieldDidChange(_ textField: UITextField) {
             parent.text = textField.text ?? ""
+        }
+        
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            parent.onContinue?()
+            return true
         }
     }
 }
+
 
 
 
@@ -241,15 +252,15 @@ struct WelcomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            FirstResponderTextField(text: $userName, isFirstResponder: currentStep == .enterName)
-                .padding()
-                .frame(height: 74)
-                .font(.system(size: 30))
-                .foregroundColor(.black)
-                .background(Color.white)
-                .overlay(RoundedRectangle(cornerRadius: 22)
-                            .stroke(Color.black, lineWidth: 6))
-                .cornerRadius(22)
+            FirstResponderTextField(text: $userName, isFirstResponder: currentStep == .enterName, onContinue: nextStep)
+                        .padding()
+                        .frame(height: 74)
+                        .font(.system(size: 30))
+                        .foregroundColor(.black)
+                        .background(Color.white)
+                        .overlay(RoundedRectangle(cornerRadius: 22)
+                                    .stroke(Color.black, lineWidth: 6))
+                        .cornerRadius(22)
         }
         .padding()
     }
