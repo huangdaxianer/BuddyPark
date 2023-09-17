@@ -8,6 +8,42 @@ enum ConfigStep {
     case done
 }
 
+struct FirstResponderTextField: UIViewRepresentable {
+    @Binding var text: String
+    var isFirstResponder: Bool = false
+    
+    func makeUIView(context: Context) -> UITextField {
+        let textField = UITextField()
+        textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldChanged(_:)), for: .editingChanged)
+        return textField
+    }
+    
+    func updateUIView(_ uiView: UITextField, context: Context) {
+        uiView.text = text
+        if isFirstResponder {
+            uiView.becomeFirstResponder()
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject {
+        var parent: FirstResponderTextField
+        
+        init(_ parent: FirstResponderTextField) {
+            self.parent = parent
+        }
+        
+        @objc func textFieldChanged(_ textField: UITextField) {
+            parent.text = textField.text ?? ""
+        }
+    }
+}
+
+
+
 struct WelcomeView: View {
     enum ConfigStep: Int {
         case selectGender = 0
@@ -20,6 +56,8 @@ struct WelcomeView: View {
     @State private var selectedRoleGenders: [String] = []
     @State private var userName: String = ""
     @State private var userBio: String = ""
+    @State private var spaceHeight: CGFloat = UIScreen.main.bounds.height - 400
+
     
     var isContinueButtonEnabled: Bool {
         switch currentStep {
@@ -54,7 +92,7 @@ struct WelcomeView: View {
                     ScrollView(showsIndicators: false) {
                         Rectangle()
                             .foregroundColor(.clear)
-                            .frame(height: UIScreen.main.bounds.height - 400)
+                            .frame(height: spaceHeight)
 
                         if currentStep.rawValue >= ConfigStep.selectGender.rawValue {
                             genderSection.frame(maxWidth: 330)
@@ -73,7 +111,10 @@ struct WelcomeView: View {
                         }
                         Rectangle()
                             .foregroundColor(.clear)
-                            .frame(height: 100)
+                            .frame(height: 90)
+                        Rectangle()
+                            .foregroundColor(.clear)
+                            .frame(height: 1)
                             .id("bottom")
                     }
                     .onChange(of: currentStep) { newValue in
@@ -200,7 +241,7 @@ struct WelcomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            TextField("名字", text: $userName)
+            FirstResponderTextField(text: $userName, isFirstResponder: currentStep == .enterName)
                 .padding()
                 .frame(height: 74)
                 .font(.system(size: 30))
@@ -210,9 +251,9 @@ struct WelcomeView: View {
                             .stroke(Color.black, lineWidth: 6))
                 .cornerRadius(22)
         }
-
         .padding()
     }
+
     
     var bioSection: some View {
         VStack {
@@ -243,6 +284,7 @@ struct WelcomeView: View {
         if isContinueButtonEnabled {
             if let nextStep = ConfigStep(rawValue: currentStep.rawValue + 1) {
                 currentStep = nextStep
+                self.spaceHeight -= 200
             }
         }
     }
