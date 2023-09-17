@@ -34,12 +34,22 @@ struct WelcomeView: View {
         }
     }
     
-    
-    
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
     
     var body: some View {
         ScrollViewReader { scrollView in
             ZStack {
+                
+                VStack {
+                    Spacer()
+                }
+                .onTapGesture {
+                    hideKeyboard()
+                }
+                
+                
                 VStack {
                     ScrollView(showsIndicators: false) {
                         Rectangle()
@@ -71,11 +81,21 @@ struct WelcomeView: View {
                             scrollView.scrollTo("bottom")
                         }
                     }
+                    
+                    .gesture(DragGesture().onChanged { _ in
+                            hideKeyboard()
+                        })
+                        
+                    
                 }
 
                 VStack {
                     Spacer()
-                    Button(action: nextStep) {
+                    Button(action: {
+                        let generator = UIImpactFeedbackGenerator(style: .heavy)
+                        generator.impactOccurred()
+                        nextStep()
+                    }) {
                         Text(currentStep == .enterBio ? "Continue" : "Next")
                             .font(.system(size: 25, weight: .bold, design: .rounded))
                             .foregroundColor(isContinueButtonEnabled ? Color.black : Color.black.opacity(0.2))
@@ -86,6 +106,7 @@ struct WelcomeView: View {
                     }
                     .disabled(!isContinueButtonEnabled)
                     .padding()
+
 
                 }
             }
@@ -109,12 +130,20 @@ struct WelcomeView: View {
             }
 
             HStack {
-                Button(action: { selectedGender = "男" }) {
+                Button(action: {
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                    selectedGender = "男"
+                }) {
                     Image(selectedGender == "男" ? "male_selected" : "male_unselected")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
-                Button(action: { selectedGender = "女" }) {
+                Button(action: {
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                    selectedGender = "女"
+                }) {
                     Image(selectedGender == "女" ? "female_selected" : "female_unselected")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -137,12 +166,18 @@ struct WelcomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             HStack {
-                Button(action: { toggleRoleGender("男") }) {
+                Button(action: {
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                    toggleRoleGender("男") }) {
                     Image(selectedRoleGenders.contains("男") ? "male_character_selected" : "male_character_unselected")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
-                Button(action: { toggleRoleGender("女") }) {
+                Button(action: {
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
+                    toggleRoleGender("女") }) {
                     Image(selectedRoleGenders.contains("女") ? "female_character_selected" : "female_character_unselected")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
