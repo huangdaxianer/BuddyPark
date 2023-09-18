@@ -37,16 +37,52 @@ struct CustomCell: View {
     }
 }
 
+struct LogoutButton: View {
+    var body: some View {
+        Button(action: {
+            // 这里添加退出登录的逻辑
+            print("退出登录被点击了")
+        }) {
+            Text("退出登录")
+                .font(.system(size: 20))
+                .fontWeight(.bold)
+                .foregroundColor(Color.red) // 设置文字颜色为红色
+                .frame(maxWidth: .infinity, maxHeight: 71)
+                .background(
+                    Color.white
+                        .cornerRadius(20)
+                        .shadow(color: .black, radius: 0, x: 2, y: 2)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.black, lineWidth: 2)
+                )
+        }
+    }
+}
+
 struct ProfileView: View {
-    // Just as placeholders for UserDefaults. You can replace these with the actual UserDefaults logic.
     let name = UserDefaults.standard.string(forKey: "UserName") ?? "默认名字"
     let intro = UserDefaults.standard.string(forKey: "UserIntro") ?? "默认简介"
     let subscription = UserDefaults.standard.string(forKey: "UserSubscription") ?? "默认订阅"
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
+            
+            HStack {
+                Spacer() // 这将使其余内容居中对齐
+                Image("Me")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 45)
+                Spacer() // 这将使其余内容居中对齐
+            }
+                
+            
+            Color.clear.frame(height: 10)
+
             CustomCell(icon: "avatar_icon", label: "头像", rightTextOrImage: AnyView(
-                Image("placeholder") // Placeholder image. Replace with your image.
+                Image("placeholder")
                     .resizable()
                     .scaledToFit()
                     .clipShape(Circle())
@@ -59,9 +95,16 @@ struct ProfileView: View {
             CustomCell(icon: "intro_icon", label: "简介", rightTextOrImage: AnyView(Text(intro).font(.system(size: 20)).frame(width: 120, alignment: .trailing)), height: 71)
             
             CustomCell(icon: "subscription_icon", label: "订阅", rightTextOrImage: AnyView(Text(subscription).font(.system(size: 20)).frame(width: 120, alignment: .trailing)), height: 71)
+            
+            Color.clear.frame(height: 45)
+
+            LogoutButton()
+
+            Spacer()
         }
         .padding(.horizontal, 19)
     }
+
 }
 
 struct ProfileView_Previews: PreviewProvider {
