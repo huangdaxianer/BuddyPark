@@ -120,7 +120,7 @@ class CharacterData: ObservableObject {
     }
     
     func fetchCharactersFromServer(characterId: String, completion: @escaping ([CharacterDataModel]?, Error?) -> Void) {
-        let urlString = messageService + "getCharacters?characterid=\(characterId)"
+        let urlString = serviceURL + "getCharacters?characterid=\(characterId)"
         
         guard let url = URL(string: urlString) else {
             completion(nil, NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
@@ -266,8 +266,6 @@ class CharacterManager {
         }
     }
 
-
-    
     func updateCharacterStatus(characterid: Int32, status: CharacterStatus) {
         let context = CoreDataManager.shared.mainManagedObjectContext
         let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()

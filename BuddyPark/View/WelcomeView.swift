@@ -1,5 +1,7 @@
 import SwiftUI
 import UIKit
+import AuthenticationServices
+
 
 enum ConfigStep {
     case selectGender
@@ -16,11 +18,13 @@ struct FirstResponderTextField: UIViewRepresentable {
     
     func makeUIView(context: Context) -> UITextField {
         let textField = UITextField()
+        textField.font = UIFont.systemFont(ofSize: 30)
         textField.delegate = context.coordinator
         textField.returnKeyType = .continue
-        textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged) // 新增
+        textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged)
         return textField
     }
+
     
     func updateUIView(_ uiView: UITextField, context: Context) {
         uiView.text = text
@@ -52,6 +56,47 @@ struct FirstResponderTextField: UIViewRepresentable {
     }
 }
 
+struct FirstResponderTextView: UIViewRepresentable {
+    @Binding var text: String
+    var isFirstResponder: Bool = false
+    var onContinue: (() -> Void)?
+
+    func makeUIView(context: Context) -> UITextView {
+        let textView = UITextView()
+        textView.delegate = context.coordinator
+        textView.font = UIFont.systemFont(ofSize: 30)
+        textView.returnKeyType = .continue
+        return textView
+    }
+
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        uiView.text = text
+        if isFirstResponder {
+            uiView.becomeFirstResponder()
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UITextViewDelegate {
+        var parent: FirstResponderTextView
+
+        init(_ parent: FirstResponderTextView) {
+            self.parent = parent
+        }
+
+        func textViewDidChange(_ textView: UITextView) {
+            parent.text = textView.text
+        }
+
+        func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
+            parent.onContinue?()
+            return true
+        }
+    }
+}
 
 
 
@@ -137,30 +182,56 @@ struct WelcomeView: View {
                     .gesture(DragGesture().onChanged { _ in
                             hideKeyboard()
                         })
-                        
-                    
                 }
-
                 VStack {
                     Spacer()
-                    Button(action: {
-                        let generator = UIImpactFeedbackGenerator(style: .heavy)
-                        generator.impactOccurred()
-                        nextStep()
-                    }) {
-                        Text(currentStep == .enterBio ? "Continue" : "Next")
-                            .font(.system(size: 25, weight: .bold, design: .rounded))
-                            .foregroundColor(isContinueButtonEnabled ? Color.black : Color.black.opacity(0.2))
-                            .frame(width: 300, height: 66)
-                            .background(isContinueButtonEnabled ? Color(red: 0/255, green: 255/255, blue: 178/255) : Color(red: 0/255, green: 173/255, blue: 121/255))
-                            .cornerRadius(22)
-                            .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.black, lineWidth: 3))
+                    
+                    if currentStep == .enterBio {
+                        SignInWithAppleButton(.signIn, onRequest: { request in
+                            request.requestedScopes = [.fullName, .email]
+                        }, onCompletion: { result in
+                            switch result {
+                            case .success(let authResults):
+                                if let appleIDCredential = authResults.credential as? ASAuthorizationAppleIDCredential,
+                                   let identityTokenData = appleIDCredential.identityToken,
+                                   let identityToken = String(data: identityTokenData, encoding: .utf8) {
+                                    UserProfileManager.shared.signInWithAppleID(identityToken: identityToken) { signInResult in
+                                        switch signInResult {
+                                        case .success(let user):
+                                            print("Sign in successful for user: \(user.uuid)")
+                                            // Dismiss the WelcomeView or perform next actions
+                                        case .failure(let error):
+                                          //  self.alertMessage = error.localizedDescription
+                                         //   self.isShowingAlert = true
+                                            break
+                                        }
+                                    }
+                                }
+                            case .failure(let error):
+                                print("Authorization failed: " + error.localizedDescription)
+                            }
+                        })
+                        .frame(width: 300, height: 66)
+                        .padding()
+                    } else {
+                        Button(action: {
+                            let generator = UIImpactFeedbackGenerator(style: .heavy)
+                            generator.impactOccurred()
+                            nextStep()
+                        }) {
+                            Text("Next")
+                                .font(.system(size: 25, weight: .bold, design: .rounded))
+                                .foregroundColor(isContinueButtonEnabled ? Color.black : Color.black.opacity(0.2))
+                                .frame(width: 300, height: 66)
+                                .background(isContinueButtonEnabled ? Color(red: 0/255, green: 255/255, blue: 178/255) : Color(red: 0/255, green: 173/255, blue: 121/255))
+                                .cornerRadius(22)
+                                .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.black, lineWidth: 3))
+                        }
+                        .disabled(!isContinueButtonEnabled)
+                        .padding()
                     }
-                    .disabled(!isContinueButtonEnabled)
-                    .padding()
-
-
                 }
+
             }
             .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all))
 
@@ -252,15 +323,32 @@ struct WelcomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            FirstResponderTextField(text: $userName, isFirstResponder: currentStep == .enterName, onContinue: nextStep)
-                        .padding()
-                        .frame(height: 74)
-                        .font(.system(size: 30))
-                        .foregroundColor(.black)
-                        .background(Color.white)
-                        .overlay(RoundedRectangle(cornerRadius: 22)
-                                    .stroke(Color.black, lineWidth: 6))
-                        .cornerRadius(22)
+            if currentStep.rawValue < ConfigStep.enterBio.rawValue {
+                FirstResponderTextField(text: $userName, isFirstResponder: currentStep == .enterName, onContinue: nextStep)
+                    .padding()
+                    .frame(height: 74)
+                    .foregroundColor(.black)
+                    .background(Color.white)
+                    .overlay(RoundedRectangle(cornerRadius: 22)
+                                .stroke(Color.black, lineWidth: 6))
+                    .cornerRadius(22)
+            } else {
+                Text(userName)
+                    .padding()
+                    .font(.system(size: 30))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundColor(.black)
+                    .frame(height: 74)
+                    .background(Color.clear)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22)
+                            .stroke(Color.black, lineWidth: 6)
+                            .shadow(color: .black, radius: 0, x: -2, y: -2)
+                    )
+                    .cornerRadius(22)
+
+
+            }
         }
         .padding()
     }
@@ -278,7 +366,7 @@ struct WelcomeView: View {
                     .font(.system(size: 40))
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            TextEditor(text: $userBio)
+            FirstResponderTextView(text: $userBio, isFirstResponder: currentStep == .enterBio, onContinue: nextStep)
                 .padding()
                 .frame(height: 200)
                 .font(.system(size: 30))

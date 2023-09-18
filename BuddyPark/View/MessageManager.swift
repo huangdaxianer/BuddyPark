@@ -205,8 +205,7 @@ class MessageManager: ObservableObject {
     }
     
     func sendRequest(type: RequestType, retryOnTimeout: Bool = true) {
-        let sendMessageEndpoint = "sendMessage"
-        let completeURLString = messageService + sendMessageEndpoint
+        let completeURLString = serviceURL + "sendMessage"
         guard let url = URL(string: completeURLString) else { return }
         var urlRequest = URLRequest(url: url)
         urlRequest.timeoutInterval = 60.0
