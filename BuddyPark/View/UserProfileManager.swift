@@ -36,9 +36,13 @@ class UserProfileManager: ObservableObject {
     }
 
     func signInWithAppleID(identityToken: String, completion: @escaping (Result<User, Error>) -> Void) {
-        
+            
         let completeURLString = serviceURL + "auth"
-        guard let url = URL(string: completeURLString) else { return }
+        print("Attempting to sign in with Apple ID using URL:", completeURLString)
+        guard let url = URL(string: completeURLString) else {
+            print("Error: Invalid URL string")
+            return
+        }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -48,6 +52,7 @@ class UserProfileManager: ObservableObject {
 
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             if let error = error {
+                print("Request error:", error.localizedDescription)
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
@@ -55,6 +60,7 @@ class UserProfileManager: ObservableObject {
             }
 
             guard let data = data else {
+                print("Error: Received no data from the server")
                 DispatchQueue.main.async {
                     completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data"])))
                 }
@@ -63,10 +69,12 @@ class UserProfileManager: ObservableObject {
 
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                print("Received JSON response:", json ?? "nil")
                 guard let success = json?["success"] as? Bool, success == true,
                       let uuid = json?["uuid"] as? String,
                       let isNewUser = json?["isNewUser"] as? Bool,
                       let freeMessageLeft = json?["freeMessageLeft"] as? Int else {
+                    print("Error: Invalid or unexpected JSON structure")
                     DispatchQueue.main.async {
                         completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])))
                     }
@@ -74,16 +82,16 @@ class UserProfileManager: ObservableObject {
                 }
 
                 let user = User(uuid: uuid, isNewUser: isNewUser)
+                print("User successfully parsed from JSON:", user)
                 DispatchQueue.main.async {
                     // 将用户存储到某处
                     self.persistUser(user)
-
-//                    // 将 freeMessageLeft 存储到 UserDefaults
-//                    let userDefaults = UserDefaults(suiteName: self.appGroupName)
-//                    userDefaults?.set(freeMessageLeft, forKey: "freeMessageLeft")
-//                    completion(.success(user))
+                 //    let userDefaults = UserDefaults(suiteName: self.appGroupName)
+                 //    userDefaults?.set(freeMessageLeft, forKey: "freeMessageLeft")
+                     completion(.success(user))
                 }
             }catch {
+                print("JSON parsing error:", error.localizedDescription)
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
@@ -92,6 +100,7 @@ class UserProfileManager: ObservableObject {
 
         task.resume()
     }
+
 
     func signOut() {
         // 在这里实现注销用户的代码，例如删除存储的用户信息

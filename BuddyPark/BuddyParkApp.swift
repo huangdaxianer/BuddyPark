@@ -110,40 +110,48 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 var globalSessionManager: SessionManager?
 
 
-@main
-struct BuddyParkApp: App {
-    var body: some Scene {
-        WindowGroup {
-            WelcomeView()
-        }
-    }
-}
-
-
-
 //@main
 //struct BuddyParkApp: App {
-//    let dataManager = CoreDataManager.shared
-//    @StateObject var sessionManager: SessionManager
-//
-//    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-//
-//    init() {
-//        CharacterManager.shared.setupImageDirectory(for: .profile)
-//        let context = dataManager.mainManagedObjectContext // 使用CoreDataManager的mainManagedObjectContext
-//        let sessionManager = SessionManager(context: context)
-//        _sessionManager = StateObject(wrappedValue: sessionManager)
-//        globalSessionManager = sessionManager
-//    }
-//
 //    var body: some Scene {
 //        WindowGroup {
-//            HomeView(sessionManager: sessionManager)
-//                .environment(\.managedObjectContext, dataManager.mainManagedObjectContext) // 使用CoreDataManager的mainManagedObjectContext
-//                .environmentObject(sessionManager)
+//            WelcomeView()
 //        }
 //    }
 //}
+
+
+
+@main
+struct BuddyParkApp: App {
+    let dataManager = CoreDataManager.shared
+    @StateObject var sessionManager: SessionManager
+    @State private var isSignedIn: Bool = false
+    @State var navigateToHome: Bool = false
+
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    init() {
+        CharacterManager.shared.setupImageDirectory(for: .profile)
+        let context = dataManager.mainManagedObjectContext // 使用CoreDataManager的mainManagedObjectContext
+        let sessionManager = SessionManager(context: context)
+        _sessionManager = StateObject(wrappedValue: sessionManager)
+        globalSessionManager = sessionManager
+    }
+
+    var body: some Scene {
+            WindowGroup {
+                if navigateToHome {
+                    HomeView(sessionManager: sessionManager)
+                        .environment(\.managedObjectContext, dataManager.mainManagedObjectContext)
+                        .environmentObject(sessionManager)
+                } else {
+                    WelcomeView(navigateToHome: $navigateToHome, sessionManager: sessionManager)
+                        .environment(\.managedObjectContext, dataManager.mainManagedObjectContext)
+                        .environmentObject(sessionManager)
+                }
+            }
+        }
+}
 
 
 

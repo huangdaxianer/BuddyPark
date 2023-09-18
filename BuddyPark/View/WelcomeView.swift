@@ -16,6 +16,7 @@ struct FirstResponderTextField: UIViewRepresentable {
     var isFirstResponder: Bool = false
     var onContinue: (() -> Void)?
     
+    
     func makeUIView(context: Context) -> UITextField {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: 30)
@@ -24,7 +25,7 @@ struct FirstResponderTextField: UIViewRepresentable {
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged)
         return textField
     }
-
+    
     
     func updateUIView(_ uiView: UITextField, context: Context) {
         uiView.text = text
@@ -60,7 +61,7 @@ struct FirstResponderTextView: UIViewRepresentable {
     @Binding var text: String
     var isFirstResponder: Bool = false
     var onContinue: (() -> Void)?
-
+    
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         textView.delegate = context.coordinator
@@ -68,29 +69,29 @@ struct FirstResponderTextView: UIViewRepresentable {
         textView.returnKeyType = .continue
         return textView
     }
-
+    
     func updateUIView(_ uiView: UITextView, context: Context) {
         uiView.text = text
         if isFirstResponder {
             uiView.becomeFirstResponder()
         }
     }
-
+    
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-
+    
     class Coordinator: NSObject, UITextViewDelegate {
         var parent: FirstResponderTextView
-
+        
         init(_ parent: FirstResponderTextView) {
             self.parent = parent
         }
-
+        
         func textViewDidChange(_ textView: UITextView) {
             parent.text = textView.text
         }
-
+        
         func textViewShouldEndEditing(_ textView: UITextView) -> Bool {
             parent.onContinue?()
             return true
@@ -101,6 +102,17 @@ struct FirstResponderTextView: UIViewRepresentable {
 
 
 struct WelcomeView: View {
+    
+    @State private var isSignedIn: Bool = false
+    @Binding var navigateToHome: Bool
+    @ObservedObject var sessionManager: SessionManager
+    let viewContext = CoreDataManager.shared.mainManagedObjectContext
+    @State private var isShowingAlert = false
+    @State private var alertMessage = ""
+    
+    
+    
+    
     enum ConfigStep: Int {
         case selectGender = 0
         case selectRoleGender = 1
@@ -113,7 +125,7 @@ struct WelcomeView: View {
     @State private var userName: String = ""
     @State private var userBio: String = ""
     @State private var spaceHeight: CGFloat = UIScreen.main.bounds.height - 400
-
+    
     
     var isContinueButtonEnabled: Bool {
         switch currentStep {
@@ -133,109 +145,115 @@ struct WelcomeView: View {
     }
     
     var body: some View {
-        ScrollViewReader { scrollView in
-            ZStack {
-                
-                VStack {
-                    Spacer()
-                }
-                .onTapGesture {
-                    hideKeyboard()
-                }
-                
-                
-                VStack {
-                    ScrollView(showsIndicators: false) {
-                        Rectangle()
-                            .foregroundColor(.clear)
-                            .frame(height: spaceHeight)
-
-                        if currentStep.rawValue >= ConfigStep.selectGender.rawValue {
-                            genderSection.frame(maxWidth: 330)
-                        }
-                        
-                        if currentStep.rawValue >= ConfigStep.selectRoleGender.rawValue {
-                            roleGenderSection.frame(maxWidth: 330)
-                        }
-                        
-                        if currentStep.rawValue >= ConfigStep.enterName.rawValue {
-                            nameSection.frame(maxWidth: 330)
-                        }
-                        
-                        if currentStep.rawValue >= ConfigStep.enterBio.rawValue {
-                            bioSection.frame(maxWidth: 330)
-                        }
-                        Rectangle()
-                            .foregroundColor(.clear)
-                            .frame(height: 90)
-                        Rectangle()
-                            .foregroundColor(.clear)
-                            .frame(height: 1)
-                            .id("bottom")
+        NavigationView {
+            ScrollViewReader { scrollView in
+                ZStack {
+                    
+                    VStack {
+                        Spacer()
                     }
-                    .onChange(of: currentStep) { newValue in
-                        withAnimation {
-                            scrollView.scrollTo("bottom")
-                        }
+                    .onTapGesture {
+                        hideKeyboard()
                     }
                     
-                    .gesture(DragGesture().onChanged { _ in
+                    
+                    VStack {
+                        ScrollView(showsIndicators: false) {
+                            Rectangle()
+                                .foregroundColor(.clear)
+                                .frame(height: spaceHeight)
+                            
+                            if currentStep.rawValue >= ConfigStep.selectGender.rawValue {
+                                genderSection.frame(maxWidth: 330)
+                            }
+                            
+                            if currentStep.rawValue >= ConfigStep.selectRoleGender.rawValue {
+                                roleGenderSection.frame(maxWidth: 330)
+                            }
+                            
+                            if currentStep.rawValue >= ConfigStep.enterName.rawValue {
+                                nameSection.frame(maxWidth: 330)
+                            }
+                            
+                            if currentStep.rawValue >= ConfigStep.enterBio.rawValue {
+                                bioSection.frame(maxWidth: 330)
+                            }
+                            Rectangle()
+                                .foregroundColor(.clear)
+                                .frame(height: 90)
+                            Rectangle()
+                                .foregroundColor(.clear)
+                                .frame(height: 1)
+                                .id("bottom")
+                        }
+                        .onChange(of: currentStep) { newValue in
+                            withAnimation {
+                                scrollView.scrollTo("bottom")
+                            }
+                        }
+                        
+                        .gesture(DragGesture().onChanged { _ in
                             hideKeyboard()
                         })
-                }
-                VStack {
-                    Spacer()
-                    
-                    if currentStep == .enterBio {
-                        SignInWithAppleButton(.signIn, onRequest: { request in
-                            request.requestedScopes = [.fullName, .email]
-                        }, onCompletion: { result in
-                            switch result {
-                            case .success(let authResults):
-                                if let appleIDCredential = authResults.credential as? ASAuthorizationAppleIDCredential,
-                                   let identityTokenData = appleIDCredential.identityToken,
-                                   let identityToken = String(data: identityTokenData, encoding: .utf8) {
-                                    UserProfileManager.shared.signInWithAppleID(identityToken: identityToken) { signInResult in
-                                        switch signInResult {
-                                        case .success(let user):
-                                            print("Sign in successful for user: \(user.uuid)")
-                                            // Dismiss the WelcomeView or perform next actions
-                                        case .failure(let error):
-                                          //  self.alertMessage = error.localizedDescription
-                                         //   self.isShowingAlert = true
-                                            break
+                    }
+                    VStack {
+                        Spacer()
+                        
+                        if currentStep == .enterBio {
+                            SignInWithAppleButton(.signIn, onRequest: { request in
+                                request.requestedScopes = [.fullName, .email]
+                            }, onCompletion: { result in
+                                switch result {
+                                case .success(let authResults):
+                                    if let appleIDCredential = authResults.credential as? ASAuthorizationAppleIDCredential,
+                                       let identityTokenData = appleIDCredential.identityToken,
+                                       let identityToken = String(data: identityTokenData, encoding: .utf8) {
+                                        UserProfileManager.shared.signInWithAppleID(identityToken: identityToken) { signInResult in
+                                            switch signInResult {
+                                            case .success(let user):
+                                                print("Sign in successful for user: \(user.uuid)")
+                                                navigateToHome = true
+                                                // Dismiss the WelcomeView or perform next actions
+                                            case .failure(let error):
+                                                self.alertMessage = error.localizedDescription
+                                                self.isShowingAlert = true
+                                                break
+                                            }
                                         }
                                     }
+                                case .failure(let error):
+                                    print("Authorization failed: " + error.localizedDescription)
                                 }
-                            case .failure(let error):
-                                print("Authorization failed: " + error.localizedDescription)
+                            })
+                            .frame(width: 300, height: 66)
+                            .padding()
+                        } else {
+                            Button(action: {
+                                let generator = UIImpactFeedbackGenerator(style: .heavy)
+                                generator.impactOccurred()
+                                nextStep()
+                            }) {
+                                Text("Next")
+                                    .font(.system(size: 25, weight: .bold, design: .rounded))
+                                    .foregroundColor(isContinueButtonEnabled ? Color.black : Color.black.opacity(0.2))
+                                    .frame(width: 300, height: 66)
+                                    .background(isContinueButtonEnabled ? Color(red: 0/255, green: 255/255, blue: 178/255) : Color(red: 0/255, green: 173/255, blue: 121/255))
+                                    .cornerRadius(22)
+                                    .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.black, lineWidth: 3))
                             }
-                        })
-                        .frame(width: 300, height: 66)
-                        .padding()
-                    } else {
-                        Button(action: {
-                            let generator = UIImpactFeedbackGenerator(style: .heavy)
-                            generator.impactOccurred()
-                            nextStep()
-                        }) {
-                            Text("Next")
-                                .font(.system(size: 25, weight: .bold, design: .rounded))
-                                .foregroundColor(isContinueButtonEnabled ? Color.black : Color.black.opacity(0.2))
-                                .frame(width: 300, height: 66)
-                                .background(isContinueButtonEnabled ? Color(red: 0/255, green: 255/255, blue: 178/255) : Color(red: 0/255, green: 173/255, blue: 121/255))
-                                .cornerRadius(22)
-                                .overlay(RoundedRectangle(cornerRadius: 22).stroke(Color.black, lineWidth: 3))
+                            .disabled(!isContinueButtonEnabled)
+                            .padding()
                         }
-                        .disabled(!isContinueButtonEnabled)
-                        .padding()
                     }
+                    .background(NavigationLink("", destination: HomeView(sessionManager: sessionManager)
+                                 .environmentObject(sessionManager), isActive: $navigateToHome)
+                          .hidden())
                 }
-
+                .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all))
+                
             }
-            .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all))
-
         }
+        
     }
     
     
@@ -251,7 +269,7 @@ struct WelcomeView: View {
                     .font(.system(size: 40))
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-
+            
             HStack {
                 Button(action: {
                     let generator = UIImpactFeedbackGenerator(style: .light)
@@ -293,18 +311,18 @@ struct WelcomeView: View {
                     let generator = UIImpactFeedbackGenerator(style: .light)
                     generator.impactOccurred()
                     toggleRoleGender("男") }) {
-                    Image(selectedRoleGenders.contains("男") ? "male_character_selected" : "male_character_unselected")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                }
+                        Image(selectedRoleGenders.contains("男") ? "male_character_selected" : "male_character_unselected")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    }
                 Button(action: {
                     let generator = UIImpactFeedbackGenerator(style: .light)
                     generator.impactOccurred()
                     toggleRoleGender("女") }) {
-                    Image(selectedRoleGenders.contains("女") ? "female_character_selected" : "female_character_unselected")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                }
+                        Image(selectedRoleGenders.contains("女") ? "female_character_selected" : "female_character_unselected")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                    }
             }
         }
         .padding()
@@ -330,7 +348,7 @@ struct WelcomeView: View {
                     .foregroundColor(.black)
                     .background(Color.white)
                     .overlay(RoundedRectangle(cornerRadius: 22)
-                                .stroke(Color.black, lineWidth: 6))
+                        .stroke(Color.black, lineWidth: 6))
                     .cornerRadius(22)
             } else {
                 Text(userName)
@@ -346,13 +364,13 @@ struct WelcomeView: View {
                             .shadow(color: .black, radius: 0, x: -2, y: -2)
                     )
                     .cornerRadius(22)
-
-
+                
+                
             }
         }
         .padding()
     }
-
+    
     
     var bioSection: some View {
         VStack {
@@ -373,7 +391,7 @@ struct WelcomeView: View {
                 .foregroundColor(.black)
                 .background(Color.white)
                 .overlay(RoundedRectangle(cornerRadius: 22)
-                            .stroke(Color.black, lineWidth: 6))
+                    .stroke(Color.black, lineWidth: 6))
                 .cornerRadius(22)
         }
         .padding()
@@ -419,9 +437,9 @@ extension ConfigStep: Comparable {
     }
 }
 
-struct WelcomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        WelcomeView()
-    }
-}
+//struct WelcomeView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        WelcomeView()
+//    }
+//}
 
