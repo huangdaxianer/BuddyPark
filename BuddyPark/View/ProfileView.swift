@@ -39,9 +39,11 @@ struct CustomCell: View {
 
 
 struct ProfileView: View {
+    @Binding var isUserLoggedIn: Bool
     let name = UserDefaults.standard.string(forKey: "userName") ?? "默认名字"
     let intro = UserDefaults.standard.string(forKey: "userDescription") ?? "默认简介"
     let subscription = UserDefaults.standard.string(forKey: "UserSubscription") ?? "默认订阅"
+    
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -75,19 +77,21 @@ struct ProfileView: View {
             
             Color.clear.frame(height: 45)
 
-            LogoutButton()
+            LogoutButton(isUserLoggedIn: $isUserLoggedIn)
 
             Spacer()
         }
         .padding(.horizontal, 19)
     }
-
 }
 
 struct LogoutButton: View {
+    @Binding var isUserLoggedIn: Bool
+    @State private var showActionSheet = false
+
     var body: some View {
         Button(action: {
-            UserProfileManager.shared.signOut()
+            showActionSheet.toggle()
         }) {
             Text("退出登录")
                 .font(.system(size: 20))
@@ -104,16 +108,27 @@ struct LogoutButton: View {
                         .stroke(Color.black, lineWidth: 2)
                 )
         }
+        .actionSheet(isPresented: $showActionSheet) {
+            ActionSheet(title: Text(""), message: Text("退出登录后将删除你的所有用户资料和聊天记录，你确认吗？"), buttons: [
+                .destructive(Text("退出登录")) {
+                    isUserLoggedIn = false
+                    UserProfileManager.shared.signOut()
+                },
+                .cancel()
+            ])
+        }
+
     }
 }
 
 
-struct ProfileView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfileView()
-    }
-}
 
+//struct ProfileView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ProfileView()
+//    }
+//}
+//
 
 
 

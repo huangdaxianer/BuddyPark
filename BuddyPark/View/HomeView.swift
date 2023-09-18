@@ -1,13 +1,15 @@
 import SwiftUI
 
 struct HomeView: View {
-    let viewContext = CoreDataManager.shared.mainManagedObjectContext // 使用 mainManagedObjectContext 替代 persistentContainer.viewContext
+    let viewContext = CoreDataManager.shared.mainManagedObjectContext
     @StateObject private var characterData = CharacterData()
     @StateObject private var viewModel = HomeViewModel()
     @ObservedObject var sessionManager: SessionManager
     @State private var selectedTab: Int = 0
-    @State private var selectedCharacterId: Int32? //用于跟踪所选的角色ID
+    @State private var selectedCharacterId: Int32?
     @State private var isNavigatingToMessageView: Bool = false
+    @Binding var isUserLoggedIn: Bool
+
     
     var body: some View {
         NavigationView {
@@ -24,7 +26,7 @@ struct HomeView: View {
                             .edgesIgnoringSafeArea(.bottom)
 
                     case 2:
-                        ProfileView()
+                        ProfileView(isUserLoggedIn: $isUserLoggedIn)
                     default:
                         EmptyView()
                     }

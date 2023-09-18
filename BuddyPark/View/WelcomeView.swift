@@ -103,7 +103,7 @@ struct FirstResponderTextView: UIViewRepresentable {
 
 struct WelcomeView: View {
     
-    @Binding var navigateToHome: Bool
+    @Binding var isUserLoggedIn: Bool
     @State private var isShowingAlert = false
     @State private var alertMessage = ""
     
@@ -205,7 +205,7 @@ struct WelcomeView: View {
                                         UserProfileManager.shared.signInWithAppleID(identityToken: identityToken) { signInResult in
                                             switch signInResult {
                                             case .success(_):
-                                                navigateToHome = true
+                                                isUserLoggedIn = true
                                                 UserProfileManager.shared.saveUserName(userName)
                                                 UserProfileManager.shared.saveUserDescription(userBio)
                                             case .failure(let error):
