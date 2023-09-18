@@ -37,33 +37,10 @@ struct CustomCell: View {
     }
 }
 
-struct LogoutButton: View {
-    var body: some View {
-        Button(action: {
-            // 这里添加退出登录的逻辑
-            print("退出登录被点击了")
-        }) {
-            Text("退出登录")
-                .font(.system(size: 20))
-                .fontWeight(.bold)
-                .foregroundColor(Color.red) // 设置文字颜色为红色
-                .frame(maxWidth: .infinity, maxHeight: 71)
-                .background(
-                    Color.white
-                        .cornerRadius(20)
-                        .shadow(color: .black, radius: 0, x: 2, y: 2)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.black, lineWidth: 2)
-                )
-        }
-    }
-}
 
 struct ProfileView: View {
-    let name = UserDefaults.standard.string(forKey: "UserName") ?? "默认名字"
-    let intro = UserDefaults.standard.string(forKey: "UserIntro") ?? "默认简介"
+    let name = UserDefaults.standard.string(forKey: "userName") ?? "默认名字"
+    let intro = UserDefaults.standard.string(forKey: "userDescription") ?? "默认简介"
     let subscription = UserDefaults.standard.string(forKey: "UserSubscription") ?? "默认订阅"
     
     var body: some View {
@@ -106,6 +83,30 @@ struct ProfileView: View {
     }
 
 }
+
+struct LogoutButton: View {
+    var body: some View {
+        Button(action: {
+            UserProfileManager.shared.signOut()
+        }) {
+            Text("退出登录")
+                .font(.system(size: 20))
+                .fontWeight(.bold)
+                .foregroundColor(Color.red) // 设置文字颜色为红色
+                .frame(maxWidth: .infinity, maxHeight: 71)
+                .background(
+                    Color.white
+                        .cornerRadius(20)
+                        .shadow(color: .black, radius: 0, x: 2, y: 2)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.black, lineWidth: 2)
+                )
+        }
+    }
+}
+
 
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {

@@ -68,6 +68,23 @@ final class CoreDataManager {
         NotificationCenter.default.addObserver(self, selector: #selector(saveChanges(notification:)), name: UIApplication.willTerminateNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(saveChanges(notification:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
     }
+    
+    func deleteAllData() {
+        let entityNames = managedObjectModel.entities.compactMap { $0.name }
+        mainManagedObjectContext.perform {
+            for entityName in entityNames {
+                let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: entityName)
+                let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
+                do {
+                    try self.mainManagedObjectContext.execute(deleteRequest)
+                } catch {
+                    print("Error deleting entity data for \(entityName): \(error)")
+                }
+            }
+        }
+    }
+
 }
 
 

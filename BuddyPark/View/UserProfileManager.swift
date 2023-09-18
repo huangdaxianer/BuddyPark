@@ -1,5 +1,6 @@
 import Foundation
 import AuthenticationServices
+import CoreData
 
 struct User {
     let uuid: String
@@ -8,7 +9,7 @@ struct User {
 
 class UserProfileManager: ObservableObject {
     static let shared = UserProfileManager()
-
+    
     @Published var currentUser: User?
     
     private init() {
@@ -18,14 +19,14 @@ class UserProfileManager: ObservableObject {
     func getUserID() -> String? {
         return UUID().uuidString
     }
-
+    
     func persistUser(_ user: User) {
         let defaults = UserDefaults.standard
         defaults.set(user.uuid, forKey: "userUUID")
         defaults.set(user.isNewUser, forKey: "userIsNewUser")
         currentUser = user
     }
-
+    
     func loadUser() -> User? {
         let defaults = UserDefaults.standard
         if let uuid = defaults.string(forKey: "userUUID") {
@@ -34,39 +35,45 @@ class UserProfileManager: ObservableObject {
         }
         return nil
     }
-
+    
+    func saveUserName(_ name: String) {
+        let defaults = UserDefaults.standard
+        defaults.set(name, forKey: "userName")
+    }
+    
+    func saveUserDescription(_ description: String) {
+        let defaults = UserDefaults.standard
+        defaults.set(description, forKey: "userDescription")
+    }
+    
     func signInWithAppleID(identityToken: String, completion: @escaping (Result<User, Error>) -> Void) {
-            
+        
         let completeURLString = serviceURL + "auth"
-        print("Attempting to sign in with Apple ID using URL:", completeURLString)
         guard let url = URL(string: completeURLString) else {
-            print("Error: Invalid URL string")
             return
         }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
+        
         let parameters = ["identityToken": identityToken]
         request.httpBody = try? JSONSerialization.data(withJSONObject: parameters)
-
+        
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             if let error = error {
-                print("Request error:", error.localizedDescription)
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
                 return
             }
-
+            
             guard let data = data else {
-                print("Error: Received no data from the server")
                 DispatchQueue.main.async {
                     completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data"])))
                 }
                 return
             }
-
+            
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 print("Received JSON response:", json ?? "nil")
@@ -74,21 +81,18 @@ class UserProfileManager: ObservableObject {
                       let uuid = json?["uuid"] as? String,
                       let isNewUser = json?["isNewUser"] as? Bool,
                       let freeMessageLeft = json?["freeMessageLeft"] as? Int else {
-                    print("Error: Invalid or unexpected JSON structure")
                     DispatchQueue.main.async {
                         completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])))
                     }
                     return
                 }
-
+                
                 let user = User(uuid: uuid, isNewUser: isNewUser)
-                print("User successfully parsed from JSON:", user)
                 DispatchQueue.main.async {
-                    // 将用户存储到某处
                     self.persistUser(user)
-                 //    let userDefaults = UserDefaults(suiteName: self.appGroupName)
-                 //    userDefaults?.set(freeMessageLeft, forKey: "freeMessageLeft")
-                     completion(.success(user))
+                    let userDefaults = UserDefaults(suiteName: appGroupName)
+                    userDefaults?.set(freeMessageLeft, forKey: "freeMessageLeft")
+                    completion(.success(user))
                 }
             }catch {
                 print("JSON parsing error:", error.localizedDescription)
@@ -97,19 +101,24 @@ class UserProfileManager: ObservableObject {
                 }
             }
         }
-
+        
         task.resume()
     }
-
-
+    
+    
     func signOut() {
-        // 在这里实现注销用户的代码，例如删除存储的用户信息
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "userUUID")
         defaults.removeObject(forKey: "userIsNewUser")
+        defaults.removeObject(forKey: "userName")
+        defaults.removeObject(forKey: "userDescription")
         currentUser = nil
+        CoreDataManager.shared.deleteAllData()
     }
-
-
+    
+        func isUserLoggedIn() -> Bool {
+            return loadUser() != nil
+        }
 }
+
 

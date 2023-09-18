@@ -107,9 +107,6 @@ struct WelcomeView: View {
     @State private var isShowingAlert = false
     @State private var alertMessage = ""
     
-    
-    
-    
     enum ConfigStep: Int {
         case selectGender = 0
         case selectRoleGender = 1
@@ -207,8 +204,10 @@ struct WelcomeView: View {
                                        let identityToken = String(data: identityTokenData, encoding: .utf8) {
                                         UserProfileManager.shared.signInWithAppleID(identityToken: identityToken) { signInResult in
                                             switch signInResult {
-                                            case .success(let user):
+                                            case .success(_):
                                                 navigateToHome = true
+                                                UserProfileManager.shared.saveUserName(userName)
+                                                UserProfileManager.shared.saveUserDescription(userBio)
                                             case .failure(let error):
                                                 self.alertMessage = error.localizedDescription
                                                 self.isShowingAlert = true

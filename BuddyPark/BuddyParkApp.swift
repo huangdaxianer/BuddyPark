@@ -112,8 +112,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 struct BuddyParkApp: App {
     let dataManager = CoreDataManager.shared
     @StateObject var sessionManager: SessionManager
-    @State private var isSignedIn: Bool = false
-    @State var navigateToHome: Bool = false
+    @State private var navigateToHome: Bool = false
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
@@ -126,17 +125,20 @@ struct BuddyParkApp: App {
     }
 
     var body: some Scene {
-            WindowGroup {
-                if navigateToHome {
-                    HomeView(sessionManager: sessionManager)
-                        .environment(\.managedObjectContext, dataManager.mainManagedObjectContext)
-                        .environmentObject(sessionManager)
-                } else {
-                    WelcomeView(navigateToHome: $navigateToHome)
-                }
+        WindowGroup {
+            // 检查用户是否已登录
+            if UserProfileManager.shared.isUserLoggedIn() || navigateToHome {
+                HomeView(sessionManager: sessionManager)
+                    .environment(\.managedObjectContext, dataManager.mainManagedObjectContext)
+                    .environmentObject(sessionManager)
+            } else {
+                WelcomeView(navigateToHome: $navigateToHome)
             }
         }
+    }
 }
+
+
 
 
 
