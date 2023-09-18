@@ -107,19 +107,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 }
 
-var globalSessionManager: SessionManager?
-
-
-//@main
-//struct BuddyParkApp: App {
-//    var body: some Scene {
-//        WindowGroup {
-//            WelcomeView()
-//        }
-//    }
-//}
-
-
 
 @main
 struct BuddyParkApp: App {
@@ -145,9 +132,7 @@ struct BuddyParkApp: App {
                         .environment(\.managedObjectContext, dataManager.mainManagedObjectContext)
                         .environmentObject(sessionManager)
                 } else {
-                    WelcomeView(navigateToHome: $navigateToHome, sessionManager: sessionManager)
-                        .environment(\.managedObjectContext, dataManager.mainManagedObjectContext)
-                        .environmentObject(sessionManager)
+                    WelcomeView(navigateToHome: $navigateToHome)
                 }
             }
         }

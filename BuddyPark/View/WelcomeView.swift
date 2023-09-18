@@ -103,10 +103,7 @@ struct FirstResponderTextView: UIViewRepresentable {
 
 struct WelcomeView: View {
     
-    @State private var isSignedIn: Bool = false
     @Binding var navigateToHome: Bool
-    @ObservedObject var sessionManager: SessionManager
-    let viewContext = CoreDataManager.shared.mainManagedObjectContext
     @State private var isShowingAlert = false
     @State private var alertMessage = ""
     
@@ -211,9 +208,7 @@ struct WelcomeView: View {
                                         UserProfileManager.shared.signInWithAppleID(identityToken: identityToken) { signInResult in
                                             switch signInResult {
                                             case .success(let user):
-                                                print("Sign in successful for user: \(user.uuid)")
                                                 navigateToHome = true
-                                                // Dismiss the WelcomeView or perform next actions
                                             case .failure(let error):
                                                 self.alertMessage = error.localizedDescription
                                                 self.isShowingAlert = true
@@ -245,9 +240,6 @@ struct WelcomeView: View {
                             .padding()
                         }
                     }
-                    .background(NavigationLink("", destination: HomeView(sessionManager: sessionManager)
-                                 .environmentObject(sessionManager), isActive: $navigateToHome)
-                          .hidden())
                 }
                 .background(Color(red: 255/255, green: 229/255, blue: 0/255).edgesIgnoringSafeArea(.all))
                 
