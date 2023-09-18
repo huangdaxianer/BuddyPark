@@ -114,6 +114,7 @@ class UserProfileManager: ObservableObject {
         defaults.removeObject(forKey: "userDescription")
         currentUser = nil
         CoreDataManager.shared.deleteAllData()
+        objectWillChange.send()
     }
     
         func isUserLoggedIn() -> Bool {
