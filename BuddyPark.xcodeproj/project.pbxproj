@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F519A9042AA8284B00A4569B /* CharacterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F519A9032AA8284B00A4569B /* CharacterManager.swift */; };
+		F52D650E2AB8BA1D0006CF6F /* SwiftUIX in Frameworks */ = {isa = PBXBuildFile; productRef = F52D650D2AB8BA1D0006CF6F /* SwiftUIX */; };
 		F5362CAF2A9BBF2200FD3A52 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5362CAE2A9BBF2200FD3A52 /* Constants.swift */; };
 		F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187C52AA848280082E195 /* CoreDataManager.swift */; };
 		F54187CC2AA887E90082E195 /* Message-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187CB2AA887E90082E195 /* Message-Service.js */; };
@@ -126,6 +127,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F52D650E2AB8BA1D0006CF6F /* SwiftUIX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,6 +290,9 @@
 				F59E83BA2AA1855C0076D9FD /* PBXTargetDependency */,
 			);
 			name = BuddyPark;
+			packageProductDependencies = (
+				F52D650D2AB8BA1D0006CF6F /* SwiftUIX */,
+			);
 			productName = BuddyPark;
 			productReference = F59005062A86200600BAF934 /* BuddyPark.app */;
 			productType = "com.apple.product-type.application";
@@ -380,6 +385,9 @@
 				Base,
 			);
 			mainGroup = F59004FD2A86200600BAF934;
+			packageReferences = (
+				F52D650C2AB8BA1D0006CF6F /* XCRemoteSwiftPackageReference "SwiftUIX" */,
+			);
 			productRefGroup = F59005072A86200600BAF934 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -860,6 +868,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F52D650C2AB8BA1D0006CF6F /* XCRemoteSwiftPackageReference "SwiftUIX" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftUIX/SwiftUIX.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.6;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F52D650D2AB8BA1D0006CF6F /* SwiftUIX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F52D650C2AB8BA1D0006CF6F /* XCRemoteSwiftPackageReference "SwiftUIX" */;
+			productName = SwiftUIX;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		F59005142A86200800BAF934 /* BuddyPark.xcdatamodeld */ = {

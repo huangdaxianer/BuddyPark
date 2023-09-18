@@ -40,6 +40,10 @@ struct CustomCell: View {
 
 struct ProfileView: View {
     @Binding var isUserLoggedIn: Bool
+    @State private var showingNameAlert = false
+    @State private var showingIntroAlert = false
+    @State private var inputName = ""
+    @State private var inputIntro = ""
     let name = UserDefaults.standard.string(forKey: "userName") ?? "默认名字"
     let intro = UserDefaults.standard.string(forKey: "userDescription") ?? "默认简介"
     let subscription = UserDefaults.standard.string(forKey: "UserSubscription") ?? "默认订阅"
@@ -70,8 +74,32 @@ struct ProfileView: View {
             ), height: 128)
             
             CustomCell(icon: "name_icon", label: "名字", rightTextOrImage: AnyView(Text(name).font(.system(size: 20)).frame(width: 120, alignment: .trailing)), height: 71)
-            
+                .onTapGesture {
+                    self.showingNameAlert = true
+                }
+                .alert("修改名字", isPresented: $showingNameAlert) {
+                    TextField("输入新的名字", text: $inputName)
+                    Button("确定", action: {
+                        UserProfileManager.shared.saveUserName(inputName)
+                    })
+                    Button("取消", role: .cancel) { }
+                } message: {
+                    Text("请输入你的新名字")
+                }
+
             CustomCell(icon: "intro_icon", label: "简介", rightTextOrImage: AnyView(Text(intro).font(.system(size: 20)).frame(width: 120, alignment: .trailing)), height: 71)
+                .onTapGesture {
+                    self.showingIntroAlert = true
+                }
+                .alert("修改简介", isPresented: $showingIntroAlert) {
+                    TextField("输入新的简介", text: $inputIntro)
+                    Button("确定", action: {
+                        UserProfileManager.shared.saveUserDescription(inputIntro)
+                    })
+                    Button("取消", role: .cancel) { }
+                } message: {
+                    Text("请输入你的新简介")
+                }
             
             CustomCell(icon: "subscription_icon", label: "订阅", rightTextOrImage: AnyView(Text(subscription).font(.system(size: 20)).frame(width: 120, alignment: .trailing)), height: 71)
             
