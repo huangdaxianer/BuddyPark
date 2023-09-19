@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		F519A9042AA8284B00A4569B /* CharacterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F519A9032AA8284B00A4569B /* CharacterManager.swift */; };
 		F52D650E2AB8BA1D0006CF6F /* SwiftUIX in Frameworks */ = {isa = PBXBuildFile; productRef = F52D650D2AB8BA1D0006CF6F /* SwiftUIX */; };
+		F52D65102AB9E7910006CF6F /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52D650F2AB9E7910006CF6F /* SubscriptionManager.swift */; };
+		F52D65122AB9E8260006CF6F /* SubscriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52D65112AB9E8260006CF6F /* SubscriptionView.swift */; };
 		F5362CAF2A9BBF2200FD3A52 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5362CAE2A9BBF2200FD3A52 /* Constants.swift */; };
 		F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187C52AA848280082E195 /* CoreDataManager.swift */; };
 		F54187CC2AA887E90082E195 /* Message-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187CB2AA887E90082E195 /* Message-Service.js */; };
@@ -83,6 +85,8 @@
 
 /* Begin PBXFileReference section */
 		F519A9032AA8284B00A4569B /* CharacterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterManager.swift; sourceTree = "<group>"; };
+		F52D650F2AB9E7910006CF6F /* SubscriptionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		F52D65112AB9E8260006CF6F /* SubscriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionView.swift; sourceTree = "<group>"; };
 		F5362CAD2A9872D800FD3A52 /* BuddyPark.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BuddyPark.entitlements; sourceTree = "<group>"; };
 		F5362CAE2A9BBF2200FD3A52 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		F54187C52AA848280082E195 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
@@ -237,6 +241,7 @@
 		F59E83AC2AA184D80076D9FD /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F52D65112AB9E8260006CF6F /* SubscriptionView.swift */,
 				F59005472A89F3E300BAF934 /* MessageListView.swift */,
 				F59005492A89F40500BAF934 /* MessageView.swift */,
 				F58A97C52AB36B92004CB0C7 /* WelcomeView.swift */,
@@ -250,6 +255,7 @@
 		F59E83AD2AA184E40076D9FD /* Manager */ = {
 			isa = PBXGroup;
 			children = (
+				F52D650F2AB9E7910006CF6F /* SubscriptionManager.swift */,
 				F59E83AE2AA1851C0076D9FD /* NotificationManager.swift */,
 				F59005512A8A204000BAF934 /* MessageManager.swift */,
 				F5D73B3C2A9D10AF0075D3FA /* UserProfileManager.swift */,
@@ -441,6 +447,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F52D65102AB9E7910006CF6F /* SubscriptionManager.swift in Sources */,
 				F59005162A86200800BAF934 /* BuddyPark.xcdatamodeld in Sources */,
 				F590053D2A86246000BAF934 /* HomeView.swift in Sources */,
 				F590053B2A86225F00BAF934 /* Extensions.swift in Sources */,
@@ -461,6 +468,7 @@
 				F590050A2A86200600BAF934 /* BuddyParkApp.swift in Sources */,
 				F55E423C2A93C4FB000BBB44 /* ProfileView.swift in Sources */,
 				F58A97C22AB0C5A1004CB0C7 /* Intents.intentdefinition in Sources */,
+				F52D65122AB9E8260006CF6F /* SubscriptionView.swift in Sources */,
 				F59005522A8A204000BAF934 /* MessageManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

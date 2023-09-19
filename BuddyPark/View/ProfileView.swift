@@ -44,6 +44,7 @@ struct ProfileView: View {
     @State private var showingIntroAlert = false
     @State private var inputName = ""
     @State private var inputIntro = ""
+    @State private var showingSubscriptionView = false // <-- 添加这个状态
     let name = UserDefaults.standard.string(forKey: "userName") ?? "默认名字"
     let intro = UserDefaults.standard.string(forKey: "userDescription") ?? "默认简介"
     let subscription = UserDefaults.standard.string(forKey: "UserSubscription") ?? "默认订阅"
@@ -102,6 +103,9 @@ struct ProfileView: View {
                 }
             
             CustomCell(icon: "subscription_icon", label: "订阅", rightTextOrImage: AnyView(Text(subscription).font(.system(size: 20)).frame(width: 120, alignment: .trailing)), height: 71)
+                .onTapGesture {
+                    self.showingSubscriptionView = true // 当点击时，显示 SubscriptionView
+                }
             
             Color.clear.frame(height: 45)
 
@@ -110,6 +114,9 @@ struct ProfileView: View {
             Spacer()
         }
         .padding(.horizontal, 19)
+        if showingSubscriptionView {
+                       SubscriptionView(isShowingOverlay: $showingSubscriptionView)
+                   }
     }
 }
 
