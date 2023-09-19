@@ -3,11 +3,10 @@ import StoreKit
 
 class SubscriptionManager: NSObject, SKProductsRequestDelegate, SKPaymentTransactionObserver, ObservableObject {
     static let shared = SubscriptionManager()
-    private var product: SKProduct? // 保存商品对象
-    @Published var productInfo: ProductInfo?  // 商品信息
+    private var product: SKProduct?
+    @Published var productInfo: ProductInfo?
     var onSubscriptionFailure: ((String) -> Void)?
-    var onSubscriptionSuccess: (() -> Void)? // 添加订阅成功的回调
-    private let baseURL = "https://service-1s3fy2a0-1251732024.jp.apigw.tencentcs.com/release"
+    var onSubscriptionSuccess: (() -> Void)?
 
     @Published var subscriptionStatus: Bool = false
     @Published var expiresDate: Int64 = 0
@@ -15,10 +14,8 @@ class SubscriptionManager: NSObject, SKProductsRequestDelegate, SKPaymentTransac
     @Published var isTrialPeriod: Bool = false
     @Published var freeMessageLeft: Int = 0
     
-    func canSendMessage() -> Bool {
-        return true
-
-        
+//    func canSendMessage() -> Bool {
+//        return true
 //        let userDefaults = UserDefaults(suiteName: appGroupName)
 //        var freeMessageLeft = userDefaults?.integer(forKey: "freeMessageLeft") ?? 0
 //
@@ -30,7 +27,7 @@ class SubscriptionManager: NSObject, SKProductsRequestDelegate, SKPaymentTransac
 //            print("No free messages left.")
 //            return false
 //        }
-    }
+//    }
 
     
     private override init() {
@@ -89,7 +86,7 @@ class SubscriptionManager: NSObject, SKProductsRequestDelegate, SKPaymentTransac
                 let receiptData = fetchReceipt() // 这个函数从 Bundle 中获取 App 收据
                 let uuid = UserDefaults.standard.string(forKey: "userUUID") ?? ""
 
-                var request = URLRequest(url: URL(string: "\(baseURL)/verify-receipt")!)
+                var request = URLRequest(url: URL(string: "\(serviceURL)/verify-receipt")!)
                 request.httpMethod = "POST"
                 let postDictionary = ["receiptData": receiptData, "userIdentifier": uuid]
                 do {
@@ -139,7 +136,7 @@ class SubscriptionManager: NSObject, SKProductsRequestDelegate, SKPaymentTransac
     
     func getSubscriptionStatus() {
         let userIdentifier = UserDefaults.standard.string(forKey: "userUUID") ?? ""
-        guard !userIdentifier.isEmpty, let url = URL(string: "\(baseURL)/subscription-status/\(userIdentifier)") else {
+        guard !userIdentifier.isEmpty, let url = URL(string: "\(serviceURL)/subscription-status/\(userIdentifier)") else {
             print("Invalid URL or missing user UUID")
             return
         }

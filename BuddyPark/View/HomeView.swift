@@ -9,8 +9,8 @@ struct HomeView: View {
     @State private var selectedCharacterId: Int32?
     @State private var isNavigatingToMessageView: Bool = false
     @Binding var isUserLoggedIn: Bool
+    @State private var isOverlayShowing: Bool = false // 新增状态变量
 
-    
     var body: some View {
         NavigationView {
             ZStack {
@@ -26,13 +26,16 @@ struct HomeView: View {
                             .edgesIgnoringSafeArea(.bottom)
 
                     case 2:
-                        ProfileView(isUserLoggedIn: $isUserLoggedIn)
+                        ProfileView(isUserLoggedIn: $isUserLoggedIn, isOverlayShowing: $isOverlayShowing) // 传递状态
                     default:
                         EmptyView()
                     }
-                    VStack {
-                        Spacer() // 用于推动 CustomTabBar 到底部
-                        CustomTabBar(selectedTab: $selectedTab)
+                    
+                    if !isOverlayShowing { // 检查状态
+                        VStack {
+                            Spacer() // 用于推动 CustomTabBar 到底部
+                            CustomTabBar(selectedTab: $selectedTab)
+                        }
                     }
                 }
                 .navigationBarTitleDisplayMode(.inline) // 禁用大标题样式
