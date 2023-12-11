@@ -14,20 +14,20 @@ class SubscriptionManager: NSObject, SKProductsRequestDelegate, SKPaymentTransac
     @Published var isTrialPeriod: Bool = false
     @Published var freeMessageLeft: Int = 0
     
-//    func canSendMessage() -> Bool {
-//        return true
-//        let userDefaults = UserDefaults(suiteName: appGroupName)
-//        var freeMessageLeft = userDefaults?.integer(forKey: "freeMessageLeft") ?? 0
-//
-//        if freeMessageLeft > 0 {
-//            freeMessageLeft -= 1
-//            userDefaults?.set(freeMessageLeft, forKey: "freeMessageLeft")
-//            return true
-//        } else {
-//            print("No free messages left.")
-//            return false
-//        }
-//    }
+    func canSendMessage() -> Bool {
+        return true
+        let userDefaults = UserDefaults(suiteName: appGroupName)
+        var freeMessageLeft = userDefaults?.integer(forKey: "freeMessageLeft") ?? 0
+
+        if freeMessageLeft > 0 {
+            freeMessageLeft -= 1
+            userDefaults?.set(freeMessageLeft, forKey: "freeMessageLeft")
+            return true
+        } else {
+            print("No free messages left.")
+            return false
+        }
+    }
 
     
     private override init() {
