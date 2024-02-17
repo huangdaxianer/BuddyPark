@@ -81,7 +81,6 @@ class MessageManager: ObservableObject {
         }.sorted(by: { $0.timestamp < $1.timestamp })
     }
     
-    
     var contactName: String {
         return contact.name ?? "未知联系人"
     }

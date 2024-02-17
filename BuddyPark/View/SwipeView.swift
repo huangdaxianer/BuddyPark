@@ -57,16 +57,16 @@ struct SwipeableCardView: View {
             VStack {
                 GeometryReader { geometry in
                     VStack {
+                        let imageHeight = geometry.size.width * (4/3)  // 计算出按4:3比例的高度
                         Image(uiImage: model.image ?? UIImage())
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(maxWidth: geometry.size.width - 26, maxHeight: geometry.size.height - 100)
-                            .cornerRadius(18)
-                            .clipped()
-                            .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.black, lineWidth: 2)) // 添加这一行
-                        
-                            .padding([.top, .leading, .trailing], 13)
-                        Spacer()
+                                              .resizable()
+                                              .aspectRatio(contentMode: .fill) // 保持图片的原始比例
+                                              .frame(width: geometry.size.width - 26, height: imageHeight) // 设置frame
+                                              .clipped() // 裁剪超出容器的部分
+                                              .cornerRadius(18)
+                                              .overlay(RoundedRectangle(cornerRadius: 18).stroke(Color.black, lineWidth: 2))
+                                              .padding([.top, .leading, .trailing], 13)
+                                            Spacer()
                         VStack {
                             HStack(alignment: .firstTextBaseline) {
                                 Text(model.name).font(.largeTitle).fontWeight(.semibold)
@@ -82,12 +82,12 @@ struct SwipeableCardView: View {
                     }
                 }
                 .frame(maxWidth: min(UIScreen.main.bounds.width - 80, 313), maxHeight: min(UIScreen.main.bounds.height - 209, 643))
-                .background(Color.white)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.black, lineWidth: 2)
-                )
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.black, lineWidth: 2)
+                            )
             }
             .overlay(
                 HStack{
@@ -146,6 +146,11 @@ extension SwipeableCardView {
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 onSwiped(model, true)
+                if let image = model.image {
+                    detectAndCropFaces(image: image) { croppedImage in
+                        CharacterManager.shared.saveImage(characterid: model.characterid, image: croppedImage, type: .avatar)
+                    }
+                }
             }
         } else if(hasDisliked(translationX)){
             withAnimation(.linear(duration: 0.3)){

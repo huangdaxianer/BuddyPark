@@ -392,7 +392,7 @@ struct WelcomeView: View {
         if isContinueButtonEnabled {
             if let nextStep = ConfigStep(rawValue: currentStep.rawValue + 1) {
                 currentStep = nextStep
-                self.spaceHeight -= 200
+                self.spaceHeight = max(self.spaceHeight - 200, 0)
             }
         }
     }

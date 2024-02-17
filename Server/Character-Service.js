@@ -77,7 +77,7 @@ async function getCharactersFromFirebase(characterid) {
             if (characterData) {
                 characters.push({
                     age: characterData.age,
-                    avatarImage: characterData.avatarImage,
+//                    avatarImage: characterData.avatarImage,
                     characterName: characterData.characterName,
                     profileImage: characterData.profileImage,
                     intro: characterData.intro,

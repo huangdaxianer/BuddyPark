@@ -17,6 +17,7 @@
 		F54187CE2AA888030082E195 /* Character-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F54187CD2AA888030082E195 /* Character-Service.js */; };
 		F54187D22AACD0680082E195 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187D12AACD0680082E195 /* CoreDataStack.swift */; };
 		F54187D42AACD5600082E195 /* BuddyPark.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F59005142A86200800BAF934 /* BuddyPark.xcdatamodeld */; };
+		F55485982B270E2800E13C5B /* FaceDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55485972B270E2800E13C5B /* FaceDetection.swift */; };
 		F55945612ABA054000059AC3 /* Subscription-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F55945602ABA054000059AC3 /* Subscription-Service.js */; };
 		F55CE7452AB87BCB00235141 /* Account-Service.js in Resources */ = {isa = PBXBuildFile; fileRef = F55CE7442AB87BCB00235141 /* Account-Service.js */; };
 		F55E423C2A93C4FB000BBB44 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55E423B2A93C4FB000BBB44 /* ProfileView.swift */; };
@@ -95,6 +96,7 @@
 		F54187CD2AA888030082E195 /* Character-Service.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "Character-Service.js"; sourceTree = "<group>"; };
 		F54187D12AACD0680082E195 /* CoreDataStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
 		F54187D52AACDC070082E195 /* BuddyParkNSE.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BuddyParkNSE.entitlements; sourceTree = "<group>"; };
+		F55485972B270E2800E13C5B /* FaceDetection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDetection.swift; sourceTree = "<group>"; };
 		F55945602ABA054000059AC3 /* Subscription-Service.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "Subscription-Service.js"; sourceTree = "<group>"; };
 		F55CE7442AB87BCB00235141 /* Account-Service.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "Account-Service.js"; sourceTree = "<group>"; };
 		F55E423B2A93C4FB000BBB44 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 				F52D650F2AB9E7910006CF6F /* SubscriptionManager.swift */,
 				F59E83AE2AA1851C0076D9FD /* NotificationManager.swift */,
 				F59005512A8A204000BAF934 /* MessageManager.swift */,
+				F55485972B270E2800E13C5B /* FaceDetection.swift */,
 				F5D73B3C2A9D10AF0075D3FA /* UserProfileManager.swift */,
 				F5D70A982A9CF76E0075D3FA /* SubscriptionManager.swift */,
 				F519A9032AA8284B00A4569B /* CharacterManager.swift */,
@@ -463,6 +466,7 @@
 				F54187D22AACD0680082E195 /* CoreDataStack.swift in Sources */,
 				F59E83AF2AA1851C0076D9FD /* NotificationManager.swift in Sources */,
 				F59005132A86200800BAF934 /* Persistence.swift in Sources */,
+				F55485982B270E2800E13C5B /* FaceDetection.swift in Sources */,
 				F5D73B3D2A9D10AF0075D3FA /* UserProfileManager.swift in Sources */,
 				F5362CAF2A9BBF2200FD3A52 /* Constants.swift in Sources */,
 				F58A97C62AB36B92004CB0C7 /* WelcomeView.swift in Sources */,

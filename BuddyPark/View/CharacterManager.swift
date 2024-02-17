@@ -82,19 +82,14 @@ class CharacterData: ObservableObject {
                 character.status = "raw"
 
                 group.enter()
-                CharacterManager.shared.downloadImage(from: URL(string: characterData.avatarImage)!) { image in
-                    if let image = image {
-                        CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .avatar)
-                    }
-                    group.leave()
-                }
-
-                group.enter()
                 CharacterManager.shared.downloadImage(from: URL(string: characterData.profileImage)!) { image in
                     if let image = image {
+                        // 保存全身图片
                         CharacterManager.shared.saveImage(characterid: character.characterid, image: image, type: .profile)
+                        group.leave() // 现在这里只负责保存全身图片
+                    } else {
+                        group.leave()
                     }
-                    group.leave()
                 }
             }
         }
@@ -104,6 +99,7 @@ class CharacterData: ObservableObject {
             completion()
         }
     }
+
 
     private func characterExists(withID id: Int32, in context: NSManagedObjectContext) -> Bool {
         let fetchRequest: NSFetchRequest<Character> = Character.fetchRequest()
@@ -120,8 +116,10 @@ class CharacterData: ObservableObject {
     }
     
     func fetchCharactersFromServer(characterId: String, completion: @escaping ([CharacterDataModel]?, Error?) -> Void) {
-        let urlString = serviceURL + "getCharacters?characterid=\(characterId)"
-        
+        let googleCloudFunctionURL = "https://asia-northeast1-my-money-387707.cloudfunctions.net/function-1"
+          let urlString = "\(googleCloudFunctionURL)/getCharacters?characterid=\(characterId)"
+          print("Fetching characters from server with characterId: \(characterId)")
+
         guard let url = URL(string: urlString) else {
             completion(nil, NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"]))
             return
@@ -131,26 +129,28 @@ class CharacterData: ObservableObject {
             if let data = data {
                 do {
                     let characters = try JSONDecoder().decode([CharacterDataModel].self, from: data)
+                    print("Fetched characters data: \(characters)")
                     completion(characters, nil)
                 } catch {
+                    print("Error decoding characters data: \(error)")
                     completion(nil, error)
                 }
-            } else {
+            } else if let error = error {
+                print("Error fetching characters data: \(error)")
                 completion(nil, error)
             }
         }.resume()
     }
+
 }
 
 struct CharacterDataModel: Codable {
     let age: String
-    let avatarImage: String
     let characterName: String
     let profileImage: String
     let intro: String
     let characterid: String
 }
-
 
 struct ProfileCardModel: Identifiable {
     var id: Int32 { characterid }
@@ -231,6 +231,7 @@ class CharacterManager {
 
     
     func downloadImage(from url: URL, completion: @escaping (UIImage?) -> Void) {
+        print("开始下载照片")
         let task = URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data, error == nil else {
                 completion(nil)
@@ -242,6 +243,7 @@ class CharacterManager {
     }
     
     func saveImage(characterid: Int32, image: UIImage, type: ImageType) {
+        print("Saving image for characterId: \(characterid)")
         let directoryPath = directory(for: type)
         let imagePath = directoryPath.appendingPathComponent("\(characterid)")
         let fileManager = FileManager.default
