@@ -90,15 +90,19 @@ class MessageManager: ObservableObject {
             return []
         }
         
-        return messagesSet.array.compactMap {
-            $0 as? Message
-        }.map {
-            LocalMessage(id: $0.id ?? UUID(),
-                         role: $0.role ?? "user",
-                         content: $0.content ?? "",
-                         timestamp: $0.timestamp ?? Date())
+        let loadedMessages = messagesSet.array.compactMap { $0 as? Message }.map { message -> LocalMessage in
+            let localMessage = LocalMessage(id: message.id ?? UUID(),
+                                            role: message.role ?? "user",
+                                            content: message.content ?? "",
+                                            timestamp: message.timestamp ?? Date())
+            // 打印消息内容
+            print("Loading message: ID: \(localMessage.id), Role: \(localMessage.role), Content: '\(localMessage.content)', Timestamp: \(localMessage.timestamp)")
+            return localMessage
         }.sorted(by: { $0.timestamp < $1.timestamp })
+        
+        return loadedMessages
     }
+
     
     func appendFullMessage(_ newMessage: LocalMessage,
                            lastUserReplyFromServer: String?,
@@ -158,24 +162,42 @@ class MessageManager: ObservableObject {
     private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
         guard let lastMessage = messages.last else {
             saveMessage(newMessage)
+            return true // 当没有最后一条消息时，保存新消息并返回true
+        }
+        
+        // 如果最后一条消息和新消息属于同一个角色
+        if lastMessage.role == newMessage.role {
+            // 根据角色的不同，处理消息合并或更新
+            switch newMessage.role {
+            case UserRole.user.rawValue:
+                // 合并用户消息的内容，并生成一个新的UUID
+                let combinedContent = "\(lastMessage.content)#\(newMessage.content)"
+                let combinedMessage = LocalMessage(id: UUID(), role: UserRole.user.rawValue, content: combinedContent, timestamp: Date())
+                removeMessage(lastMessage) // 移除旧的消息
+                saveMessage(combinedMessage) // 保存新合并的消息
+                return true
+            case UserRole.assistant.rawValue:
+                // 如果是助手消息，并且新消息内容更新，则更新消息
+                if newMessage.content.count > lastMessage.content.count {
+                    let updatedMessage = LocalMessage(id: UUID(), role: UserRole.assistant.rawValue, content: newMessage.content, timestamp: Date())
+                    removeMessage(lastMessage)
+                    saveMessage(updatedMessage)
+                    return true
+                }
+            default:
+                break // 对于其他情况，不做处理，会走到函数末尾的返回语句
+            }
+        } else {
+            // 角色不同，直接保存新消息
+            saveMessage(newMessage)
             return true
         }
         
-        switch (lastMessage.role, newMessage.role) {
-        case (UserRole.user.rawValue, UserRole.user.rawValue):
-            let combinedContent = lastMessage.content + "#" + newMessage.content
-            let combinedMessage = LocalMessage(id: newMessage.id, role: UserRole.user.rawValue, content: combinedContent, timestamp: Date())
-            removeMessage(lastMessage)  // 删除原始消息
-            saveMessage(combinedMessage)
-            return true  // 为了确保新消息被添加，我们返回 true
-        case (UserRole.assistant.rawValue, UserRole.assistant.rawValue) where newMessage.content.count > lastMessage.content.count:
-            saveMessage(newMessage)
-            return true
-        default:
-            saveMessage(newMessage)
-            return true
-        }
+        // 如果以上情况都不匹配，或者是助手消息但内容没有更新，这里返回false
+        // 表示没有进行消息合并或更新
+        return false
     }
+
     
     private func removeMessage(_ localMessage: LocalMessage) {
         // 首先从本地数组中删除
@@ -265,103 +287,7 @@ class MessageManager: ObservableObject {
         }
     }
 }
-
-//新方法就是输入所有完整的消息，只比长短，然后更新消息
-
-
-
-//
-//    func testNetwork() {
-//        let testNetworkURL = URL(string: "https://service-ly7fdync-1251732024.jp.apigw.tencentcs.com/release/")
-//        var request = URLRequest(url: testNetworkURL!)
-//        request.httpMethod = "GET"
-//
-//        let task = URLSession.shared.dataTask(with: request) { [weak self] (data, response, error) in
-//            if let _ = error {
-//                // 处理错误，例如你可以打印错误信息，或者显示一个错误提示给用户
-//            } else if let _ = data {
-//                // 成功获取数据，更新 isTyping
-//                DispatchQueue.main.async {
-//                    self?.isTyping = true
-//                }
-//            }
-//        }
-//        task.resume()
-//    }
-//
-//    enum RequestType: String {
-//        case newMessage = "new-message"
-//        case appRestart = "app-restart"
-//    }
-//
-//    //这个方法是用来处理后台发送消息刷新的操作，因为新加载一个 loadMessage 可以引起 message 的变化，这样就能让前台的消息更新
-//    func reloadMessages() {
-//        messages = loadMessages()
-//    }
-
-
-
-
-
-//    func resetDialogue() {
-//        let currentDialogueID =  self.getOrCreateDialogueID().uuidString
-//        self.clearServerMessage(dialogueID: currentDialogueID,retryOnTimeout: true)
-//
-//        let userDefaults = UserDefaults.standard
-//        let dialogueIDKey = "DialogueID"
-//        let uuid = UUID()
-//        userDefaults.set(uuid.uuidString, forKey: dialogueIDKey)
-//        self.messages.removeAll()
-//        if let userDefaults = UserDefaults(suiteName: appGroupName) {
-//            userDefaults.removeObject(forKey: storageKey)
-//        }
-//        UserDefaults.standard.set(false, forKey: "CharacterConfigCompleted")
-//    }
-
-
-//    func getOrCreateDialogueID() -> UUID {
-//        let userDefaults = UserDefaults.standard
-//        let uuidKey = "DialogueID"
-//
-//        if let uuidString = userDefaults.string(forKey: uuidKey), let uuid = UUID(uuidString: uuidString) {
-//            return uuid
-//        } else {
-//            let uuid = UUID()
-//            userDefaults.set(uuid.uuidString, forKey: uuidKey)
-//            return uuid
-//        }
-//    }
-
-//    private func setupNotificationObserver() {
-//        NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-//            .sink { [weak self] _ in
-//
-//                //这下面有一个可能导致问题的代码
-//                self?.sendRequest(type: .appRestart)
-//                print("sending requests")
-//            }
-//            .store(in: &cancellables)
-//    }
-
-
-//    func clearServerMessage(dialogueID: String, retryOnTimeout: Bool = true) {
-//        guard let url = URL(string: deleteCharacterURL) else { return }
-//        var urlRequest = URLRequest(url: url)
-//        urlRequest.setValue(dialogueID, forHTTPHeaderField: "X-Dialogue-UUID")
-//        urlRequest.timeoutInterval = 5.0
-//        urlRequest.httpMethod = "DELETE"
-//
-//        URLSession.shared.dataTask(with: urlRequest) { data, response, error in
-//            if let error = error {
-//                //超时重试
-//                if (error as NSError).code == NSURLErrorTimedOut && retryOnTimeout {
-//                    self.clearServerMessage(dialogueID: dialogueID, retryOnTimeout: false)
-//                }
-//                return
-//            }
-//        }.resume()
-//    }
-
+    
 
 //本地存储的时候会有 MessageID
 extension LocalMessage {
