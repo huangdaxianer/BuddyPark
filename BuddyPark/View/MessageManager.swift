@@ -104,15 +104,21 @@ class MessageManager: ObservableObject {
     }
 
     
-    func appendFullMessage(_ newMessage: LocalMessage,
-                           lastUserReplyFromServer: String?,
-                           isFromBackground: Bool? = nil,
-                           completion: @escaping () -> Void) {
+    func appendFullMessage(_ newMessage: LocalMessage, lastUserReplyFromServer: String?, isFromBackground: Bool? = nil, completion: @escaping () -> Void) {
         if isFromBackground == true { self.messages = self.loadMessages() }
-        if newMessage.role == UserRole.user.rawValue || newMessage.content.last == "#" {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { self.isTyping = false }
+
+        // 检查最后一条用户消息是否与服务端提供的匹配
+        if let lastUserReplyFromServer = lastUserReplyFromServer {
+            // 查找最后一条用户角色的消息
+            if let lastUserMessage = messages.filter({ $0.role == UserRole.user.rawValue }).last {
+                print("Checking last user message for match.")
+                if lastUserMessage.content != lastUserReplyFromServer {
+                    print("Last user message does not match the server's last reply. Aborting message append.")
+                    return // 如果不匹配，则不添加新消息
+                }
+            }
         }
-        
+
         let shouldAppend = handleMessageAppending(newMessage)
         if shouldAppend {
             // 增加 newMessageNum 的值
@@ -123,6 +129,7 @@ class MessageManager: ObservableObject {
         }
         DispatchQueue.main.async { self.lastUpdated = Date() }
     }
+
     
     public func refreshAndLoadMessages() {
            // 重新获取 contact
