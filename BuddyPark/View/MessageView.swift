@@ -363,53 +363,12 @@ class AvatarUpdater: ObservableObject {
 //#if DEBUG
 //struct MessageView_Previews: PreviewProvider {
 //    static var previews: some View {
-//        let context = mockManagedObjectContext()
-//        let messageManager = mockMessageManager(context: context)
+//        // 假设你有一个有效的 characterid 和 messageManager 来生成预览
+//        let characterid: Int32 = 1 // 示例 characterid
+//        let messageManager = MessageManager() // 示例 messageManager，这里你需要根据实际情况创建或获取一个 MessageManager 实例
 //
-//        return MessageView(characterid: 1, context: context, messageManager: messageManager)
-//            .environment(\.managedObjectContext, context)
-//    }
-//
-//    static func mockManagedObjectContext() -> NSManagedObjectContext {
-//        // 创建一个内存中的 NSPersistentStoreCoordinator
-//        let modelURL = Bundle.main.url(forResource: "BuddyPark", withExtension: "momd")!
-//        let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)!
-//
-//        let coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
-//        do {
-//            try coordinator.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil as URL?, options: nil)
-//        } catch {
-//            fatalError("Unable to load persistent store")
-//        }
-//        let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-//        context.persistentStoreCoordinator = coordinator
-//        return context
-//    }
-//
-//    static func mockMessageManager(context: NSManagedObjectContext) -> MessageManager {
-//        // 创建一个测试 Contact
-//        let contact = Contact(context: context)
-//        contact.characterid = 1
-//        contact.name = "测试 AI"
-//
-//        // 创建一些测试消息
-//        for i in 1...10 {
-//            let message = Message(context: context)
-//            message.id = UUID()
-//            message.role = "user"
-//            message.content = "测试消息 \(i)#你好吗"
-//            message.timestamp = Date().addingTimeInterval(TimeInterval(i * 60))
-//
-//            contact.addToMessages(message)
-//        }
-//
-//        do {
-//            try context.save()
-//        } catch {
-//            fatalError("Failed to save test messages: \(error)")
-//        }
-//
-//        return MessageManager(characterid: 1, context: context)
+//        // 注意：这里移除了 context 参数，确保 MessageView 的初始化与其定义匹配
+//        return MessageView(characterid: characterid, messageManager: messageManager)
 //    }
 //}
 //#endif

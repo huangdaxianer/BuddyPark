@@ -45,6 +45,7 @@
 		F5C0ACC12AAE1AEC0081DD23 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54187C52AA848280082E195 /* CoreDataManager.swift */; };
 		F5D70A992A9CF76E0075D3FA /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D70A982A9CF76E0075D3FA /* SubscriptionManager.swift */; };
 		F5D73B3D2A9D10AF0075D3FA /* UserProfileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D73B3C2A9D10AF0075D3FA /* UserProfileManager.swift */; };
+		F5F3B7792B8398F5006B061A /* PushNotificationPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F3B7782B8398F5006B061A /* PushNotificationPromptView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -128,6 +129,7 @@
 		F59E83C02AA18C500076D9FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F5D70A982A9CF76E0075D3FA /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		F5D73B3C2A9D10AF0075D3FA /* UserProfileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileManager.swift; sourceTree = "<group>"; };
+		F5F3B7782B8398F5006B061A /* PushNotificationPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationPromptView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -246,6 +248,7 @@
 		F59E83AC2AA184D80076D9FD /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F5F3B7782B8398F5006B061A /* PushNotificationPromptView.swift */,
 				F52D65112AB9E8260006CF6F /* SubscriptionView.swift */,
 				F59005472A89F3E300BAF934 /* MessageListView.swift */,
 				F59005492A89F40500BAF934 /* MessageView.swift */,
@@ -460,6 +463,7 @@
 				F590053B2A86225F00BAF934 /* Extensions.swift in Sources */,
 				F55E423E2A947E40000BBB44 /* ColorExtension.swift in Sources */,
 				F519A9042AA8284B00A4569B /* CharacterManager.swift in Sources */,
+				F5F3B7792B8398F5006B061A /* PushNotificationPromptView.swift in Sources */,
 				F59005502A8A068F00BAF934 /* HomeViewModel.swift in Sources */,
 				F54187C62AA848280082E195 /* CoreDataManager.swift in Sources */,
 				F590054A2A89F40500BAF934 /* MessageView.swift in Sources */,

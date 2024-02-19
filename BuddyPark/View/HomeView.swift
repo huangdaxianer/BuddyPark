@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 struct HomeView: View {
     let viewContext = CoreDataManager.shared.mainManagedObjectContext
@@ -10,6 +11,7 @@ struct HomeView: View {
     @State private var isNavigatingToMessageView: Bool = false
     @Binding var isUserLoggedIn: Bool
     @State private var isOverlayShowing: Bool = false // 新增状态变量
+    @State private var isNotificationPromptViewShowing: Bool = false
 
     var body: some View {
         NavigationView {
@@ -50,9 +52,29 @@ struct HomeView: View {
                     isActive: $isNavigatingToMessageView
                 )
                 .hidden()
+                if isNotificationPromptViewShowing {
+                    PushNotificationPromptView(isPresented: $isNotificationPromptViewShowing)
+                                .transition(.opacity) // 添加一个简单的过渡效果
+                        }
+            }
+            
+        }
+        .onAppear {
+             checkPushNotificationAuthorization()
+         }
+    }
+    
+    private func checkPushNotificationAuthorization() {
+            UNUserNotificationCenter.current().getNotificationSettings { settings in
+                DispatchQueue.main.async {
+                    // 如果权限不是 .authorized，则表示用户没有打开推送通知
+                    if settings.authorizationStatus != .authorized {
+                        // 更新状态，显示弹窗
+                        self.isNotificationPromptViewShowing = true
+                    }
+                }
             }
         }
-    }
 }
 
 
