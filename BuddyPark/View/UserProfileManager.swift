@@ -17,8 +17,10 @@ class UserProfileManager: ObservableObject {
     }
     
     func getUserID() -> String? {
-        return UUID().uuidString
+        let defaults = UserDefaults.standard
+        return defaults.string(forKey: "userUUID")
     }
+
     
     func persistUser(_ user: User) {
         let defaults = UserDefaults.standard
@@ -46,8 +48,17 @@ class UserProfileManager: ObservableObject {
         defaults.set(description, forKey: "userDescription")
     }
     
-    func signInWithAppleID(identityToken: String, completion: @escaping (Result<User, Error>) -> Void) {
-        
+    func saveUserGender(_ gender: String) {
+        let defaults = UserDefaults.standard
+        defaults.set(gender, forKey: "userGender")
+    }
+    
+    func saveRoleGender(_ gender: String) {
+        let defaults = UserDefaults.standard
+        defaults.set(gender, forKey: "roleGender")
+    }
+    
+    func signInWithAppleID(identityToken: String, userGender: String, roleGender: String, userName: String, userBio: String, completion: @escaping (Result<User, Error>) -> Void) {
         let completeURLString = serviceURL + "auth"
         guard let url = URL(string: completeURLString) else {
             return
@@ -55,10 +66,17 @@ class UserProfileManager: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let parameters = ["identityToken": identityToken]
+
+        // 包含所有新增的用户信息参数
+        let parameters = [
+            "identityToken": identityToken,
+            "userGender": userGender, // 新增用户性别
+            "roleGender": roleGender, // 新增角色性别
+            "userName": userName, // 用户名称
+            "userBio": userBio // 用户描述
+        ]
         request.httpBody = try? JSONSerialization.data(withJSONObject: parameters)
-        
+
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             if let error = error {
                 DispatchQueue.main.async {
@@ -66,14 +84,14 @@ class UserProfileManager: ObservableObject {
                 }
                 return
             }
-            
+
             guard let data = data else {
                 DispatchQueue.main.async {
                     completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data"])))
                 }
                 return
             }
-            
+
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 print("Received JSON response:", json ?? "nil")
@@ -86,24 +104,30 @@ class UserProfileManager: ObservableObject {
                     }
                     return
                 }
-                
+
                 let user = User(uuid: uuid, isNewUser: isNewUser)
                 DispatchQueue.main.async {
                     self.persistUser(user)
                     let userDefaults = UserDefaults(suiteName: appGroupName)
                     userDefaults?.set(freeMessageLeft, forKey: "freeMessageLeft")
+                    // 这里保存用户的额外信息
+                    self.saveUserGender(userGender)
+                    self.saveRoleGender(roleGender)
+                    self.saveUserName(userName)
+                    self.saveUserDescription(userBio)
                     completion(.success(user))
                 }
-            }catch {
+            } catch {
                 print("JSON parsing error:", error.localizedDescription)
                 DispatchQueue.main.async {
                     completion(.failure(error))
                 }
             }
         }
-        
+
         task.resume()
     }
+
     
     
     func signOut() {

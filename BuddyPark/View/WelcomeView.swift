@@ -202,7 +202,7 @@ struct WelcomeView: View {
                                     if let appleIDCredential = authResults.credential as? ASAuthorizationAppleIDCredential,
                                        let identityTokenData = appleIDCredential.identityToken,
                                        let identityToken = String(data: identityTokenData, encoding: .utf8) {
-                                        UserProfileManager.shared.signInWithAppleID(identityToken: identityToken) { signInResult in
+                                        UserProfileManager.shared.signInWithAppleID(identityToken: identityToken, userGender: selectedGender, roleGender: selectedRoleGenders.joined(separator: ","), userName: userName, userBio: userBio) { signInResult in
                                             switch signInResult {
                                             case .success(_):
                                                 isUserLoggedIn = true
@@ -265,18 +265,18 @@ struct WelcomeView: View {
                 Button(action: {
                     let generator = UIImpactFeedbackGenerator(style: .light)
                     generator.impactOccurred()
-                    selectedGender = "男"
+                    selectedGender = "male"
                 }) {
-                    Image(selectedGender == "男" ? "male_selected" : "male_unselected")
+                    Image(selectedGender == "male" ? "male_selected" : "male_unselected")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
                 Button(action: {
                     let generator = UIImpactFeedbackGenerator(style: .light)
                     generator.impactOccurred()
-                    selectedGender = "女"
+                    selectedGender = "female"
                 }) {
-                    Image(selectedGender == "女" ? "female_selected" : "female_unselected")
+                    Image(selectedGender == "female" ? "female_selected" : "female_unselected")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
@@ -301,16 +301,16 @@ struct WelcomeView: View {
                 Button(action: {
                     let generator = UIImpactFeedbackGenerator(style: .light)
                     generator.impactOccurred()
-                    toggleRoleGender("男") }) {
-                        Image(selectedRoleGenders.contains("男") ? "male_character_selected" : "male_character_unselected")
+                    toggleRoleGender("male") }) {
+                        Image(selectedRoleGenders.contains("male") ? "male_character_selected" : "male_character_unselected")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                     }
                 Button(action: {
                     let generator = UIImpactFeedbackGenerator(style: .light)
                     generator.impactOccurred()
-                    toggleRoleGender("女") }) {
-                        Image(selectedRoleGenders.contains("女") ? "female_character_selected" : "female_character_unselected")
+                    toggleRoleGender("female") }) {
+                        Image(selectedRoleGenders.contains("female") ? "female_character_selected" : "female_character_unselected")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                     }
@@ -427,10 +427,4 @@ extension ConfigStep: Comparable {
         }
     }
 }
-
-//struct WelcomeView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        WelcomeView()
-//    }
-//}
 

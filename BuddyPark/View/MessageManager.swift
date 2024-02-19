@@ -3,6 +3,8 @@ import CoreData
 import AudioToolbox
 import Combine
 import UIKit
+import CryptoKit
+
 
 class SessionManager: ObservableObject {
     private var sessions: [Int32: MessageManager] = [:]
