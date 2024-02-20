@@ -107,30 +107,60 @@ class MessageManager: ObservableObject {
 
     
     func appendFullMessage(_ newMessage: LocalMessage, lastUserReplyFromServer: String?, isFromBackground: Bool? = nil, completion: @escaping () -> Void) {
-        if isFromBackground == true { self.messages = self.loadMessages() }
-
-        // 检查最后一条用户消息是否与服务端提供的匹配
-        if let lastUserReplyFromServer = lastUserReplyFromServer {
-            // 查找最后一条用户角色的消息
-            if let lastUserMessage = messages.filter({ $0.role == UserRole.user.rawValue }).last {
-                print("Checking last user message for match.")
-                if lastUserMessage.content != lastUserReplyFromServer {
-                    print("Last user message does not match the server's last reply. Aborting message append.")
-                    return // 如果不匹配，则不添加新消息
-                }
+        print("appendFullMessage called with newMessage: \(newMessage), lastUserReplyFromServer: \(lastUserReplyFromServer ?? "nil"), isFromBackground: \(isFromBackground ?? false)")
+        
+        if let isFromBG = isFromBackground, isFromBG == true {
+            self.messages = self.loadMessages()
+            print("Loaded messages from background")
+        }
+        
+        // 检查是否存在任何用户角色的消息
+        let hasUserMessages = messages.contains { $0.role == UserRole.user.rawValue }
+        print("hasUserMessages: \(hasUserMessages)")
+        
+        // 如果不存在任何用户角色的消息，或者lastUserReplyFromServer为nil，则直接添加新消息
+//        if !hasUserMessages || lastUserReplyFromServer == nil {
+//            print("No user messages or lastUserReplyFromServer is nil, saving new message")
+//            saveMessage(newMessage)
+//            completion()
+//            DispatchQueue.main.async {
+//                self.lastUpdated = Date()
+//                print("Updated lastUpdated date to \(self.lastUpdated)")
+//            }
+//            return
+//        }
+//        
+        // 存在用户消息且lastUserReplyFromServer不为nil时，进行匹配检查
+        if let lastUserReplyFromServer = lastUserReplyFromServer, let lastUserMessage = messages.filter({ $0.role == UserRole.user.rawValue }).last {
+            print("Checking last user message for match with server's last reply")
+            if lastUserMessage.content != lastUserReplyFromServer {
+                print("Last user message content (\(lastUserMessage.content)) does not match the server's last reply (\(lastUserReplyFromServer)). Aborting message append.")
+                return // 如果不匹配，则不添加新消息
             }
         }
-
+        
+        print("About to check if we should append message")
         let shouldAppend = handleMessageAppending(newMessage)
+        print("shouldAppend result: \(shouldAppend)")
         if shouldAppend {
             // 增加 newMessageNum 的值
             contact.newMessageNum += 1
+            contact.isNew = false
+            print("Incremented newMessageNum to \(contact.newMessageNum) and set isNew to false")
             context.refreshAllObjects()
             CoreDataManager.shared.saveChanges()
             completion()
+            print("Core data changes saved")
+        } else {
+            print("Message append not required, skipping")
         }
-        DispatchQueue.main.async { self.lastUpdated = Date() }
+        
+        DispatchQueue.main.async {
+            self.lastUpdated = Date()
+            print("Updated lastUpdated date to \(self.lastUpdated) outside of shouldAppend check")
+        }
     }
+
 
     
     public func refreshAndLoadMessages() {
@@ -169,6 +199,8 @@ class MessageManager: ObservableObject {
     }
     
     private func handleMessageAppending(_ newMessage: LocalMessage) -> Bool {
+        
+        
         guard let lastMessage = messages.last else {
             saveMessage(newMessage)
             return true // 当没有最后一条消息时，保存新消息并返回true
@@ -201,9 +233,6 @@ class MessageManager: ObservableObject {
             saveMessage(newMessage)
             return true
         }
-        
-        // 如果以上情况都不匹配，或者是助手消息但内容没有更新，这里返回false
-        // 表示没有进行消息合并或更新
         return false
     }
 
@@ -232,7 +261,9 @@ class MessageManager: ObservableObject {
     enum RequestType: String {
         case newMessage = "new-message"
         case appRestart = "app-restart"
+        case greetingMessage = "greeting-message"
     }
+
     
     func sendRequest(type: RequestType, retryOnTimeout: Bool = true) {
         let completeURLString = serviceURL + "sendMessage"
@@ -246,62 +277,69 @@ class MessageManager: ObservableObject {
         urlRequest.setValue(String(self.contact.characterid), forHTTPHeaderField: "X-characterid")
         urlRequest.setValue(UserProfileManager.shared.getUserID() ?? "", forHTTPHeaderField: "X-Userid")
         urlRequest.setValue(UserDefaults.standard.string(forKey: "deviceToken") ?? "", forHTTPHeaderField: "X-Device-Token")
-        
-        if type == .newMessage {
-            if SubscriptionManager.shared.canSendMessage() {
+
+        switch type {
+        case .newMessage, .appRestart:
+            // 现有逻辑，处理 newMessage 和 appRestart 类型的请求
+            if type == .newMessage && SubscriptionManager.shared.canSendMessage() {
                 let request = ServerRequest(messages: messages.map { $0.toServerMessage() })
-                
                 do {
                     let requestBody = try JSONEncoder().encode(request)
                     urlRequest.httpBody = requestBody
-                    print("sending message")
+                    urlRequest.httpMethod = "POST"
                 } catch {
                     print("Error encoding request body: \(error.localizedDescription)")
                     return
                 }
-                urlRequest.httpMethod = "POST"
             } else {
                 urlRequest.httpMethod = "GET"
             }
-            
-            
-            URLSession.shared.dataTask(with: urlRequest) { data, response, error in
-                if let error = error {
-                    print("Error fetching message: \(error.localizedDescription)")
-                    if (error as NSError).code == NSURLErrorTimedOut && retryOnTimeout {
-                        self.sendRequest(type: .appRestart, retryOnTimeout: false)
-                        print("错误了")
-                    }
-                    return
-                }
-                
-                if let data = data {
-                    let decoder = JSONDecoder()
-
-                    do {
-                        if let jsonResult = try? JSONSerialization.jsonObject(with: data, options: []) {
-                            print("Server Response:", jsonResult)
-                        } else {
-                            let responseString = String(data: data, encoding: .utf8) ?? "Unable to convert data to string"
-                            print("Server Response (String):", responseString)
-                        }
-                    } catch {
-                        print("Error decoding the response:", error)
-                    }
-                }
-
-            }.resume()
-        } else {
-            return
+        case .greetingMessage:
+            let predefinedMessage: [String: Any] = [
+                "role": "user",
+                "content": "你好呀",
+                "timestamp": Date().timeIntervalSince1970
+            ]
+            let predefinedJSON: [String: Any] = [
+                "messages": [predefinedMessage]
+            ]
+            do {
+                let requestBody = try JSONSerialization.data(withJSONObject: predefinedJSON, options: [])
+                urlRequest.httpBody = requestBody
+                urlRequest.httpMethod = "POST"
+            } catch {
+                print("Error encoding predefined JSON to request body: \(error.localizedDescription)")
+                return
+            }
         }
+
+        print("Request URL: \(urlRequest.url?.absoluteString ?? "No URL")")
+        print("Request Method: \(urlRequest.httpMethod ?? "No Method")")
+        print("Request Headers: \(urlRequest.allHTTPHeaderFields ?? [:])")
+        if let httpBody = urlRequest.httpBody, let requestBodyString = String(data: httpBody, encoding: .utf8) {
+            print("Request Body: \(requestBodyString)")
+        }
+
+        URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+            if let error = error {
+                print("Error fetching message: \(error.localizedDescription)")
+                if (error as NSError).code == NSURLErrorTimedOut && retryOnTimeout {
+                    self.sendRequest(type: .appRestart, retryOnTimeout: false) // 这里递归调用处理超时重试
+                }
+                return
+            }
+
+            if let data = data {
+                let responseString = String(data: data, encoding: .utf8) ?? "Unable to convert data to string"
+                print("Server Response:", responseString)
+            }
+        }.resume()
     }
 }
     
-
-//本地存储的时候会有 MessageID
 extension LocalMessage {
     func toServerMessage() -> ServerMessage {
-        ServerMessage(role: role, content: content, timestamp: timestamp) // 将 timestamp 也转换过去
+        ServerMessage(role: role, content: content, timestamp: timestamp)
     }
 }
 

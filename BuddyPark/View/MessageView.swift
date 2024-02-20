@@ -360,15 +360,3 @@ class AvatarUpdater: ObservableObject {
     }
 }
 
-//#if DEBUG
-//struct MessageView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        // 假设你有一个有效的 characterid 和 messageManager 来生成预览
-//        let characterid: Int32 = 1 // 示例 characterid
-//        let messageManager = MessageManager() // 示例 messageManager，这里你需要根据实际情况创建或获取一个 MessageManager 实例
-//
-//        // 注意：这里移除了 context 参数，确保 MessageView 的初始化与其定义匹配
-//        return MessageView(characterid: characterid, messageManager: messageManager)
-//    }
-//}
-//#endif

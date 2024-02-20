@@ -20,7 +20,7 @@ struct HomeView: View {
                 ZStack {
                     switch selectedTab {
                     case 0:
-                        SwipeView(profiles: $characterData.characters, onSwiped: viewModel.onSwiped)
+                        SwipeView(profiles: $characterData.characters, onSwiped: viewModel.onSwiped, sessionManager: sessionManager)
                             .environmentObject(characterData)
                     case 1:
                         MessageListView(selectedCharacterId: $selectedCharacterId)
@@ -76,7 +76,6 @@ struct HomeView: View {
             }
         }
 }
-
 
 struct CustomTabBar: View {
     @Binding var selectedTab: Int

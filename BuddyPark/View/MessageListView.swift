@@ -8,7 +8,8 @@ struct MessageListView: View {
     
     @FetchRequest(
         entity: Contact.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Contact.name, ascending: true)]
+        sortDescriptors: [NSSortDescriptor(keyPath: \Contact.name, ascending: true)],
+        predicate: NSPredicate(format: "isNew == %@", NSNumber(value: false)) // 添加这行来过滤 isNew 为 false 的结果
     ) private var contacts: FetchedResults<Contact>
     
     var body: some View {
