@@ -9,7 +9,7 @@ struct MessageListView: View {
     @FetchRequest(
         entity: Contact.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Contact.name, ascending: true)],
-        predicate: NSPredicate(format: "isNew == %@", NSNumber(value: false)) // 添加这行来过滤 isNew 为 false 的结果
+        predicate: NSPredicate(format: "isNew == %@", NSNumber(value: false)) //过滤到全新添加，没有消息的联系人
     ) private var contacts: FetchedResults<Contact>
     
     var body: some View {
@@ -55,12 +55,16 @@ struct MessageRowView: View {
     @State private var isSelected: Bool = false // 添加这个状态来控制导航
 
     var lastMessage: Message? {
-        return (contact.messages?.array as? [Message])?.last
+        let lastMsg = (contact.messages?.array as? [Message])?.last
+        print("Last message fetched: \(String(describing: lastMsg))")
+        return lastMsg
     }
-    
+
     var lastMessageTimestamp: Date? {
-        return (contact.messages?.lastObject as? Message)?.timestamp
-    }
+        let timestamp = (contact.messages?.lastObject as? Message)?.timestamp
+        print("Timestamp of last message: \(String(describing: timestamp))") // Print the timestamp of the last message
+        return timestamp
+    }   
 
     var processedLastMessage: String {
         guard let content = lastMessage?.content else { return "" }

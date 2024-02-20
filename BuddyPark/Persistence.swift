@@ -31,7 +31,7 @@ struct PersistenceController {
                let contact = Contact(context: viewContext)
                contact.characterid = character.characterid
                contact.name = character.name
-               contact.lastMessage = "Hello, \(character.name ?? "")!"
+               //contact.lastMessage = "Hello, \(character.name ?? "")!"
                contact.updateTime = Date()
                contact.character = character // 设置一对一双向匹配
            }

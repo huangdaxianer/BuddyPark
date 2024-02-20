@@ -18,7 +18,6 @@
         <attribute name="characterid" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isNew" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="lastMessage" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="newMessageNum" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="updateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>

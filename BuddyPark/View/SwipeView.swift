@@ -19,7 +19,7 @@ struct SwipeView: View {
                 .frame(width: 130)
             VStack {
                 ZStack {
-                    Text("no-more-profiles").font(.title3).fontWeight(.medium).foregroundColor(Color(UIColor.systemGray)).multilineTextAlignment(.center)
+                    Text("正在加载中...").font(.title3).fontWeight(.medium).foregroundColor(Color(UIColor.systemGray)).multilineTextAlignment(.center)
                     ForEach(profiles.reversed()) { profile in
                         SwipeableCardView(model: profile, swipeAction: $swipeAction, sessionManager: sessionManager, onSwiped: handleCardSwipedInternal)
                             .offset(x: profile == profiles.last ? 0 : 10, y: profile == profiles.last ? 0 : 10)
